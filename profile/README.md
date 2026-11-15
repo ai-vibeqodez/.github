@@ -29,6 +29,12 @@ The AI developer orchestrates a diverse and cutting‑edge ecosystem:
 * **WPF (Windows Presentation Foundation) 🖼️** — UI framework for building rich desktop client applications on Windows.
 * **CommunityToolkit.Mvvm 🎯** — .NET library with MVVM helpers, behaviors, and services; streamlines WPF app development by providing ready‑to‑use components for data binding, commands, and messaging.
 
+### Native & C++23 🧊
+* **CMake ⚙️** — cross‑platform build system; generates native build configs for Ninja, MSVC, Clang, and GCC.
+* **C++23 🧱** — latest C++ standard with ranges, concepts, coroutines, std::expected, and more; enables modern, expressive native code.
+* **Catch2 v3 🧪** — modern C++ testing framework with BDD‑style macros, structured tests, and automatic benchmarking; generates coverage‑friendly binaries.
+* **ImGUI 🎮** — immediate‑mode graphical UI library for debug tools, overlays, and prototyping; planned for native tooling and in‑app debugging panels.
+
 ### Persistence 💾
 * **SQLite 🥄** — embedded, serverless, self‑contained SQL database; ideal for prototypes, microservices, and mobile apps.
 * **PostgreSQL 🐘** — open‑source, advanced relational database; supports JSON, full‑text search, geospatial data, and ACID transactions.

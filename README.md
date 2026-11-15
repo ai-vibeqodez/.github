@@ -38,6 +38,9 @@ echo "feat: test" > /tmp/test.txt
 
 ## Что внутри
 
+### 🐧 DSH в Docker
+Инструкция по запуску DeepSeek Harness в Docker: [README-dsh-docker.md](README-dsh-docker.md)
+
 ### 🐳 LLM Server
 llama.cpp сервер для запуска LLM-моделей через Docker с GPU-ускорением:
 
@@ -90,17 +93,6 @@ GitHub Actions шаблоны для CI/CD: [ci/README.md](ci/README.md)
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [SemVer]: https://semver.org/spec/v2.0.0.html
-
-## Структура
-
-| Папка | Что внутри |
-|-------|-----------|
-| `ci/` | GitHub Actions: reusable workflows и composite-экшены |
-| `scripts/` | Скрипты для автоматизации релизов |
-| `skills/` | AI-скиллы для аналитики, планирования и выполнения задач |
-| `templates/` | Шаблоны документов: OVERVIEW, задачи, README, CHANGELOG, CONTRIBUTING |
-| `.editorconfig` | Единый стиль кода (utf-8, LF, отступы) |
-| `docker-compose.yml` | llama.cpp сервер для локального запуска LLM |
 
 ## Лицензия
 MIT
