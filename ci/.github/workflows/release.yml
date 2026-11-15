@@ -2,8 +2,10 @@
 #
 # Скопируй этот файл в свой проект как .github/workflows/release.yml
 #
-# Триггер: пуш релизного тега v* (например, через `make release`).
-# Использует composite action `changelog-release` для генерации release body.
+# Триггеры:
+#   - push тега v* → релиз из CHANGELOG
+#   - workflow_dispatch → ручной релиз с версией (input) или snapshot (v0.0.<run_number>)
+# Использует composite actions: `release-version` + `changelog-release`
 
 name: Release
 
@@ -11,6 +13,12 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Semantic version without v prefix (e.g. 1.2.3). Leave empty for snapshot.'
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -23,14 +31,25 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve version
+        id: version
+        uses: ai-warevo/.github/ci/actions/release-version@main
+        with:
+          version: ${{ github.event.inputs.version }}
 
       - name: Generate Release Body
         id: changelog
         uses: ai-warevo/.github/ci/actions/changelog-release@main
         with:
-          tag: ${{ github.ref_name }}
+          tag: ${{ steps.version.outputs.release_version }}
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.version.outputs.release_version }}
+          name: ${{ steps.version.outputs.release_version }}
           body_path: ${{ steps.changelog.outputs.body_path }}
+          generate_release_notes: false
