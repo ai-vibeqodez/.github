@@ -1,5 +1,11 @@
 # 🏗️ ai-warevo — Infrastructure
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<br />
+[![CI](https://github.com/ai-warevo/.github/actions/workflows/example-ci.yml/badge.svg)](https://github.com/ai-warevo/.github/actions/workflows/example-ci.yml)
+<br />
+[![Coverage](https://raw.githubusercontent.com/ai-warevo/.github/refs/heads/badges/coverage.svg)](https://ai-warevo.github.io/.github/example/)
+
 > Скиллы, шаблоны, документация, CI/CD и настройки редакторов для всех проектов.
 
 Общий репозиторий инфраструктуры **ai-warevo**. Содержит переиспользуемые артефакты, которые применяются в любых проектах — независимо от стека (C#, Python, JS, C++ и др.).
