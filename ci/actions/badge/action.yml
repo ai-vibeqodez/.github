@@ -62,26 +62,26 @@ runs:
         OUTPUT_PATH="${{ github.workspace }}/${FILENAME}"
         mkdir -p "$(dirname "$OUTPUT_PATH")"
 
-        cat <<EOF > "$OUTPUT_PATH"
-<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}">
-    <linearGradient id="b" x2="0" y2="100%">
-        <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
-        <stop offset="1" stop-opacity=".1"/>
-    </linearGradient>
-    <mask id="a">
-        <rect width="${WIDTH}" height="${HEIGHT}" rx="3" fill="#fff"/>
-    </mask>
-    <g mask="url(#a)">
-        <rect width="${HALF_WIDTH}" height="${HEIGHT}" fill="${BG_COLOR_LEFT}"/>
-        <rect x="${HALF_WIDTH}" width="${HALF_WIDTH}" height="${HEIGHT}" fill="${BG_COLOR_RIGHT}"/>
-        <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#b)"/>
-    </g>
-    <g fill="${TEXT_COLOR}" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
-        <text x="${QUARTER_WIDTH}" y="15" fill="#010101" fill-opacity=".3">${TEXT_LEFT}</text>
-        <text x="${QUARTER_WIDTH}" y="14">${TEXT_LEFT}</text>
-        <text x="${THREE_QUARTERS}" y="15" fill="#010101" fill-opacity=".3">${TEXT_RIGHT}</text>
-        <text x="${THREE_QUARTERS}" y="14">${TEXT_RIGHT}</text>
-    </g>
-</svg>
-EOF
+        cat <<EOF | sed 's/^        //' > "$OUTPUT_PATH"
+        <svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}">
+            <linearGradient id="b" x2="0" y2="100%">
+                <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
+                <stop offset="1" stop-opacity=".1"/>
+            </linearGradient>
+            <mask id="a">
+                <rect width="${WIDTH}" height="${HEIGHT}" rx="3" fill="#fff"/>
+            </mask>
+            <g mask="url(#a)">
+                <rect width="${HALF_WIDTH}" height="${HEIGHT}" fill="${BG_COLOR_LEFT}"/>
+                <rect x="${HALF_WIDTH}" width="${HALF_WIDTH}" height="${HEIGHT}" fill="${BG_COLOR_RIGHT}"/>
+                <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#b)"/>
+            </g>
+            <g fill="${TEXT_COLOR}" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
+                <text x="${QUARTER_WIDTH}" y="15" fill="#010101" fill-opacity=".3">${TEXT_LEFT}</text>
+                <text x="${QUARTER_WIDTH}" y="14">${TEXT_LEFT}</text>
+                <text x="${THREE_QUARTERS}" y="15" fill="#010101" fill-opacity=".3">${TEXT_RIGHT}</text>
+                <text x="${THREE_QUARTERS}" y="14">${TEXT_RIGHT}</text>
+            </g>
+        </svg>
+        EOF
         echo "filepath=${OUTPUT_PATH}" >> $GITHUB_OUTPUT
