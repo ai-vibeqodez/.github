@@ -45,4 +45,4 @@
 **Выход**: SVG-файл бейджа, путь через `badge_path`
 **Сложность**: Низкая
 **Зависимости**: Нет
-**Использование**: `uses: ./ci/actions/badge`
+**Использование**: `uses: ai-warevo/.github/ci/actions/badge@main`
