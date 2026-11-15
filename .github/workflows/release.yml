@@ -56,13 +56,6 @@ jobs:
           build_type: Release
           extra_args: -DAW_EXAMPLE_BUILD_TESTS=OFF
 
-      - name: Debug - list build output
-        run: |
-          echo "=== ls -la example/build/ ==="
-          ls -la example/build/
-          echo "=== find example/build/ -name '*.so*' -o -name 'host' ==="
-          find example/build/ -maxdepth 2 \( -name '*.so*' -o -name 'host' -o -name 'libplugin*' \) -type f
-
       - name: Upload libplugin.so
         uses: actions/upload-artifact@v4
         with:
@@ -95,41 +88,17 @@ jobs:
         with:
           tag: ${{ needs.build-example.outputs.release_version }}
 
-      - name: Debug - list available artifacts
-        run: |
-          echo "=== Release version ==="
-          echo "${{ needs.build-example.outputs.release_version }}"
-          echo "=== Artifact names that will be downloaded ==="
-          echo "  libplugin-${{ needs.build-example.outputs.release_version }}"
-          echo "  host-${{ needs.build-example.outputs.release_version }}"
-          echo "=== List all artifacts via API ==="
-          curl -s -H "Authorization: token ${{ github.token }}" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/artifacts" \
-            | jq '.artifacts[] | {name, size_in_bytes, created_at}' || echo "API call failed"
-          echo "=== ls -la artifacts/ ==="
-          ls -la artifacts/ 2>/dev/null || echo "artifacts/ dir does not exist yet"
-
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: libplugin-${{ needs.build-example.outputs.release_version }}
           path: artifacts
 
-      - name: Debug - after download libplugin
-        run: |
-          echo "=== ls -laR artifacts/ ==="
-          ls -laR artifacts/
-
       - name: Download host artifact
         uses: actions/download-artifact@v4
         with:
           name: host-${{ needs.build-example.outputs.release_version }}
           path: artifacts
-
-      - name: Debug - after download host
-        run: |
-          echo "=== ls -laR artifacts/ ==="
-          ls -laR artifacts/
 
       - name: Generate checksums
         id: checksums_generate
