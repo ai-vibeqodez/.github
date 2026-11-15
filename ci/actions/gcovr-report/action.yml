@@ -27,13 +27,13 @@ inputs:
     required: false
     default: 'build'
   source_filter:
-    description: '--filter patterns (space-separated path prefixes relative to source root, e.g. "src/ include/aw/tpl/")'
+    description: '--filter patterns (space-separated path prefixes that appear in paths relative to -r, e.g. "src/ include/aw/tpl/")'
     required: false
     default: ''
   exclude:
     description: '--exclude pattern (may be specified multiple times, comma-separated)'
     required: false
-    default: 'build/_deps/*'
+    default: '_deps/*'
   output_dir:
     description: 'Output directory for HTML report'
     required: false
@@ -72,10 +72,10 @@ runs:
         set -euo pipefail
         mkdir -p "$OUTPUT_DIR"
 
-        # Source root must be the source directory (not build dir) so that
-        # --filter patterns match relative paths like "plugin/src/".
-        # With -r build/ the relative paths would start with "../" and never match.
-        SOURCE_ROOT="${SOURCE_DIR}"
+        # Source root is the build directory. gcovr finds .gcda/.gcno files
+        # under -r. The --filter patterns match against file paths relative
+        # to -r (e.g. "../../plugin/src/plugin.cpp" contains "plugin/src/").
+        SOURCE_ROOT="${SOURCE_DIR}/${BUILD_DIR}"
 
         # Collect exclude args
         EXCLUDE_ARGS=""
@@ -93,10 +93,11 @@ runs:
 
         # Debug: list coverage data files
         echo "=== Coverage data files ==="
+        echo "SOURCE_ROOT=$SOURCE_ROOT"
         echo "-- .gcda files:"
-        find "$SOURCE_ROOT" -name "*.gcda" -not -path "*/build/_deps/*" 2>/dev/null | head -20
+        find "$SOURCE_ROOT" -name "*.gcda" -not -path "*_deps/*" 2>/dev/null | head -20
         echo "-- .gcno files:"
-        find "$SOURCE_ROOT" -name "*.gcno" -not -path "*/build/_deps/*" 2>/dev/null | head -20
+        find "$SOURCE_ROOT" -name "*.gcno" -not -path "*_deps/*" 2>/dev/null | head -20
 
         echo "gcovr -r $SOURCE_ROOT $FILTER_ARGS $EXCLUDE_ARGS --xml $XML_PATH --html-details $OUTPUT_DIR/index.html"
 
