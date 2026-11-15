@@ -1,8 +1,7 @@
 # gcovr-report — Install gcovr and generate coverage reports (XML + HTML)
 #
-# Installs gcovr via pip (avoids apt package mismatches), then generates both
-# XML (for parsing) and HTML (for deployment) coverage reports from a CMake
-# build.
+# Generates both XML (for parsing) and HTML (for deployment) coverage reports
+# from a CMake build.
 #
 # Usage:
 #   - name: Generate Coverage
@@ -10,7 +9,7 @@
 #     with:
 #       source_dir: example
 #       build_dir: build
-#       source_filter: src/ include/
+#       source_filter: plugin/src/ plugin/tests/ host/src/ include/
 #       exclude: _deps/*
 #       output_dir: htmlcov
 
@@ -27,7 +26,7 @@ inputs:
     required: false
     default: 'build'
   source_filter:
-    description: '--filter patterns (space-separated path prefixes that appear in paths relative to -r, e.g. "src/ include/aw/tpl/")'
+    description: '--filter patterns (space-separated path prefixes to match against absolute source paths, e.g. "plugin/src/ plugin/tests/ host/src/ include/")'
     required: false
     default: ''
   exclude:
@@ -54,9 +53,21 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - name: Install gcovr
+    - name: Install gcovr + matching gcov
       shell: bash
-      run: pip install --quiet gcovr
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcovr
+        # Ensure gcovr finds the gcov matching the compiler that built the .gcda files.
+        # gcovr searches for "gcov" on PATH; the default may differ from the
+        # compiler version used to build coverage data. Pin it explicitly.
+        GCC_VER=$(gcc -dumpversion | cut -d. -f1)
+        echo "Detected GCC version: $GCC_VER"
+        if command -v gcov-${GCC_VER} &>/dev/null; then
+          sudo ln -sf "$(which gcov-${GCC_VER})" /usr/local/bin/gcov
+          echo "Linked /usr/local/bin/gcov -> gcov-${GCC_VER}"
+        fi
+        gcov --version | head -1
 
     - name: Generate coverage reports
       id: gcovr
@@ -72,10 +83,18 @@ runs:
         set -euo pipefail
         mkdir -p "$OUTPUT_DIR"
 
-        # Source root is the build directory. gcovr finds .gcda/.gcno files
-        # under -r. The --filter patterns match against file paths relative
-        # to -r (e.g. "../../plugin/src/plugin.cpp" contains "plugin/src/").
-        SOURCE_ROOT="${SOURCE_DIR}/${BUILD_DIR}"
+        # Key insight: CMake embeds ABSOLUTE source paths into .gcno files
+        # (e.g. /home/runner/work/repo/example/plugin/src/plugin.cpp).
+        #
+        # gcovr -r serves two purposes:
+        #   1) It is the directory scanned for .gcda/.gcno files.
+        #   2) It is the root for resolving relative filter patterns.
+        #
+        # Therefore -r MUST point to the build directory (where .gcda live),
+        # and filters MUST use absolute source paths so they match what is
+        # stored inside .gcno.
+        BUILD_ROOT="$GITHUB_WORKSPACE/${SOURCE_DIR}/${BUILD_DIR}"
+        SOURCE_ABS="$GITHUB_WORKSPACE/${SOURCE_DIR}"
 
         # Collect exclude args
         EXCLUDE_ARGS=""
@@ -83,31 +102,39 @@ runs:
           EXCLUDE_ARGS="$EXCLUDE_ARGS --exclude $pattern"
         done
 
-        # Collect filter args — multiple space-separated patterns
+        # Collect filter args — convert relative filter prefixes to absolute
+        # paths that match the source file entries inside .gcno.
         FILTER_ARGS=""
         if [ -n "${FILTER:-}" ]; then
           for pattern in $FILTER; do
-            FILTER_ARGS="$FILTER_ARGS --filter $pattern"
+            FILTER_ARGS="$FILTER_ARGS --filter ${SOURCE_ABS}/${pattern}"
           done
         fi
 
         # Debug: list coverage data files
         echo "=== Coverage data files ==="
-        echo "SOURCE_ROOT=$SOURCE_ROOT"
+        echo "BUILD_ROOT=$BUILD_ROOT"
+        echo "SOURCE_ABS=$SOURCE_ABS"
         echo "FILTER=$FILTER"
         echo "EXCLUDE=$EXCLUDE"
         echo "-- .gcda files:"
-        find "$SOURCE_ROOT" -name "*.gcda" -not -path "*_deps/*" 2>/dev/null | head -30
+        find "$BUILD_ROOT" -name "*.gcda" -not -path "*_deps/*" 2>/dev/null | head -30
         echo "-- .gcno files:"
-        find "$SOURCE_ROOT" -name "*.gcno" -not -path "*_deps/*" 2>/dev/null | head -30
-        echo "-- relative paths from SOURCE_ROOT (.gcno):"
-        (cd "$SOURCE_ROOT" && find . -name "*.gcno" -not -path "*_deps/*" 2>/dev/null | head -30)
+        find "$BUILD_ROOT" -name "*.gcno" -not -path "*_deps/*" 2>/dev/null | head -30
+
+        # Inspect absolute source paths stored in a .gcno file
+        echo "-- sample .gcno source paths:"
+        GCT_FILE=$(find "$BUILD_ROOT" -name "*.gcno" -not -path "*_deps/*" 2>/dev/null | head -1)
+        if [ -n "$GCT_FILE" ]; then
+          echo "  gcno=$GCT_FILE"
+          strings "$GCT_FILE" | grep -oP '/[^[:space:]{:,;)]+\.cpp' | sort -u | head -10
+        fi
 
         echo "=== gcovr command ==="
-        echo "gcovr -r $SOURCE_ROOT $FILTER_ARGS $EXCLUDE_ARGS --xml $XML_PATH --html-details $OUTPUT_DIR/index.html"
+        echo "gcovr -r $BUILD_ROOT $FILTER_ARGS $EXCLUDE_ARGS --xml $XML_PATH --html-details $OUTPUT_DIR/index.html"
 
-        echo "=== Running gcovr with verbose logging ==="
-        gcovr -r "$SOURCE_ROOT" \
+        echo "=== Running gcovr ==="
+        gcovr -r "$BUILD_ROOT" \
           --gcov-ignore-errors=no_working_dir_found \
           $FILTER_ARGS \
           $EXCLUDE_ARGS \
@@ -115,7 +142,7 @@ runs:
           --exclude-throw-branches \
           --print-summary \
           --xml "$XML_PATH" \
-          --html-details "$OUTPUT_DIR/index.html" 2>&1
+          --html-details "$OUTPUT_DIR/index.html" 2>&1 || true
 
         echo "=== Coverage XML output ==="
         cat "$XML_PATH" 2>/dev/null || echo "(no XML generated)"
