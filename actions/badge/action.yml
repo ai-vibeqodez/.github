@@ -1,0 +1,77 @@
+name: 'SVG Badge Generator'
+description: 'Генерирует кастомные SVG бейджики'
+inputs:
+  width:
+    description: 'Общая ширина SVG'
+    required: false
+    default: '120'
+  height:
+    description: 'Высота SVG'
+    required: false
+    default: '20'
+  text_left:
+    description: 'Текст на левой половине'
+    required: false
+    default: 'coverage'
+  text_right:
+    description: 'Текст на правой половине'
+    required: false
+    default: '80%'
+  bg_color_left:
+    description: 'Цвет левой части'
+    required: false
+    default: '#555'
+  bg_color_right:
+    description: 'Цвет правой части'
+    required: false
+    default: '#44cc11'
+  text_color:
+    description: 'Цвет текста'
+    required: false
+    default: '#fff'
+  filename:
+    description: 'Имя выходного файла'
+    required: false
+    default: 'badge.svg'
+
+outputs:
+  badge_path:
+    description: 'Путь к созданному файлу'
+    value: ${{ steps.generate.outputs.filepath }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Generate SVG
+      id: generate
+      shell: bash
+      run: |
+        WIDTH=${{ inputs.width }}
+        HEIGHT=${{ inputs.height }}
+        HALF_WIDTH=$(( WIDTH / 2 ))
+        QUARTER_WIDTH=$(( WIDTH / 4 ))
+        THREE_QUARTERS=$(( WIDTH * 3 / 4 ))
+        
+        cat <<EOF > "${{ github.workspace }}/${{ inputs.filename }}"
+        <svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}">
+            <linearGradient id="b" x2="0" y2="100%">
+                <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
+                <stop offset="1" stop-opacity=".1"/>
+            </linearGradient>
+            <mask id="a">
+                <rect width="${WIDTH}" height="${HEIGHT}" rx="3" fill="#fff"/>
+            </mask>
+            <g mask="url(#a)">
+                <rect width="${HALF_WIDTH}" height="${HEIGHT}" fill="${{ inputs.bg_color_left }}"/>
+                <rect x="${HALF_WIDTH}" width="${HALF_WIDTH}" height="${HEIGHT}" fill="${{ inputs.bg_color_right }}"/>
+                <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#b)"/>
+            </g>
+            <g fill="${{ inputs.text_color }}" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
+                <text x="${QUARTER_WIDTH}" y="15" fill="#010101" fill-opacity=".3">${{ inputs.text_left }}</text>
+                <text x="${QUARTER_WIDTH}" y="14">${{ inputs.text_left }}</text>
+                <text x="${THREE_QUARTERS}" y="15" fill="#010101" fill-opacity=".3">${{ inputs.text_right }}</text>
+                <text x="${THREE_QUARTERS}" y="14">${{ inputs.text_right }}</text>
+            </g>
+        </svg>
+        EOF
+        echo "filepath=${{ github.workspace }}/${{ inputs.filename }}" >> $GITHUB_OUTPUT

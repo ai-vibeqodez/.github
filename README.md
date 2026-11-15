@@ -58,6 +58,14 @@ AI-скиллы для автоматизации разработки:
 
 Поддерживаемые стеки: Node.js, Python, C#, C++, Go, Rust, Java
 
+### 🎭 GitHub Actions
+
+Переиспользуемые кастомные экшены для CI/CD:
+
+| Экшен | Назначение |
+|-------|-----------|
+| [actions/badge](actions/badge/README.md) | Генератор кастомных SVG-бейджей (покрытие, статус, метрики) |
+
 ### 📚 Документация
 - [SKILLS.md](SKILLS.md) — каталог всех скиллов с входом/выходом, сложностью и зависимостями
 
@@ -83,6 +91,10 @@ AI-скиллы для автоматизации разработки:
 │   └── .github/workflows/
 │       ├── ci.yml
 │       └── test.yml
+├── actions/
+│   └── badge/
+│       ├── action.yml
+│       └── README.md
 ├── skills/
 │   ├── analyst/SKILL.md
 │   ├── executor/SKILL.md
