@@ -92,10 +92,13 @@ jobs:
         run: |
           echo "=== Release version ==="
           echo "${{ needs.build-example.outputs.release_version }}"
-          echo "=== Listing artifacts from build job ==="
-          gh run view ${{ github.run_id }} --json jobs -q '.jobs[].name' || true
-          echo "=== Checking artifact names ==="
-          gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts[]?.name' || echo "gh api failed"
+          echo "=== Artifact names that will be downloaded ==="
+          echo "  libplugin-${{ needs.build-example.outputs.release_version }}"
+          echo "  host-${{ needs.build-example.outputs.release_version }}"
+          echo "=== List all artifacts via API ==="
+          curl -s -H "Authorization: token ${{ github.token }}" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/artifacts" \
+            | jq '.artifacts[] | {name, size_in_bytes, created_at}' || echo "API call failed"
           echo "=== ls -la artifacts/ ==="
           ls -la artifacts/ 2>/dev/null || echo "artifacts/ dir does not exist yet"
 
