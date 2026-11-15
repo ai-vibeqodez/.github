@@ -14,6 +14,12 @@ Maintainer notes:
 
 ## [Unreleased]
 
+### Fixed
+
+- `gcovr-report`: fix `source_root` resolution — use `source_dir` instead of `source_dir/build_dir` as source root
+- `coverage-parser`: replace `python3` XML parsing with `xmllint` (no python3 dependency)
+- `docker-build-push`: update `docker/setup-buildx-action` from `v3` to `v4`
+
 ## [1.0.6] - 2026-11-15
 
 ### Fixed
