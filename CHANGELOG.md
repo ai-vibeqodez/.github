@@ -14,6 +14,26 @@ Maintainer notes:
 
 ## [Unreleased]
 
+### Added
+
+- Composite action `cmake-build`: CMake configure + build wrapper
+- Composite action `ctest-run`: CTest execution wrapper
+- Composite action `gcovr-report`: gcovr install + coverage report generation (XML + HTML)
+- Composite action `badge-deploy`: SVG badge isolation + GitHub Pages deploy
+- Composite action `coverage-html-deploy`: Coverage HTML deploy to gh-pages
+- Composite action `docker-build-push`: Docker Buildx + login + build-push pipeline
+
+### Changed
+
+- `example-ci.yml`: simplified from 135 to 95 lines using new composite actions
+- `release.yml`: simplified from 156 to 148 lines using `docker-build-push`
+- `test.yml`: simplified using `badge-deploy` and `coverage-html-deploy`, added C++ stubs
+- `ci.yml`: C++ stubs updated to reference `cmake-build` and `ctest-run`
+
+### Removed
+
+- `ci/.github/workflows/release.yml`: deleted (exact duplicate of production release.yml)
+
 ## [0.7.10] - 2026-11-15
 
 ### Fixed
