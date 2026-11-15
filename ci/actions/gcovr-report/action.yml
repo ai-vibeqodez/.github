@@ -114,9 +114,8 @@ runs:
           --exclude-unreachable-branches \
           --exclude-throw-branches \
           --print-summary \
-          --verbose=2 \
           --xml "$XML_PATH" \
-          --html-details "$OUTPUT_DIR/index.html" 2>&1 || true
+          --html-details "$OUTPUT_DIR/index.html" 2>&1
 
         echo "=== Coverage XML output ==="
         cat "$XML_PATH" 2>/dev/null || echo "(no XML generated)"
