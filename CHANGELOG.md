@@ -14,6 +14,8 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.0.5] - 2026-11-15
+
 ### Fixed
 
 - `release.yml`: add build output listing before artifact upload to debug missing libplugin.so
