@@ -195,20 +195,20 @@ int main(int argc, char* argv[]) {
 
     // Вызываем функции (dereference std::optional first)
     std::cout << "\n--- Plugin Info ---\n";
-    std::cout << std::format("  version:     {}\n", fn_version->operator()());
-    std::cout << std::format("  version_str: {}\n", fn_version_s->operator()());
+    std::cout << std::format("  version:     {}\n", (*fn_version)());
+    std::cout << std::format("  version_str: {}\n", (*fn_version_s)());
 
     std::cout << "\n--- Operations ---\n";
     int a = 42, b = 13;
     for (int op = 0; op <= 2; ++op) {
         std::cout << std::format("  {}({}, {})\n",
-                                  fn_op_name->operator()(), a, b)
-                  << std::format("    = {}\n", fn_compute->operator()(a, b, op));
+                                  (*fn_op_name)(), a, b)
+                  << std::format("    = {}\n", (*fn_compute)(a, b, op));
     }
 
     // Тестируем неизвестную операцию
     std::cout << std::format("  unknown({}, {}, 99) = {}\n",
-                              a, b, fn_compute->operator()(a, b, 99));
+                              a, b, (*fn_compute)(a, b, 99));
 
     // Очищаем
     unload_library(lib.value());
