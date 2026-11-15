@@ -18,7 +18,8 @@ release-dry-run:
 	fi
 
 # Generate [Unreleased] section in CHANGELOG.md from git log (conventional commits).
-# `make changelog` updates in place; `make changelog FORCE=1` overwrites existing [Unreleased].
+# `make changelog` updates in place;
+# `make changelog FORCE=1` overwrites existing [Unreleased].
 changelog:
 	@if [ "$(OS)" = "Windows_NT" ]; then \
 		powershell -NoProfile -ExecutionPolicy Bypass -File scripts/changelog-update.ps1 $(if $(FORCE),-Force); \
