@@ -91,28 +91,26 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: 'libplugin-*'
-          merge-multiple: true
-          path: .
+          name: libplugin-${{ needs.build-example.outputs.release_version }}
+          path: artifacts
 
       - name: Download host artifact
         uses: actions/download-artifact@v4
         with:
-          pattern: 'host-*'
-          merge-multiple: true
-          path: .
+          name: host-${{ needs.build-example.outputs.release_version }}
+          path: artifacts
 
       - name: Generate checksums
         id: checksums_generate
         uses: ai-warevo/.github/ci/actions/checksums@main
         with:
-          artifacts_dir: '.'
+          artifacts_dir: 'artifacts'
           checksums_file: 'SHA256SUMS.txt'
 
       - name: Verify checksums
         uses: ai-warevo/.github/ci/actions/checksums-verify@main
         with:
-          artifacts_dir: '.'
+          artifacts_dir: 'artifacts'
           checksums_file: 'SHA256SUMS.txt'
 
       - name: Create Release
@@ -122,9 +120,9 @@ jobs:
           name: ${{ needs.build-example.outputs.release_version }}
           body_path: ${{ steps.changelog.outputs.body_path }}
           files: |
-            SHA256SUMS.txt
-            libplugin-${{ needs.build-example.outputs.release_version }}
-            host-${{ needs.build-example.outputs.release_version }}
+            artifacts/SHA256SUMS.txt
+            artifacts/libplugin.so
+            artifacts/host
           generate_release_notes: false
 
   # ── Docker image build + GHCR push ──────────────────────────────────────
