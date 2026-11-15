@@ -1,0 +1,101 @@
+name: 'Changelog Release'
+description: 'Извлекает release notes из CHANGELOG.md по тегу и генерирует release body'
+
+inputs:
+  tag:
+    description: 'Релизный тег (например, v1.2.3)'
+    required: false
+    default: '${{ github.ref_name }}'
+  changelog:
+    description: 'Путь к CHANGELOG.md'
+    required: false
+    default: 'CHANGELOG.md'
+  release-body:
+    description: 'Имя файла для release body'
+    required: false
+    default: 'release_body.md'
+  what-included:
+    description: 'Раздел "What's Included" в release body'
+    required: false
+    default: |
+      - Universal CI/CD workflow templates (ci.yml, test.yml) for Node.js, Python, C#, C++, Go, Rust, Java
+      - Custom GitHub Action: SVG Badge Generator
+      - AI skills: analyst, planner, executor, skill-creator, git-github-push
+      - Project templates: overview, task, README, CHANGELOG, CONTRIBUTING
+      - LLM server (llama.cpp) with Docker Compose and GPU support
+  quick-start:
+    description: 'Раздел "Quick Start" в release body'
+    required: false
+    default: |
+      Add coverage badge to your README.md:
+      ```markdown
+      ![Coverage](https://raw.githubusercontent.com/your-org/your-repo/badges/coverage.svg)
+      ```
+
+      Copy CI/CD templates:
+      ```bash
+      cp path/to/ci/.github/workflows/ci.yml .github/workflows/ci.yml
+      cp path/to/ci/.github/workflows/test.yml .github/workflows/test.yml
+      ```
+
+outputs:
+  body_path:
+    description: 'Путь к файлу с release body'
+    value: ${{ steps.write_body.outputs.filepath }}
+  version:
+    description: 'Версия без префикса v'
+    value: ${{ steps.parse.outputs.version }}
+  notes:
+    description: 'Извлечённые release notes'
+    value: ${{ steps.parse.outputs.notes }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Parse changelog and extract notes
+      id: parse
+      shell: bash
+      env:
+        TAG: ${{ inputs.tag }}
+        CHANGELOG: ${{ inputs.changelog }}
+      run: |
+        version="${TAG#v}"
+
+        # Body of "## [<version>]" up to the next "## [" heading or the link references; CRLF-safe.
+        notes="$(tr -d '\r' < "$CHANGELOG" | awk -v v="$version" '
+          /^## \[/ { if (found) exit; if (index($0, "## [" v "]") == 1) { found = 1; next } }
+          found && /^\[[^]]+\]:/ { exit }
+          found { lines[++n] = $0 }
+          END {
+            first = 1; while (first <= n && lines[first] ~ /^[ \t]*$/) first++
+            while (n >= first && lines[n] ~ /^[ \t]*$/) n--
+            for (i = first; i <= n; i++) print lines[i]
+          }')"
+
+        if [ -z "$notes" ]; then
+          echo "::error::CHANGELOG.md has no entries for [$version]. Run scripts/release.sh (or release.ps1) to cut releases."
+          exit 1
+        fi
+
+        echo "version=${version}" >> $GITHUB_OUTPUT
+        # Store notes in a temp file to handle multiline values
+        echo "$notes" > /tmp/_changelog_notes.txt
+        echo "notes_file=/tmp/_changelog_notes.txt" >> $GITHUB_OUTPUT
+
+    - name: Generate release body
+      id: write_body
+      shell: bash
+      env:
+        TAG: ${{ inputs.tag }}
+        WHAT_INCLUDED: ${{ inputs.what-included }}
+        QUICK_START: ${{ inputs.quick-start }}
+        BODY_PATH: ${{ github.workspace }}/${{ inputs.release-body }}
+      run: |
+        {
+          printf '## ⚡ %s\n\n' "$TAG"
+          cat /tmp/_changelog_notes.txt
+          printf '\n### 📦 What'\''s Included\n%s\n\n' "$WHAT_INCLUDED"
+          printf '### 🚀 Quick Start\n\n%s\n\n' "$QUICK_START"
+        } > "$BODY_PATH"
+
+        echo "filepath=${BODY_PATH}" >> $GITHUB_OUTPUT
