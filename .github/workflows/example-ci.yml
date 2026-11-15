@@ -7,11 +7,13 @@ on:
     paths:
       - 'example/**'
       - '.github/workflows/example-ci.yml'
+      - 'ci/actions/gcovr-report/**'
   pull_request:
     branches: [main]
     paths:
       - 'example/**'
       - '.github/workflows/example-ci.yml'
+      - 'ci/actions/gcovr-report/**'
 
 permissions:
   contents: write
