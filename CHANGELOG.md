@@ -14,6 +14,12 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.2.6] - 2026-11-16
+
+### Fixed
+
+- gcovr source root must be source dir, not build dir
+
 ## [1.2.5] - 2026-11-16
 
 ### Fixed
