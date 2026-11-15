@@ -10,9 +10,8 @@
 #     with:
 #       source_dir: example
 #       build_dir: build
-#       source_root: example
-#       source_filter: plugin/ host/ plugin/tests/
-#       exclude: build/_deps/*
+#       source_filter: src/ include/
+#       exclude: _deps/*
 #       output_dir: htmlcov
 
 name: 'GCOVR Coverage Report'
@@ -27,18 +26,14 @@ inputs:
     description: 'Build directory (relative to source_dir)'
     required: false
     default: 'build'
-  source_root:
-    description: 'Source root for gcovr -r flag (overrides source_dir)'
-    required: false
-    default: ''
   source_filter:
-    description: '--filter patterns (space-separated relative paths, e.g. "plugin/ host/")'
+    description: '--filter patterns (space-separated absolute path prefixes, e.g. "src/ include/aw/tpl/")'
     required: false
     default: ''
   exclude:
     description: '--exclude pattern (may be specified multiple times, comma-separated)'
     required: false
-    default: 'build/_deps/*'
+    default: '_deps/*'
   output_dir:
     description: 'Output directory for HTML report'
     required: false
@@ -69,7 +64,6 @@ runs:
       env:
         SOURCE_DIR: ${{ inputs.source_dir }}
         BUILD_DIR: ${{ inputs.build_dir }}
-        SOURCE_ROOT: ${{ inputs.source_root }}
         FILTER: ${{ inputs.source_filter }}
         EXCLUDE: ${{ inputs.exclude }}
         OUTPUT_DIR: ${{ inputs.output_dir }}
@@ -78,10 +72,8 @@ runs:
         set -euo pipefail
         mkdir -p "$OUTPUT_DIR"
 
-        # Resolve source root: explicit > source_dir
-        if [ -z "${SOURCE_ROOT:-}" ]; then
-          SOURCE_ROOT="${SOURCE_DIR}"
-        fi
+        # Resolve build path: source_dir/build_dir (same layout as cmake-build)
+        BUILD_PATH="${SOURCE_DIR}/${BUILD_DIR}"
 
         # Collect exclude args
         EXCLUDE_ARGS=""
@@ -97,11 +89,10 @@ runs:
           done
         fi
 
-        echo "gcovr -r $SOURCE_ROOT $FILTER_ARGS $EXCLUDE_ARGS --xml $XML_PATH --html-details $OUTPUT_DIR/index.html"
+        echo "gcovr -r $BUILD_PATH $FILTER_ARGS $EXCLUDE_ARGS --xml $XML_PATH --html-details $OUTPUT_DIR/index.html"
 
-        gcovr -r "$SOURCE_ROOT" \
+        gcovr -r "$BUILD_PATH" \
           --gcov-ignore-errors=no_working_dir_found \
-          --gcov-ignore-parse-errors \
           $FILTER_ARGS \
           $EXCLUDE_ARGS \
           --exclude-unreachable-branches \
