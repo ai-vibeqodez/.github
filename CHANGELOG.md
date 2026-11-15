@@ -14,6 +14,16 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.2.8] - 2026-11-16
+
+### Fixed
+
+- use --verbose=2 instead of -v 2 to avoid arg parsing issue
+
+### Changed
+
+- Revert "fix: use --verbose=2 instead of -v 2 to avoid arg parsing issue"
+
 ## [1.2.7] - 2026-11-16
 
 ### Fixed
