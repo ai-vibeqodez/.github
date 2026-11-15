@@ -14,6 +14,8 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-15
+
 ### Added
 
 - Composite action `release-version`: resolves version from tag, workflow_dispatch input, or run_number
@@ -40,5 +42,6 @@ Maintainer notes:
 - Coverage badge generation and deployment to `badges` branch
 - Coverage HTML report deployment to `gh-pages`
 
-[Unreleased]: https://github.com/ai-warevo/.github/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/ai-warevo/.github/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/ai-warevo/.github/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/ai-warevo/.github/releases/tag/v0.1.0
