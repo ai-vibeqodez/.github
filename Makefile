@@ -1,6 +1,8 @@
 .PHONY: test release release-dry-run changelog changelog-dry-run
 
-# Cut a SemVer release from CHANGELOG.md. `make release PUSH=1` also pushes.
+# Cut a SemVer release from CHANGELOG.md.
+# to push:
+# make release PUSH=1
 release:
 	@if [ "$(OS)" = "Windows_NT" ]; then \
 		powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1 $(if $(PUSH),-Push); \

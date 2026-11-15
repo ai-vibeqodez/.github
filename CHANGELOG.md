@@ -14,11 +14,23 @@ Maintainer notes:
 
 ## [Unreleased]
 
-### Fixed
+### Added
 
-- `gcovr-report`: fix `source_root` resolution — use `source_dir` instead of `source_dir/build_dir` as source root
-- `coverage-parser`: replace `python3` XML parsing with `xmllint` (no python3 dependency)
-- `docker-build-push`: update `docker/setup-buildx-action` from `v3` to `v4`
+- add changelog and changelog-dry-run make targets
+
+### Changed
+
+- use prepare-commit-msg instead of pre-commit in README instructions
+- add prepare-commit-msg hook for Conventional Commits validation
+- add pre-commit hook for Conventional Commits validation
+- add changelog-update scripts for auto-generating [Unreleased] from git log
+- add .gitattributes rule for shell script LF line endings
+- remove debug logging from release workflow
+
+### Other
+
+- add 3 bug fixes to Unreleased
+- fix gcovr source_root, coverage-parser xmllint, docker-buildx v4
 
 ## [1.0.6] - 2026-11-15
 

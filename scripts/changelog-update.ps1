@@ -79,7 +79,6 @@ $categories = [ordered]@{
     fix      = [System.Collections.Generic.List[string]]::new()
     change   = [System.Collections.Generic.List[string]]::new()
     remove   = [System.Collections.Generic.List[string]]::new()
-    other    = [System.Collections.Generic.List[string]]::new()
 }
 
 foreach ($line in $commits) {
@@ -104,7 +103,7 @@ foreach ($line in $commits) {
     # Skip infra-only ci/chore
     if (ShouldSkip $cleanLine) { continue }
 
-    $category = 'other'
+    $category = 'change'
     if ($cleanLine -match '^feat(\(|:)') { $category = 'feature' }
     elseif ($cleanLine -match '^fix(\(|:)') { $category = 'fix' }
     elseif ($cleanLine -match '^(perf|refactor|docs|style|chore|ci|build)(\(|:)') { $category = 'change' }
@@ -112,9 +111,9 @@ foreach ($line in $commits) {
     elseif ($cleanLine -match '^revert(\(|:)') { $category = 'remove' }
 
     if ($isBreaking) {
-        $categories.breaking.Add(Clean-Entry $cleanLine)
+        $categories.breaking.Add((Clean-Entry $cleanLine))
     } else {
-        $categories[$category].Add(Clean-Entry $cleanLine)
+        $categories[$category].Add((Clean-Entry $cleanLine))
     }
 }
 
@@ -123,7 +122,7 @@ if ($DryRun) {
     Write-Host "=== What would be added to [Unreleased] ==="
     $catDisplay = @{
         breaking = 'Breaking'; feature = 'Added'; fix = 'Fixed'
-        change = 'Changed'; remove = 'Removed'; other = 'Other'
+        change = 'Changed'; remove = 'Removed'
     }
     foreach ($key in $categories.Keys) {
         $entries = $categories[$key]
@@ -148,7 +147,7 @@ $sectionLines.Add('## [Unreleased]')
 
 $catDisplay = @{
     breaking = 'Breaking'; feature = 'Added'; fix = 'Fixed'
-    change = 'Changed'; remove = 'Removed'; other = 'Other'
+    change = 'Changed'; remove = 'Removed'
 }
 
 foreach ($key in $categories.Keys) {

@@ -50,10 +50,10 @@ commits="$(git log --pretty=format:'%s' "$range" 2>/dev/null || true)"
 
 # Associative arrays for categories and their display names.
 declare -A cat_display
-cat_display=([breaking]="Breaking" [feature]="Added" [fix]="Fixed" [change]="Changed" [remove]="Removed" [other]="Other")
+cat_display=([breaking]="Breaking" [feature]="Added" [fix]="Fixed" [change]="Changed" [remove]="Removed")
 
 # Arrays indexed by category key.
-declare -a cat_breaking=() cat_feature=() cat_fix=() cat_change=() cat_remove=() cat_other=()
+declare -a cat_breaking=() cat_feature=() cat_fix=() cat_change=() cat_remove=()
 
 # Skip list: ci/chore commits about infra, not user-visible.
 skip_keywords=(workflow github action deps dependency format lint prettier eslint)
@@ -83,7 +83,6 @@ add_entry() {
         fix)      cat_fix+=("$entry") ;;
         change)   cat_change+=("$entry") ;;
         remove)   cat_remove+=("$entry") ;;
-        *)        cat_other+=("$entry") ;;
     esac
 }
 
@@ -119,7 +118,7 @@ while IFS= read -r line; do
     elif [[ "$line" =~ ^revert\( ]] || [[ "$line" =~ ^revert\: ]]; then
         local_type="${local_type:+$local_type,}remove"
     else
-        local_type="${local_type:+$local_type,}other"
+        local_type="${local_type:+$local_type,}change"
     fi
 
     # Add to each category
@@ -132,14 +131,13 @@ done <<< "$commits"
 # --dry-run: print what would be added.
 if [ "$dry_run" -eq 1 ]; then
     echo "=== What would be added to [Unreleased] ==="
-    for key in breaking feature fix change other remove; do
+    for key in breaking feature fix change remove; do
         local_display="${cat_display[$key]}"
         case "$key" in
             breaking) entries=("${cat_breaking[@]+"${cat_breaking[@]}"}") ;;
             feature)  entries=("${cat_feature[@]+"${cat_feature[@]}"}") ;;
             fix)      entries=("${cat_fix[@]+"${cat_fix[@]}"}") ;;
             change)   entries=("${cat_change[@]+"${cat_change[@]}"}") ;;
-            other)    entries=("${cat_other[@]+"${cat_other[@]}"}") ;;
             remove)   entries=("${cat_remove[@]+"${cat_remove[@]}"}") ;;
         esac
         [ "${#entries[@]}" -eq 0 ] && continue
@@ -165,14 +163,13 @@ trap 'rm -f "$section_file"' EXIT
 
 echo "## [Unreleased]" > "$section_file"
 
-for key in breaking feature fix change other remove; do
+for key in breaking feature fix change remove; do
     local_display="${cat_display[$key]}"
     case "$key" in
         breaking) entries=("${cat_breaking[@]+"${cat_breaking[@]}"}") ;;
         feature)  entries=("${cat_feature[@]+"${cat_feature[@]}"}") ;;
         fix)      entries=("${cat_fix[@]+"${cat_fix[@]}"}") ;;
         change)   entries=("${cat_change[@]+"${cat_change[@]}"}") ;;
-        other)    entries=("${cat_other[@]+"${cat_other[@]}"}") ;;
         remove)   entries=("${cat_remove[@]+"${cat_remove[@]}"}") ;;
     esac
     [ "${#entries[@]}" -eq 0 ] && continue
@@ -223,13 +220,12 @@ if [ "$crlf" -eq 1 ]; then sed 's/$/\r/' "$out" > "$changelog"; else cp "$out" "
 
 # Count total entries.
 total=0
-for key in breaking feature fix change other remove; do
+for key in breaking feature fix change remove; do
     case "$key" in
         breaking) n="${#cat_breaking[@]}" ;;
         feature)  n="${#cat_feature[@]}" ;;
         fix)      n="${#cat_fix[@]}" ;;
         change)   n="${#cat_change[@]}" ;;
-        other)    n="${#cat_other[@]}" ;;
         remove)   n="${#cat_remove[@]}" ;;
     esac
     total=$((total + n))
