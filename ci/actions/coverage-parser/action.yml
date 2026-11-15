@@ -30,7 +30,7 @@ runs:
         LCOV_PATH: ${{ inputs.lcov_path }}
       run: |
         if [ -f "$XML_PATH" ]; then
-          PERCENTAGE=$(python3 -c "import xml.etree.ElementTree as ET; tree = ET.parse('$XML_PATH'); root = tree.getroot(); print(int(float(root.attrib['line-rate']) * 100))")
+          PERCENTAGE=$(xmllint --xpath 'string(/coverage/@line-rate)' "$XML_PATH" 2>/dev/null | awk -F. '{printf "%d", $1 * 100}')
         elif [ -f "$LCOV_PATH" ]; then
           PERCENTAGE=$(grep '^DA:' "$LCOV_PATH" | awk -F: '{sum+=$2; count++} END {if(count>0) printf "%d", sum/count; else print 0}')
         else

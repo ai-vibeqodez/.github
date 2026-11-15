@@ -74,13 +74,11 @@ runs:
       run: |
         mkdir -p "$OUTPUT_DIR"
 
-        # Resolve source root: explicit > source_dir/build_dir, then source_filter, then build_dir
+        # Resolve source root: explicit > source_dir (default)
         if [ -n "$SOURCE_ROOT" ]; then
           : # use as-is
-        elif [ -n "$FILTER" ]; then
-          SOURCE_ROOT="${SOURCE_DIR}/${BUILD_DIR}"
         else
-          SOURCE_ROOT="${SOURCE_DIR}/${BUILD_DIR}"
+          SOURCE_ROOT="${SOURCE_DIR}"
         fi
 
         EXCLUDE_ARGS=""
