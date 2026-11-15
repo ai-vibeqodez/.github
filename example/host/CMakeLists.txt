@@ -1,5 +1,5 @@
 # Host executable
-add_executable(host src/host.cpp)
+add_executable(host src/host.cpp src/platform.cpp)
 
 target_include_directories(host
     PRIVATE

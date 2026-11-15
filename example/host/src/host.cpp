@@ -2,178 +2,124 @@
  * @file host.cpp
  * @brief Хост-приложение для динамической загрузки плагина.
  *
- * В рантайме загружает библиотеку plugin (.so / .dll) через
- * dlopen (Linux) или LoadLibrary (Windows) и вызывает
+ * В рантайме загружает библиотеку plugin (.so / .dll) и вызывает
  * экспортированные функции публичного API.
+ *
+ * Platform-specific детали инкапсулированы в aw::example::platform.
  */
 
 #include "plugin.h"
+#include "platform.h"
 
-#include <cstdlib>
 #include <format>
 #include <iostream>
 #include <optional>
 #include <string>
-#include <system_error>
-
-#if defined(_WIN32)
-    #include <windows.h>
-#else
-    #include <dlfcn.h>
-    #include <linux/limits.h>
-    #include <unistd.h>
-#endif
+#include <tuple>
 
 /**
  * @namespace aw::example::host
  * @brief Пространство имён хост-приложения.
  *
- * Содержит логику динамической загрузки и вызова функций плагина.
+ * Содержит логику загрузки плагина и вызова его функций.
  */
 namespace aw::example::host {
 
 /**
- * @brief Кроссплатформенный дескриптор загруженной библиотеки.
- *
- * @c HMODULE на Windows, @c void* на POSIX.
+ * @brief Типы функций плагина.
  */
-struct LibraryHandle {
-#if defined(_WIN32)
-    HMODULE handle = nullptr;
-#else
-    void* handle = nullptr;
-#endif
-};
+using version_fn     = int(*)();
+using compute_fn     = int(*)(int, int, int);
+using version_str_fn = const char*(*)();
+using op_name_fn     = const char*(*) (int);
 
 /**
- * @brief Загружает библиотеку по пути.
+ * @brief Загружает плагин и резолвит все требуемые символы.
  *
- * Ищет путь в: ENV PLUGIN_PATH → рядом с executable → системный путь.
- *
- * @param path Путь к библиотеке (пустая строка = системный поиск).
- * @return Дескриптор при успехе, @c std::nullopt при ошибке.
+ * @return std::pair<handle, symbols> при успехе, std::nullopt при ошибке.
  */
-inline std::optional<LibraryHandle> load_library(const std::string& path) {
-    LibraryHandle lib;
+inline std::optional<std::pair<
+    aw::example::platform::LibraryHandle,
+    std::tuple<version_fn, compute_fn, version_str_fn, op_name_fn>
+>> load_plugin() {
+    auto lib_path = aw::example::platform::find_plugin();
+    if (!lib_path.has_value()) {
+        std::cerr << "[host] Cannot find plugin path\n";
+        return std::optional<std::pair<
+            aw::example::platform::LibraryHandle,
+            std::tuple<version_fn, compute_fn, version_str_fn, op_name_fn>
+        >>();
+    }
 
-#if defined(_WIN32)
-    lib.handle = LoadLibraryA(path.c_str());
-    if (!lib.handle) {
-        auto err = GetLastError();
-        std::cerr << std::format("[host] LoadLibrary failed: error code {} for '{}'",
-                                  err, path) << '\n';
+    const auto& path = lib_path.value();
+    if (path.empty()) {
+        std::cout << "[host] Loading plugin from system path\n";
+    } else {
+        std::cout << std::format("[host] Loading plugin from: {}\n", path);
+    }
+
+    auto lib = aw::example::platform::load_library(path);
+    if (!lib) {
+        std::cerr << "[host] Failed to load plugin\n";
         return std::nullopt;
     }
-#else
-    lib.handle = dlopen(path.c_str(), RTLD_NOW | RTLD_LOCAL);
-    if (!lib.handle) {
-        std::cerr << std::format("[host] dlopen failed: {} for '{}'",
-                                  dlerror(), path) << '\n';
+
+    auto* raw_version     = aw::example::platform::resolve_symbol(lib.value(), "plugin_version");
+    auto* raw_compute     = aw::example::platform::resolve_symbol(lib.value(), "plugin_compute");
+    auto* raw_version_s   = aw::example::platform::resolve_symbol(lib.value(), "plugin_version_string");
+    auto* raw_op_name     = aw::example::platform::resolve_symbol(lib.value(), "plugin_op_name");
+
+    if (!raw_version || !raw_compute || !raw_version_s || !raw_op_name) {
+        std::cerr << "[host] Failed to resolve plugin symbols\n";
+        aw::example::platform::unload_library(lib.value());
         return std::nullopt;
     }
-#endif
 
-    return lib;
+    auto fn_version     = reinterpret_cast<version_fn>(raw_version);
+    auto fn_compute     = reinterpret_cast<compute_fn>(raw_compute);
+    auto fn_version_s   = reinterpret_cast<version_str_fn>(raw_version_s);
+    auto fn_op_name     = reinterpret_cast<op_name_fn>(raw_op_name);
+
+    return std::make_pair(
+        std::move(lib.value()),
+        std::make_tuple(fn_version, fn_compute, fn_version_s, fn_op_name)
+    );
 }
 
 /**
- * @brief Выгружает загруженную библиотеку.
+ * @brief Выполняет все операции плагина и выводит результаты.
  *
- * @param lib Дескриптор библиотеки (модифицируется).
- */
-inline void unload_library(LibraryHandle& lib) {
-    if (!lib.handle) return;
-
-#if defined(_WIN32)
-    FreeLibrary(lib.handle);
-#else
-    dlclose(lib.handle);
-#endif
-    lib.handle = nullptr;
-}
-
-/**
- * @brief Резолвит символ из загруженной библиотеки.
- *
- * @tparam T Тип функции-символа.
  * @param lib Дескриптор библиотеки.
- * @param name Имя символа.
- * @return Указатель на функцию при успехе, @c std::nullopt при ошибке.
+ * @param symbols std::tuple<version_fn, compute_fn, version_str_fn, op_name_fn>.
  */
-template <typename T>
-inline std::optional<T> resolve_symbol(LibraryHandle& lib, const std::string& name) {
-    if (!lib.handle) return std::nullopt;
+inline void run_plugin(
+    aw::example::platform::LibraryHandle& lib,
+    const std::tuple<version_fn, compute_fn, version_str_fn, op_name_fn>& symbols
+) {
+    auto& [fn_version, fn_compute, fn_version_s, fn_op_name] = symbols;
 
-#if defined(_WIN32)
-    auto sym = GetProcAddress(lib.handle, name.c_str());
-#else
-    dlerror(); // Сбрасываем предыдущую ошибку
-    auto sym = dlsym(lib.handle, name.c_str());
-    if (auto err = dlerror()) {
-        std::cerr << std::format("[host] dlsym('{}') failed: {}", name, err) << '\n';
-        return std::nullopt;
-    }
-#endif
+    std::cout << "\n--- Plugin Info ---\n";
+    std::cout << std::format("  version:     {}\n", fn_version());
+    std::cout << std::format("  version_str: {}\n", fn_version_s());
 
-    if (!sym) {
-        std::cerr << std::format("[host] symbol '{}' not found", name) << '\n';
-        return std::nullopt;
+    std::cout << "\n--- Operations ---\n";
+    int a = 42, b = 13;
+    for (int op = 0; op <= 2; ++op) {
+        std::cout << std::format("  {}({}, {})\n",
+                                  fn_op_name(op), a, b)
+                  << std::format("    = {}\n", fn_compute(a, b, op));
     }
 
-    return reinterpret_cast<T>(sym);
-}
+    std::cout << std::format("  unknown({}, {}, 99) = {}\n",
+                              a, b, fn_compute(a, b, 99));
 
-/**
- * @brief Ищет библиотеку плагина.
- *
- * Порядок поиска:
- * 1. ENV var @c PLUGIN_PATH
- * 2. Рядом с исполняемым файлом
- * 3. Системный путь (пустая строка = делегирование загрузчику)
- *
- * @return Путь к библиотеке или @c std::nullopt если не найдена.
- */
-inline std::optional<std::string> find_plugin() {
-    // 1. ENV var PLUGIN_PATH
-    if (auto env = std::getenv("PLUGIN_PATH")) {
-        return env;
-    }
-
-    // 2. Рядом с executable — определяем директорию бинарника
-#if defined(_WIN32)
-    char exe_path[MAX_PATH] = {0};
-    if (GetModuleFileNameA(nullptr, exe_path, MAX_PATH)) {
-        std::string dir = exe_path;
-        auto slash = dir.find_last_of('\\');
-        if (slash != std::string::npos) {
-            dir = dir.substr(0, slash) + "\\plugin.dll";
-            return dir;
-        }
-    }
-#else
-    char exe_path[PATH_MAX] = {0};
-    ssize_t len = readlink("/proc/self/exe", exe_path, sizeof(exe_path) - 1);
-    if (len > 0) {
-        exe_path[len] = '\0';
-        std::string dir = exe_path;
-        auto slash = dir.find_last_of('/');
-        if (slash != std::string::npos) {
-            dir = dir.substr(0, slash) + "/libplugin.so";
-            return dir;
-        }
-    }
-#endif
-
-    // 3. Системный путь
-    return "";
+    aw::example::platform::unload_library(lib);
 }
 
 } // namespace aw::example::host
 
 /**
  * @brief Точка входа хост-приложения.
- *
- * Загружает плагин, резолвит символы, вызывает API и выводит результаты.
  *
  * @param argc Аргументы командной строки.
  * @param argv Аргументы командной строки.
@@ -185,63 +131,13 @@ int main(int argc, char* argv[]) {
 
     std::cout << "=== Plugin Host ===" << '\n';
 
-    // Находим библиотеку
-    auto lib_path = aw::example::host::find_plugin();
-    if (!lib_path.has_value()) {
-        std::cerr << "[host] Cannot find plugin path\n";
+    auto result = aw::example::host::load_plugin();
+    if (!result) {
         return 1;
     }
 
-    const auto& path = lib_path.value();
-    if (path.empty()) {
-        std::cout << "[host] Loading plugin from system path\n";
-    } else {
-        std::cout << std::format("[host] Loading plugin from: {}\n", path);
-    }
+    aw::example::host::run_plugin(result->first, result->second);
 
-    // Загружаем библиотеку
-    auto lib = aw::example::host::load_library(path);
-    if (!lib) {
-        std::cerr << "[host] Failed to load plugin\n";
-        return 1;
-    }
-
-    // Резолвим символы
-    using version_fn     = int(*)();
-    using compute_fn     = int(*)(int, int, int);
-    using version_str_fn = const char*(*)();
-    using op_name_fn     = const char*(*) (int);
-
-    auto fn_version     = aw::example::host::resolve_symbol<version_fn>(lib.value(), "plugin_version");
-    auto fn_compute     = aw::example::host::resolve_symbol<compute_fn>(lib.value(), "plugin_compute");
-    auto fn_version_s   = aw::example::host::resolve_symbol<version_str_fn>(lib.value(), "plugin_version_string");
-    auto fn_op_name     = aw::example::host::resolve_symbol<op_name_fn>(lib.value(), "plugin_op_name");
-
-    if (!fn_version || !fn_compute || !fn_version_s || !fn_op_name) {
-        std::cerr << "[host] Failed to resolve plugin symbols\n";
-        aw::example::host::unload_library(lib.value());
-        return 1;
-    }
-
-    // Вызываем функции (dereference std::optional first)
-    std::cout << "\n--- Plugin Info ---\n";
-    std::cout << std::format("  version:     {}\n", (*fn_version)());
-    std::cout << std::format("  version_str: {}\n", (*fn_version_s)());
-
-    std::cout << "\n--- Operations ---\n";
-    int a = 42, b = 13;
-    for (int op = 0; op <= 2; ++op) {
-        std::cout << std::format("  {}({}, {})\n",
-                                  (*fn_op_name)(op), a, b)
-                  << std::format("    = {}\n", (*fn_compute)(a, b, op));
-    }
-
-    // Тестируем неизвестную операцию
-    std::cout << std::format("  unknown({}, {}, 99) = {}\n",
-                              a, b, (*fn_compute)(a, b, 99));
-
-    // Очищаем
-    aw::example::host::unload_library(lib.value());
     std::cout << "\n=== Done ===\n";
     return 0;
 }
