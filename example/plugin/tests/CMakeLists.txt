@@ -1,4 +1,4 @@
-# Plugin tests (Catch2 v3 via FetchContent)
+# Plugin tests (Catch2 v3 — provided by root CMakeLists.txt)
 add_executable(plugin_tests plugin_tests.cpp)
 
 target_include_directories(plugin_tests
@@ -8,7 +8,6 @@ target_include_directories(plugin_tests
 
 target_compile_features(plugin_tests PRIVATE cxx_std_23)
 
-# Catch2 подключается через FetchContent в корневом CMakeLists.txt
 target_link_libraries(plugin_tests
     PRIVATE
         Catch2::Catch2WithMain
@@ -23,4 +22,6 @@ add_custom_command(TARGET plugin_tests POST_BUILD
     COMMENT "Copying plugin library next to test executable"
 )
 
-add_test(NAME plugin_tests COMMAND plugin_tests)
+# Per-test discovery via Catch(CMake)
+include(Catch)
+catch_discover_tests(plugin_tests PROPERTIES TIMEOUT 120)
