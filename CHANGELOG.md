@@ -14,13 +14,13 @@ Maintainer notes:
 
 ## [Unreleased]
 
-## [1.0.1] - 2026-11-15
-
 ### Fixed
 
 - `ctest-run`: accept `source_dir` input, cd to build directory before running ctest (was failing when source_dir ≠ `.`)
 - `gcovr-report`: accept `source_dir` input, resolve source_root correctly for non-root source directories
 - `release.yml`: remove duplicate `v` prefix from `tag`, `tag_name`, and `name` inputs (release-version already returns version with `v`)
+- `release.yml`: download artifacts by exact name into shared dir, reference correct filenames in release (libplugin.so, host)
+- `example-ci.yml`: use published path `ai-warevo/.github/ci/actions/coverage-parser@main` instead of local path
 
 ## [1.0.0] - 2026-11-15
 
