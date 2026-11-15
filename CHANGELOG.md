@@ -14,6 +14,8 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-15
+
 ### Added
 
 - Composite action `cmake-build`: CMake configure + build wrapper
