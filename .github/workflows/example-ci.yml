@@ -51,14 +51,12 @@ jobs:
 
       - name: Parse Coverage Metrics
         id: coverage_parser
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: ai-warevo/.github/ci/actions/coverage-parser@main
         with:
           xml_path: coverage.xml
 
       - name: Generate Coverage Badge
         id: badge_generator
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: ai-warevo/.github/ci/actions/badge@main
         with:
           width: '99'
@@ -69,13 +67,11 @@ jobs:
           filename: 'coverage.svg'
 
       - name: Deploy Badge
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: ai-warevo/.github/ci/actions/badge-deploy@main
         with:
           badge_path: coverage.svg
 
       - name: Deploy Coverage HTML
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: ai-warevo/.github/ci/actions/coverage-html-deploy@main
         with:
           folder: htmlcov
