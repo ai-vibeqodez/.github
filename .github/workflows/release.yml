@@ -147,8 +147,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: example
-          file: Dockerfile
+          context: .
+          file: example/Dockerfile
           push: true
           tags: |
             ghcr.io/ai-warevo/example:${{ needs.release.outputs.release_version }}
