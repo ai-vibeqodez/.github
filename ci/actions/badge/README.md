@@ -57,7 +57,7 @@ jobs:
       - name: Commit and Push Badge
         run: |
           git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@://github.com"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add status-badge.svg
           if git diff --staged --quiet; then
             echo "Бейдж не изменился."
