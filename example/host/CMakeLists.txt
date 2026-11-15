@@ -1,5 +1,13 @@
 # Host executable
-add_executable(host src/host.cpp src/platform.cpp)
+set(host_sources src/host.cpp)
+
+if(WIN32)
+    list(APPEND host_sources src/platform_windows.cpp)
+else()
+    list(APPEND host_sources src/platform_unix.cpp)
+endif()
+
+add_executable(host ${host_sources})
 
 target_include_directories(host
     PRIVATE
