@@ -54,17 +54,10 @@ AI-скиллы для автоматизации разработки:
 |------|-----------|
 | [ci/.github/workflows/ci.yml](ci/.github/workflows/ci.yml) | CI pipeline: build → lint → test |
 | [ci/.github/workflows/test.yml](ci/.github/workflows/test.yml) | Расширенное тестирование: мультиплатформа, coverage |
+| [ci/actions/badge/README.md](ci/actions/badge/README.md) | Генератор кастомных SVG-бейджей |
 | [ci/README.md](ci/README.md) | Инструкция по использованию |
 
 Поддерживаемые стеки: Node.js, Python, C#, C++, Go, Rust, Java
-
-### 🎭 GitHub Actions
-
-Переиспользуемые кастомные экшены для CI/CD:
-
-| Экшен | Назначение |
-|-------|-----------|
-| [actions/badge](actions/badge/README.md) | Генератор кастомных SVG-бейджей (покрытие, статус, метрики) |
 
 ### 📚 Документация
 - [SKILLS.md](SKILLS.md) — каталог всех скиллов с входом/выходом, сложностью и зависимостями
@@ -88,13 +81,13 @@ AI-скиллы для автоматизации разработки:
 ├── README.llama-cpp.md
 ├── ci/
 │   ├── README.md
+│   ├── actions/
+│   │   └── badge/
+│   │       ├── action.yml
+│   │       └── README.md
 │   └── .github/workflows/
 │       ├── ci.yml
 │       └── test.yml
-├── actions/
-│   └── badge/
-│       ├── action.yml
-│       └── README.md
 ├── skills/
 │   ├── analyst/SKILL.md
 │   ├── executor/SKILL.md
