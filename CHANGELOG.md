@@ -14,6 +14,17 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-15
+
+### Added
+
+- Release workflow deployed to `.github/workflows/` for this repo
+- Docker build + GHCR push job in release workflow
+
+### Changed
+
+- Composite actions pinned to commit SHA instead of `@main`
+
 ## [0.4.0] - 2026-11-15
 
 ### Added
