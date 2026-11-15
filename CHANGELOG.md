@@ -14,6 +14,19 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-15
+
+### Added
+
+- `example/` CMake project with C++23, Catch2 v3, per-test discovery, sanitizer and coverage support
+- CI workflow for example: tests + coverage reports (gcovr, XML + HTML) + coverage badge deploy
+- Sanitizer CI jobs: AddressSanitizer + UBSan, ThreadSanitizer (with ASLR relaxation)
+- README badges: License, CI, Coverage (from tpl pattern)
+
+### Changed
+
+- `.gitignore`: added `build` to exclude CMake build directories
+
 ## [0.2.0] - 2026-11-15
 
 ### Added
@@ -42,6 +55,7 @@ Maintainer notes:
 - Coverage badge generation and deployment to `badges` branch
 - Coverage HTML report deployment to `gh-pages`
 
-[Unreleased]: https://github.com/ai-warevo/.github/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/ai-warevo/.github/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/ai-warevo/.github/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/ai-warevo/.github/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/ai-warevo/.github/releases/tag/v0.1.0
