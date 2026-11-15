@@ -1,7 +1,8 @@
 # gcovr-report — Install gcovr and generate coverage reports (XML + HTML)
 #
-# Installs gcovr via apt, then generates both XML (for parsing) and HTML
-# (for deployment) coverage reports from a CMake build.
+# Installs gcovr via pip (avoids apt package mismatches), then generates both
+# XML (for parsing) and HTML (for deployment) coverage reports from a CMake
+# build.
 #
 # Usage:
 #   - name: Generate Coverage
@@ -9,7 +10,9 @@
 #     with:
 #       source_dir: example
 #       build_dir: build
-#       source_filter: example/
+#       source_root: example
+#       source_filter: plugin/ host/ plugin/tests/
+#       exclude: build/_deps/*
 #       output_dir: htmlcov
 
 name: 'GCOVR Coverage Report'
@@ -25,15 +28,15 @@ inputs:
     required: false
     default: 'build'
   source_root:
-    description: 'Source root for gcovr -r flag (overrides source_dir/source_filter)'
+    description: 'Source root for gcovr -r flag (overrides source_dir)'
     required: false
     default: ''
   source_filter:
-    description: '--filter pattern (e.g. example/)'
+    description: '--filter patterns (space-separated relative paths, e.g. "plugin/ host/")'
     required: false
     default: ''
   exclude:
-    description: '--exclude pattern (may be specified multiple times)'
+    description: '--exclude pattern (may be specified multiple times, comma-separated)'
     required: false
     default: 'build/_deps/*'
   output_dir:
@@ -58,7 +61,7 @@ runs:
   steps:
     - name: Install gcovr
       shell: bash
-      run: sudo apt-get update && sudo apt-get install -y gcovr
+      run: pip install --quiet gcovr
 
     - name: Generate coverage reports
       id: gcovr
@@ -72,27 +75,33 @@ runs:
         OUTPUT_DIR: ${{ inputs.output_dir }}
         XML_PATH: ${{ inputs.xml_path }}
       run: |
+        set -euo pipefail
         mkdir -p "$OUTPUT_DIR"
 
-        # Resolve source root: explicit > source_dir (default)
-        if [ -n "$SOURCE_ROOT" ]; then
-          : # use as-is
-        else
+        # Resolve source root: explicit > source_dir
+        if [ -z "${SOURCE_ROOT:-}" ]; then
           SOURCE_ROOT="${SOURCE_DIR}"
         fi
 
+        # Collect exclude args
         EXCLUDE_ARGS=""
         for pattern in $(echo "$EXCLUDE" | tr ',' ' '); do
           EXCLUDE_ARGS="$EXCLUDE_ARGS --exclude $pattern"
         done
 
+        # Collect filter args — multiple space-separated patterns
         FILTER_ARGS=""
-        if [ -n "$FILTER" ]; then
-          FILTER_ARGS="--filter $FILTER"
+        if [ -n "${FILTER:-}" ]; then
+          for pattern in $FILTER; do
+            FILTER_ARGS="$FILTER_ARGS --filter $pattern"
+          done
         fi
+
+        echo "gcovr -r $SOURCE_ROOT $FILTER_ARGS $EXCLUDE_ARGS --xml $XML_PATH --html-details $OUTPUT_DIR/index.html"
 
         gcovr -r "$SOURCE_ROOT" \
           --gcov-ignore-errors=no_working_dir_found \
+          --gcov-ignore-parse-errors \
           $FILTER_ARGS \
           $EXCLUDE_ARGS \
           --exclude-unreachable-branches \
