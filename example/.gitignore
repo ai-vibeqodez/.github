@@ -1,0 +1,21 @@
+# Build outputs
+build/
+Debug/
+Release/
+MinSizeRel/
+RelWithDebInfo/
+
+# IDE
+*.sln
+*.vcxproj
+*.idea/
+*.vscode/
+
+# Plugins
+*.dll
+*.so
+*.dylib
+
+# Test outputs
+*.log
+*.xml
