@@ -1,0 +1,92 @@
+# docker-push-ghcr — Load and push Docker image to GitHub Container Registry
+#
+# Загружает Docker image из tar-артефакта и пушит в GHCR с тегами
+# :vX.Y.Z и :latest. Используется на этапе release.
+#
+# Паттерн из production workflow MimironsGoldOMatic:
+#   download-artifact (docker-image) → docker load → docker push
+#
+# Usage:
+#   - name: Push to GHCR
+#     uses: ai-warevo/.github/ci/actions/docker-push-ghcr@main
+#     with:
+#       image: ghcr.io/myorg/myapp
+#       version: '1.2.3'
+#       token: ${{ secrets.GITHUB_TOKEN }}
+
+name: 'Docker Push to GHCR'
+description: 'Load Docker image from artifact and push to GitHub Container Registry'
+
+inputs:
+  image:
+    description: 'Full GHCR image name (e.g. ghcr.io/org/repo)'
+    required: true
+  version:
+    description: 'Release version for tagging (e.g. 1.2.3)'
+    required: true
+  artifact_name:
+    description: 'Name of the docker image artifact'
+    required: false
+    default: 'docker-image'
+  token:
+    description: 'GitHub token for GHCR authentication'
+    required: false
+    default: ${{ github.token }}
+  push_latest:
+    description: 'Also push :latest tag (default: true)'
+    required: false
+    default: 'true'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Download Docker image artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ inputs.artifact_name }}
+        path: .
+
+    - name: Load Docker image
+      shell: bash
+      run: |
+        IMAGE="${{ inputs.image }}"
+        VERSION="${{ inputs.version }}"
+
+        echo "Loading Docker image from artifact..."
+        docker load -i image.tar
+
+        echo "Tagging image..."
+        docker tag image "$IMAGE:v$VERSION"
+
+        if [ "${{ inputs.push_latest }}" = "true" ]; then
+          docker tag image "$IMAGE:latest"
+          echo "Tagged as $IMAGE:latest"
+        fi
+
+        echo "Loaded images:"
+        docker images "$IMAGE"
+
+    - name: Login to GHCR
+      shell: bash
+      run: |
+        echo "${{ inputs.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+    - name: Push to GHCR
+      shell: bash
+      run: |
+        IMAGE="${{ inputs.image }}"
+        VERSION="${{ inputs.version }}"
+
+        echo "Pushing $IMAGE:v$VERSION..."
+        docker push "$IMAGE:v$VERSION"
+
+        if [ "${{ inputs.push_latest }}" = "true" ]; then
+          echo "Pushing $IMAGE:latest..."
+          docker push "$IMAGE:latest"
+        fi
+
+        echo "✅ Image pushed to GHCR:"
+        echo "   $IMAGE:v$VERSION"
+        if [ "${{ inputs.push_latest }}" = "true" ]; then
+          echo "   $IMAGE:latest"
+        fi

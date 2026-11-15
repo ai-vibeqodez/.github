@@ -1,14 +1,22 @@
 name: 'Checksum Generator'
-description: 'Генерирует SHA256SUMS.txt для артефактов и верифицирует их'
+description: 'Генерирует SHA256SUMS.txt для файлов в директории'
 
 inputs:
   artifacts_dir:
-    description: 'Директория с артефактами для генерации checksums'
+    description: 'Директория с файлами для генерации checksums'
     required: true
   checksums_file:
     description: 'Имя файла checksums'
     required: false
     default: 'SHA256SUMS.txt'
+
+outputs:
+  checksums_file:
+    description: 'Путь к сгенерированному файлу checksums'
+    value: ${{ steps.generate.outputs.checksums_file }}
+  file_count:
+    description: 'Количество файлов с checksums'
+    value: ${{ steps.generate.outputs.file_count }}
 
 runs:
   using: 'composite'
@@ -27,24 +35,13 @@ runs:
         # Генерируем checksums для всех файлов, кроме самого checksums-файла
         if compgen -G "*" > /dev/null 2>&1; then
           sha256sum $(find . -maxdepth 1 -type f ! -name "$CHECKSUMS_FILE" -printf '%f\n') > "$CHECKSUMS_FILE"
+          COUNT=$(wc -l < "$CHECKSUMS_FILE")
         else
           # Нет артефактов — создаём пустой файл
           touch "$CHECKSUMS_FILE"
+          COUNT=0
         fi
 
         echo "checksums_file=${CHECKSUMS_FILE}" >> $GITHUB_OUTPUT
-
-    - name: Verify checksums
-      shell: bash
-      env:
-        ARTIFACTS_DIR: ${{ inputs.artifacts_dir }}
-        CHECKSUMS_FILE: ${{ inputs.checksums_file }}
-      run: |
-        set -euo pipefail
-
-        cd "$ARTIFACTS_DIR"
-        if [ -s "$CHECKSUMS_FILE" ]; then
-          sha256sum --check "$CHECKSUMS_FILE"
-        else
-          echo "No artifacts to checksum — skipping verification"
-        fi
+        echo "file_count=$COUNT" >> $GITHUB_OUTPUT
+        echo "Generated $COUNT checksums in $CHECKSUMS_FILE"

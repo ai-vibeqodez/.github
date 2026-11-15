@@ -17,6 +17,11 @@ on:
   merge_group:
     branches: [main, master]
 
+# Права: contents read для checkout, packages write для GHCR (если нужен)
+permissions:
+  contents: read
+  packages: write
+
 # Отменяем старые незавершённые запуски для того же PR / ветки
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

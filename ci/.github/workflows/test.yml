@@ -18,6 +18,12 @@ on:
 
 permissions:
   contents: write
+  packages: write
+
+# Отменяем старые незавершённые запуски для того же PR / ветки
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:

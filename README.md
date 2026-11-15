@@ -2,9 +2,9 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 <br />
-[![CI](https://github.com/ai-warevo/.github/actions/workflows/example-ci.yml/badge.svg)](https://github.com/ai-warevo/.github/actions/workflows/example-ci.yml)
-<br />
 [![Coverage](https://raw.githubusercontent.com/ai-warevo/.github/refs/heads/badges/coverage.svg)](https://ai-warevo.github.io/.github/)
+<br />
+[![CI](https://github.com/ai-warevo/.github/actions/workflows/example-ci.yml/badge.svg)](https://github.com/ai-warevo/.github/actions/workflows/example-ci.yml)
 
 > Скиллы, шаблоны, документация, CI/CD и настройки редакторов для всех проектов.
 

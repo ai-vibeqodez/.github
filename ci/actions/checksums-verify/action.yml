@@ -1,0 +1,51 @@
+# checksums-verify — Verify SHA256 checksums against a checksums file
+#
+# Проверяет целостность файлов по заранее сгенерированному SHA256SUMS.txt.
+# Полезно на этапе release для верификации артефактов перед публикацией.
+#
+# Usage:
+#   - name: Verify checksums
+#     uses: ai-warevo/.github/ci/actions/checksums-verify@main
+#     with:
+#       artifacts_dir: release-artifacts/1.2.3
+#       checksums_file: SHA256SUMS.txt
+
+name: 'Checksums Verify'
+description: 'Verify SHA256 checksums of files against a checksums file'
+
+inputs:
+  artifacts_dir:
+    description: 'Директория с файлами для верификации'
+    required: true
+  checksums_file:
+    description: 'Имя файла checksums'
+    required: false
+    default: 'SHA256SUMS.txt'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Verify SHA256 checksums
+      shell: bash
+      env:
+        ARTIFACTS_DIR: ${{ inputs.artifacts_dir }}
+        CHECKSUMS_FILE: ${{ inputs.checksums_file }}
+      run: |
+        set -euo pipefail
+
+        cd "$ARTIFACTS_DIR"
+
+        if [ ! -f "$CHECKSUMS_FILE" ]; then
+          echo "::error::Checksums file not found: $CHECKSUMS_FILE"
+          exit 1
+        fi
+
+        if [ ! -s "$CHECKSUMS_FILE" ]; then
+          echo "Checksums file is empty — nothing to verify"
+          exit 0
+        fi
+
+        echo "Verifying checksums from $CHECKSUMS_FILE..."
+        sha256sum --check "$CHECKSUMS_FILE"
+
+        echo "✅ All checksums verified successfully"

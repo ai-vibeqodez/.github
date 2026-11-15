@@ -5,7 +5,7 @@
 # Триггеры:
 #   - push тега v* → релиз из CHANGELOG
 #   - workflow_dispatch → ручной релиз с версией (input) или snapshot (v0.0.<run_number>)
-# Использует composite actions: `release-version` + `changelog-release`
+# Использует composite actions: release-version, changelog-release, checksums
 
 name: Release
 
@@ -22,6 +22,13 @@ on:
 
 permissions:
   contents: write
+  packages: write
+  actions: write
+
+# Не отменяем релиз-запуски — они должны завершиться
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   release:
@@ -46,9 +53,15 @@ jobs:
         with:
           tag: ${{ steps.version.outputs.release_version }}
 
-      - name: Generate and verify checksums
-        id: checksums
+      - name: Generate checksums
+        id: checksums_generate
         uses: ai-warevo/.github/ci/actions/checksums@main
+        with:
+          artifacts_dir: '.'
+          checksums_file: 'SHA256SUMS.txt'
+
+      - name: Verify checksums
+        uses: ai-warevo/.github/ci/actions/checksums-verify@main
         with:
           artifacts_dir: '.'
           checksums_file: 'SHA256SUMS.txt'
