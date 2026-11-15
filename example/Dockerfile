@@ -1,7 +1,7 @@
 # ── Example C++23 Plugin — Docker image ──────────────────────────────────
 #
 # Многоэтапная сборка:
-#   stage1 (builder) — cmake + make, C++23 на Alpine
+#   stage1 (builder) — cmake + make, C++23 на Debian bookworm
 #   stage2 (runtime) — только бинарники host + libplugin
 #
 # Сборка:
@@ -11,9 +11,11 @@
 #   docker run --rm ghcr.io/ai-warevo/example
 
 # ── Builder ───────────────────────────────────────────────────────────────
-FROM gcc:13-alpine AS builder
+FROM gcc:14-bookworm AS builder
 
-RUN apk add --no-cache cmake make pkgconfig
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    cmake make pkg-config \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
 
@@ -29,9 +31,11 @@ RUN mkdir -p build && \
     make -j"$(nproc)"
 
 # ── Runtime ───────────────────────────────────────────────────────────────
-FROM alpine:3.20
+FROM debian:bookworm-slim
 
-RUN apk add --no-cache libstdc++
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libstdc++-12-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
