@@ -14,6 +14,8 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [0.7.7] - 2026-11-15
+
 ### Changed
 
 - Docker build: remove debug step, keep only build-and-push job
