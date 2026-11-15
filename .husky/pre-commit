@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+# pre-commit hook: validate commit message against Conventional Commits
+# Usage: place in .husky/pre-commit or .git/hooks/pre-commit
+
+set -eo pipefail
+
+# --- helpers ---
+
+print_error() {
+  printf '\033[31m✗ %s\033[0m\n' "$*" >&2
+}
+
+print_ok() {
+  printf '\033[32m✓ %s\033[0m\n' "$*" >&2
+}
+
+print_info() {
+  printf '\033[36mℹ %s\033[0m\n' "$*" >&2
+}
+
+# --- Conventional Commits regex ---
+# Type: feat | fix | docs | style | refactor | perf | test | build | ci | chore | revert
+# Scope: optional, in parentheses
+# Breaking: optional ! before :
+# Subject: required, after :
+# Body: optional, after blank line
+# Footer: optional, after body (BREAKING CHANGE:, Refs:, etc.)
+
+TYPE="feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert"
+# Four patterns covering all Conventional Commits variants:
+#   P1: type(scope)!: subject    (breaking with scope)
+#   P2: type(scope): subject     (normal with scope)
+#   P3: type!: subject           (breaking without scope)
+#   P4: type: subject            (normal without scope)
+COMMIT_RE_P1="^(${TYPE})\([a-zA-Z0-9_./-]+\)\!: .{1,88}$"
+COMMIT_RE_P2="^(${TYPE})\([a-zA-Z0-9_./-]+\): .{1,88}$"
+COMMIT_RE_P3="^(${TYPE})\!: .{1,88}$"
+COMMIT_RE_P4="^(${TYPE}): .{1,88}$"
+
+# --- validate a single commit message ---
+validate_message() {
+  local msg_file="$1"
+
+  if [[ ! -s "$msg_file" ]]; then
+    print_info "No commit message (squash/empty commit) — skipping validation"
+    return 0
+  fi
+
+  # Strip comments (lines starting with #) and blank lines to find the first real line
+  local subject
+  subject="$(grep -v '^#' "$msg_file" | head -n 1)"
+
+  if [[ -z "$subject" ]]; then
+    print_error "Commit message is empty or contains only comments"
+    return 1
+  fi
+
+  # Check against conventional commits regex (4 patterns)
+  if [[ ! "$subject" =~ $COMMIT_RE_P1 ]] && \
+     [[ ! "$subject" =~ $COMMIT_RE_P2 ]] && \
+     [[ ! "$subject" =~ $COMMIT_RE_P3 ]] && \
+     [[ ! "$subject" =~ $COMMIT_RE_P4 ]]; then
+    print_error "Commit message does not follow Conventional Commits:"
+    print_error "  \"$subject\""
+    print_error ""
+    print_info "Valid types: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert"
+    print_info "Format: type(scope)!: description"
+    print_info "Examples:"
+    print_info "  feat: add user profile page"
+    print_info "  fix(auth): resolve login timeout"
+    print_info "  refactor!: switch to JWT auth"
+    print_info "  docs: update API documentation"
+    return 1
+  fi
+
+  # Validate scope format if present
+  if [[ "$subject" =~ ^[a-z]+\(([^\)]*)\) ]]; then
+    local scope="${BASH_REMATCH[1]}"
+    if [[ -z "$scope" ]]; then
+      print_error "Scope cannot be empty: use 'type: description' instead of 'type(): description'"
+      return 1
+    fi
+  fi
+
+  # Validate subject length (max 88 chars after "type(scope)!: ")
+  local subject_length=${#subject}
+  if (( subject_length > 88 )); then
+    print_error "Subject line is too long (${subject_length}/88 chars):"
+    print_error "  \"$subject\""
+    print_error "  Keep it under 88 characters"
+    return 1
+  fi
+
+  # Validate subject line length (max 72 chars recommended)
+  local short_subject
+  short_subject="$(grep -v '^#' "$msg_file" | head -n 1)"
+  if (( ${#short_subject} > 72 )); then
+    print_info "Warning: subject line exceeds 72 characters (${#short_subject}/72)"
+    print_info "  Consider keeping the first line under 72 chars for git log readability"
+  fi
+
+  return 0
+}
+
+# --- main ---
+
+print_info "Running Conventional Commits pre-commit hook..."
+
+# Determine message file
+# Priority:
+#   1. MERGE_MSG (merge commit)
+#   2. Explicit file passed as $1 (e.g. from husky or -F flag)
+#   3. COMMIT_EDITMSG (normal commit)
+msg_file=""
+
+if [[ -f "$(git rev-parse --git-dir 2>/dev/null || echo .git)/MERGE_MSG" ]]; then
+  msg_file="$(git rev-parse --git-dir 2>/dev/null || echo .git)/MERGE_MSG"
+elif [[ $# -ge 1 && -n "$1" && -f "$1" ]]; then
+  msg_file="$1"
+elif [[ -f "$(git rev-parse --git-dir 2>/dev/null || echo .git)/COMMIT_EDITMSG" ]]; then
+  msg_file="$(git rev-parse --git-dir 2>/dev/null || echo .git)/COMMIT_EDITMSG"
+fi
+
+if [[ -z "$msg_file" ]]; then
+  print_info "No commit message file found — skipping validation"
+  exit 0
+fi
+
+exit_code=0
+validate_message "$msg_file" || exit_code=$?
+
+if [[ $exit_code -ne 0 ]]; then
+  print_error "Commit message validation failed. Aborting commit."
+  print_error ""
+  print_error "Tip: use 'git commit --no-verify' to bypass this hook"
+  exit 1
+fi
+
+print_ok "Commit message is valid"
+exit 0
