@@ -1,0 +1,14 @@
+.github
+ci
+models
+profile
+scripts
+skills
+templates
+CHANGELOG.md
+LICENSE
+README*
+VERSION
+Dockerfile
+.dockerignore
+

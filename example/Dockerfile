@@ -31,15 +31,15 @@ RUN mkdir -p build && \
     make -j"$(nproc)"
 
 # ── Runtime ───────────────────────────────────────────────────────────────
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libstdc++-12-dev \
+    libstdc++6 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-COPY --from=builder /build/build/host ./host
-COPY --from=builder /build/build/libplugin.so ./libplugin.so
+COPY --from=builder /build/build/host/host ./host
+COPY --from=builder /build/build/host/libplugin.so ./libplugin.so
 
 ENTRYPOINT ["/app/host"]
