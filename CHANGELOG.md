@@ -14,6 +14,10 @@ Maintainer notes:
 
 ## [Unreleased]
 
+### Fixed
+
+- Docker image tag: replace invalid `.` in path (`ghcr.io/ai-warevo/.github/example` → `ghcr.io/ai-warevo/example`)
+
 ## [0.7.0] - 2026-11-15
 
 ### Added
