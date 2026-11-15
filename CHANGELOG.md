@@ -14,6 +14,19 @@ Maintainer notes:
 
 ## [Unreleased]
 
+### Added
+
+- Composite actions: `collect-release-assets`, `docker-save`, `docker-push-ghcr`, `download-artifacts`, `checksums-verify`
+- Docker build + GHCR push job in release workflow
+- Multi-stage Dockerfile for example (C++23, Alpine, gcc13)
+
+### Changed
+
+- Split `checksums` action into generate-only + `checksums-verify` for reusability
+- `release.yml`: added `packages: write, actions: write` permissions, `concurrency` block
+- `ci.yml`, `test.yml`: added `packages: write` + `concurrency`
+- Removed stale todo directories
+
 ## [0.3.0] - 2026-11-15
 
 ### Added
@@ -55,7 +68,7 @@ Maintainer notes:
 - Coverage badge generation and deployment to `badges` branch
 - Coverage HTML report deployment to `gh-pages`
 
-[Unreleased]: https://github.com/ai-warevo/.github/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/ai-warevo/.github/compare/v0.4.0...HEAD
 [0.3.0]: https://github.com/ai-warevo/.github/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/ai-warevo/.github/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/ai-warevo/.github/releases/tag/v0.1.0
