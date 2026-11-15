@@ -6,6 +6,19 @@
 
 ## Что внутри
 
+### 🐳 LLM Server
+llama.cpp сервер для запуска LLM-моделей через Docker с GPU-ускорением:
+
+| Файл | Назначение |
+|------|-----------|
+| [docker-compose.llama.yml](docker-compose.llama.yml) | Docker Compose для llama.cpp сервера (RTX 4080, CUDA) |
+| [README.llama-cpp.md](README.llama-cpp.md) | Документация по запуску и настройке |
+
+- **API**: `http://host.docker.internal:8080/v1` (порт 8080, может конфликтовать)
+- **Основная модель**: Qwen3.6-35B-A3B-UD-Q4_K_XL (~21 GB, MoE ~3B active params)
+- **Fallback**: Qwen3-Coder-30B-A3B (~16.5 GB)
+- **Статус**: ✅ Готово
+
 ### 🧠 Скиллы
 AI-скиллы для автоматизации разработки:
 
@@ -28,19 +41,6 @@ AI-скиллы для автоматизации разработки:
 | [readme_template.md](templates/readme_template.md) | README.md проекта |
 | [changelog_template.md](templates/changelog_template.md) | CHANGELOG.md (Keep a Changelog + SemVer) |
 | [contributing_template.md](templates/contributing_template.md) | CONTRIBUTING.md — правила вклада |
-
-### 🐳 LLM Server
-llama.cpp сервер для запуска LLM-моделей через Docker с GPU-ускорением:
-
-| Файл | Назначение |
-|------|-----------|
-| [docker-compose.llama.yml](docker-compose.llama.yml) | Docker Compose для llama.cpp сервера (RTX 4080, CUDA) |
-| [README.llama-cpp.md](README.llama-cpp.md) | Документация по запуску и настройке |
-
-- **API**: `http://host.docker.internal:8080/v1` (порт 8080, может конфликтовать)
-- **Основная модель**: Qwen3.6-35B-A3B-UD-Q4_K_XL (~21 GB, MoE ~3B active params)
-- **Fallback**: Qwen3-Coder-30B-A3B (~16.5 GB)
-- **Статус**: ✅ Готово
 
 ### ⚙️ Конфигурации
 | Файл | Назначение |
