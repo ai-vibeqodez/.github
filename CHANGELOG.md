@@ -14,6 +14,19 @@ Maintainer notes:
 
 ## [Unreleased]
 
+### Added
+
+- Composite action `release-version`: resolves version from tag, workflow_dispatch input, or run_number
+- Composite action `checksums`: generates and verifies SHA256SUMS for release artifacts
+- `workflow_dispatch` trigger with optional `version` input in `release.yml`
+- `softprops/action-gh-release` with `generate_release_notes: false`
+- `SHA256SUMS.txt` included in release assets
+
+### Changed
+
+- `release.yml` refactored: version resolution extracted to composite action
+- `release.yml` uses `fetch-depth: 0` for full changelog history
+
 ## [0.1.0] - 2026-11-15
 
 ### Added
