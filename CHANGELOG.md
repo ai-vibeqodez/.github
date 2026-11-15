@@ -14,6 +14,14 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.2.3] - 2026-11-16
+
+### Fixed
+
+- match CHANGELOG.md/VERSION regardless of status prefix
+- allow unstaged changes to CHANGELOG.md and VERSION
+- replace xmllint with grep in coverage-parser action
+
 ## [1.2.2] - 2026-11-16
 
 ### Fixed
