@@ -7,10 +7,14 @@
 ```
 ci/
 ├── README.md
+├── actions/
+│   └── badge/          — SVG Badge Generator (кастомный экшен)
+│       ├── action.yml
+│       └── README.md
 └── .github/
     └── workflows/
-        ├── ci.yml   — основной CI pipeline (build → lint → test)
-        └── test.yml — расширенное тестирование (мультиплатформа, coverage)
+        ├── ci.yml      — основной CI pipeline (build → lint → test)
+        └── test.yml    — расширенное тестирование (мультиплатформа, coverage, badge)
 ```
 
 ## Как использовать
@@ -32,16 +36,34 @@ ci/
 - Запускается по push в `main`/`develop` и по PR
 - Отменяет старые запуски для одного и того же PR/ветки
 - Заглушки для стеков: Node.js, Python, C#, C++, Go, Rust, Java
+- Node.js/Python: генерация coverage XML для badge
 
 ## test.yml — Расширенное тестирование
 
 Запускается:
 - **Вручную** (`workflow_dispatch`) — по кнопке в GitHub UI
+- **По push** в `main`/`master`
 - **По расписанию** — каждый понедельник в 06:00 UTC
 
 - Мультиплатформенный тестинг: Linux, Windows, macOS
 - Матрица по версиям (Node.js, Python — раскомментируй и настрой)
 - Coverage report (заглушка — замени на codecov/coveralls)
+- **Coverage Badge** — автоматическая генерация SVG-бейджа и деплой на ветку `badges`
+- **Coverage HTML Report** — деплой отчёта на `gh-pages`
+
+### Coverage Badge
+
+После запуска на `main`/`master` workflow:
+1. Парсит `coverage.xml` или `coverage.lcov`
+2. Определяет цвет: 🔴 <50%, 🟡 50–80%, 🟢 ≥80%
+3. Генерирует SVG-бейдж через экшен `ai-warevo/.github/ci/actions/badge@main`
+4. Деплоит бейдж на ветку `badges`
+5. Деплоит HTML-отчёт на `gh-pages` (если `htmlcov/index.html` существует)
+
+Для использования в `README.md`:
+```markdown
+![Coverage](https://raw.githubusercontent.com/your-org/your-repo/badges/coverage.svg)
+```
 
 ## Поддерживаемые стеки
 
