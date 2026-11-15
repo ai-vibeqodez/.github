@@ -1,7 +1,5 @@
 # Release — Publish GitHub Release from CHANGELOG
 #
-# Скопируй этот файл в свой проект как .github/workflows/release.yml
-#
 # Триггеры:
 #   - push тега v* → релиз из CHANGELOG
 #   - workflow_dispatch → ручной релиз с версией (input) или snapshot (v0.0.<run_number>)
@@ -31,8 +29,9 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  release:
-    name: Publish GitHub Release
+  # ── Build example (C++23 plugin + host) ─────────────────────────────────
+  build-example:
+    name: Build example
     runs-on: ubuntu-latest
     outputs:
       release_version: ${{ steps.version.outputs.release_version }}
@@ -49,23 +48,53 @@ jobs:
         with:
           version: ${{ github.event.inputs.version }}
 
+      - name: Set up CMake and build
+        working-directory: example
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Release -DAW_EXAMPLE_BUILD_TESTS=OFF
+          cmake --build build -j"$(nproc)"
+
+      - name: Upload libplugin.so
+        uses: actions/upload-artifact@v4
+        with:
+          name: libplugin-${{ steps.version.outputs.release_version }}
+          path: example/build/libplugin.so
+
+      - name: Upload host
+        uses: actions/upload-artifact@v4
+        with:
+          name: host-${{ steps.version.outputs.release_version }}
+          path: example/build/host
+
+  # ── Release job ──────────────────────────────────────────────────────────
+  release:
+    name: Publish GitHub Release
+    runs-on: ubuntu-latest
+    needs: build-example
+    outputs:
+      release_version: ${{ needs.build-example.outputs.release_version }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Generate Release Body
         id: changelog
         uses: ai-warevo/.github/ci/actions/changelog-release@main
         with:
-          tag: ${{ steps.version.outputs.release_version }}
+          tag: v${{ needs.build-example.outputs.release_version }}
 
       - name: Download build artifacts
-        if: ${{ always() }}
-        uses: ai-warevo/.github/ci/actions/download-artifacts@main
+        uses: actions/download-artifact@v4
         with:
           pattern: 'libplugin-*'
           merge-multiple: true
           path: .
 
       - name: Download host artifact
-        if: ${{ always() }}
-        uses: ai-warevo/.github/ci/actions/download-artifacts@main
+        uses: actions/download-artifact@v4
         with:
           pattern: 'host-*'
           merge-multiple: true
@@ -87,42 +116,14 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.version.outputs.release_version }}
-          name: ${{ steps.version.outputs.release_version }}
+          tag_name: v${{ needs.build-example.outputs.release_version }}
+          name: v${{ needs.build-example.outputs.release_version }}
           body_path: ${{ steps.changelog.outputs.body_path }}
           files: |
             SHA256SUMS.txt
-            libplugin-${{ steps.version.outputs.release_version }}.so
-            host-${{ steps.version.outputs.release_version }}
+            libplugin-${{ needs.build-example.outputs.release_version }}.so
+            host-${{ needs.build-example.outputs.release_version }}
           generate_release_notes: false
-
-  # ── Build example (C++23 plugin + host) ─────────────────────────────────
-  build-example:
-    name: Build example
-    runs-on: ubuntu-latest
-    needs: release
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up CMake and build
-        working-directory: example
-        run: |
-          cmake -B build -DCMAKE_BUILD_TYPE=Release -DAW_EXAMPLE_BUILD_TESTS=OFF
-          cmake --build build -j"$(nproc)"
-
-      - name: Upload libplugin.so
-        uses: actions/upload-artifact@v4
-        with:
-          name: libplugin-${{ needs.release.outputs.release_version }}
-          path: example/build/libplugin.so
-
-      - name: Upload host
-        uses: actions/upload-artifact@v4
-        with:
-          name: host-${{ needs.release.outputs.release_version }}
-          path: example/build/host
 
   # ── Docker image build + GHCR push ──────────────────────────────────────
   docker:
@@ -147,7 +148,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./example
           file: example/Dockerfile
           push: true
           tags: |

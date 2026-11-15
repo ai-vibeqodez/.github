@@ -8,26 +8,74 @@
 ci/
 ├── README.md
 ├── actions/
-│   └── badge/          — SVG Badge Generator (кастомный экшен)
-│       ├── action.yml
-│       └── README.md
-└── .github/
-    └── workflows/
-        ├── ci.yml      — основной CI pipeline (build → lint → test)
-        └── test.yml    — расширенное тестирование (мультиплатформа, coverage, badge, release)
+│   ├── badge/              — SVG Badge Generator (coverage бейдж)
+│   │   ├── action.yml
+│   │   └── README.md
+│   ├── changelog-release/  — генерация body релиза из CHANGELOG.md
+│   ├── checksums/          — генерация SHA256SUMS.txt из артефактов
+│   ├── checksums-verify/   — верификация SHA256SUMS.txt
+│   ├── collect-release-assets/ — скачивание артефактов билда
+│   ├── coverage-parser/    — парсер coverage (XML/LCOV)
+│   ├── docker-push-ghcr/   — push Docker image в GHCR
+│   ├── docker-save/        — сохранение Docker image в tarball
+│   ├── download-artifacts/ — скачивание артефактов из других job
+│   └── release-version/    — определение версии из CHANGELOG или workflow_dispatch
+├── .github/
+│   └── workflows/
+│       ├── ci.yml          — основной CI pipeline (build → lint → test)
+│       ├── release.yml     — автоматический релиз из CHANGELOG (build → release → docker)
+│       └── test.yml        — расширенное тестирование (мультиплатформа, coverage)
 ```
 
 ## Как использовать
 
-1. Скопируй нужные файлы в свой проект:
-   ```
-   cp ci/.github/workflows/ci.yml .github/workflows/ci.yml
-   cp ci/.github/workflows/test.yml .github/workflows/test.yml
+### Быстрый старт (копирование workflow)
+
+1. Скопируй workflow в свой проект:
+   ```bash
+   cp ci/.github/workflows/release.yml .github/workflows/release.yml
    ```
 
-2. Открой файл и раскомментируй секцию для своего стека.
-3. Замени `echo "call real command to ..."` на реальные команды.
-4. Настрой параметры матрицы (версии Node.js, Python и т.д.).
+2. Добавь изменения в `CHANGELOG.md` под `## [Unreleased]`.
+
+3. Создай релиз:
+   ```bash
+   make release-dry-run   # проверить, что будет
+   make release           # создать тег и коммит
+   ```
+
+4. Запушь тег (SSH ключ нужен):
+   ```bash
+   GIT_SSH_COMMAND="ssh -i /tmp/ssh/id_ed25519 -o UserKnownHostsFile=/tmp/ssh/known_hosts -o StrictHostKeyChecking=no" \
+     git push origin v0.7.0
+   ```
+
+### Ручной запуск (workflow_dispatch)
+
+```bash
+gh workflow run release.yml --ref main -f version=1.0.0
+```
+
+## release.yml — Build → Release → Docker
+
+Автоматический pipeline из трёх job:
+
+1. **build-example** — билд проекта (CMake) и загрузка артефактов
+2. **release** — парсит CHANGELOG, генерирует checksums, создаёт GitHub Release с артефактами
+3. **docker** — собирает и пушит Docker image в GHCR
+
+### Composite Actions
+
+| Action | Назначение |
+|--------|-----------|
+| `release-version` | Определяет версию из CHANGELOG.md или input |
+| `changelog-release` | Генерирует body релиза из секции CHANGELOG |
+| `checksums` | Генерирует SHA256SUMS.txt для артефактов |
+| `checksums-verify` | Верифицирует checksums артефактов |
+| `download-artifacts` | Скачивает артефакты из других job (pattern match) |
+| `docker-push-ghcr` | Push Docker image в GitHub Container Registry |
+| `docker-save` | Сохраняет Docker image в tarball |
+| `collect-release-assets` | Скачивает артефакты билда |
 
 ## ci.yml — Build, Lint, Test
 
@@ -50,7 +98,6 @@ ci/
 - Coverage report (заглушка — замени на codecov/coveralls)
 - **Coverage Badge** — автоматическая генерация SVG-бейджа и деплой на ветку `badges`
 - **Coverage HTML Report** — деплой отчёта на `gh-pages`
-- **GitHub Release** — автоматическое создание релиза по тегу `vX.Y.Z`
 
 ### Coverage Badge
 
@@ -65,36 +112,6 @@ ci/
 ```markdown
 ![Coverage](https://raw.githubusercontent.com/your-org/your-repo/badges/coverage.svg)
 ```
-
-### GitHub Release
-
-При создании тега `vX.Y.Z` workflow:
-1. Парсит CHANGELOG.md, извлекает секцию `## [X.Y.Z]`
-2. Генерирует body с описанием изменений и quick-start инструкциями
-3. Создаёт GitHub Release через `softprops/action-gh-release@v2`
-
-Для создания релиза:
-```bash
-# 1. Заполни изменения в CHANGELOG.md под ## [Unreleased]
-# 2. Запусти скрипт (Linux/macOS):
-./scripts/release.sh --push
-# или (Windows):
-.\scripts\release.ps1 -Push
-```
-
-Скрипт автоматически:
-- Определяет тип версии (major/minor/patch) по категориям в [Unreleased]
-- Промоутит [Unreleased] → `## [X.Y.Z] - today`
-- Обновляет VERSION
-- Создаёт commit + annotated tag
-- Пушит всё атомарно
-
-Категории:
-| Категория | Тип bump |
-|-----------|----------|
-| Breaking, Removed | major |
-| Added, Deprecated | minor |
-| Fixed, Changed, Security | patch |
 
 ## Поддерживаемые стеки
 
