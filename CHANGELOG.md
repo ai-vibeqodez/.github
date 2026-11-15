@@ -14,6 +14,12 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [0.6.2] - 2026-11-15
+
+### Fixed
+
+- YAML parsing error in `changelog-release` action (nested quotes in `description`)
+
 ## [0.6.0] - 2026-11-15
 
 ### Added
