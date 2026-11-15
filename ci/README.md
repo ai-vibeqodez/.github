@@ -14,7 +14,7 @@ ci/
 └── .github/
     └── workflows/
         ├── ci.yml      — основной CI pipeline (build → lint → test)
-        └── test.yml    — расширенное тестирование (мультиплатформа, coverage, badge)
+        └── test.yml    — расширенное тестирование (мультиплатформа, coverage, badge, release)
 ```
 
 ## Как использовать
@@ -50,6 +50,7 @@ ci/
 - Coverage report (заглушка — замени на codecov/coveralls)
 - **Coverage Badge** — автоматическая генерация SVG-бейджа и деплой на ветку `badges`
 - **Coverage HTML Report** — деплой отчёта на `gh-pages`
+- **GitHub Release** — автоматическое создание релиза по тегу `vX.Y.Z`
 
 ### Coverage Badge
 
@@ -64,6 +65,36 @@ ci/
 ```markdown
 ![Coverage](https://raw.githubusercontent.com/your-org/your-repo/badges/coverage.svg)
 ```
+
+### GitHub Release
+
+При создании тега `vX.Y.Z` workflow:
+1. Парсит CHANGELOG.md, извлекает секцию `## [X.Y.Z]`
+2. Генерирует body с описанием изменений и quick-start инструкциями
+3. Создаёт GitHub Release через `softprops/action-gh-release@v2`
+
+Для создания релиза:
+```bash
+# 1. Заполни изменения в CHANGELOG.md под ## [Unreleased]
+# 2. Запусти скрипт (Linux/macOS):
+./scripts/release.sh --push
+# или (Windows):
+.\scripts\release.ps1 -Push
+```
+
+Скрипт автоматически:
+- Определяет тип версии (major/minor/patch) по категориям в [Unreleased]
+- Промоутит [Unreleased] → `## [X.Y.Z] - today`
+- Обновляет VERSION
+- Создаёт commit + annotated tag
+- Пушит всё атомарно
+
+Категории:
+| Категория | Тип bump |
+|-----------|----------|
+| Breaking, Removed | major |
+| Added, Deprecated | minor |
+| Fixed, Changed, Security | patch |
 
 ## Поддерживаемые стеки
 
