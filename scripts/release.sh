@@ -8,7 +8,7 @@
 #   Added, Deprecated          -> minor
 #   Fixed, Changed, Security   -> patch
 # Then promotes [Unreleased] to "## [X.Y.Z] - <today>", updates the compare links, writes X.Y.Z to VERSION (read by
-# CMakeLists.txt), commits CHANGELOG.md + VERSION as "release: vX.Y.Z" and creates the annotated tag vX.Y.Z.
+# CMakeLists.txt), commits CHANGELOG.md + VERSION as "chore(release): vX.Y.Z" and creates the annotated tag vX.Y.Z.
 # --push also pushes the branch and the tag (atomically) to $RELEASE_REMOTE (default: origin); pushing the tag
 # triggers the GitHub release workflow.
 set -euo pipefail
@@ -142,7 +142,7 @@ if [ "$crlf" -eq 1 ]; then sed 's/$/\r/' "$out" > "$changelog"; else cp "$out" "
 printf '%s\n' "$version" > "$version_file"
 
 git add -- "$changelog" "$version_file"
-git commit -m "release: $tag" -- "$changelog" "$version_file"
+git commit -m "chore(release): v$version" -- "$changelog" "$version_file"
 git tag -a "$tag" -m "release $tag"
 echo "Created commit and annotated tag $tag."
 
