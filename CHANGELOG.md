@@ -14,6 +14,8 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.0.4] - 2026-11-15
+
 ### Fixed
 
 - `release.yml`: replace gh CLI with curl in debug logging (gh not available without GH_TOKEN in workflows)
