@@ -17,7 +17,6 @@ llama.cpp сервер для запуска LLM-моделей через Docke
 - **API**: `http://host.docker.internal:8080/v1` (порт 8080, может конфликтовать)
 - **Основная модель**: Qwen3.6-35B-A3B-UD-Q4_K_XL (~21 GB, MoE ~3B active params)
 - **Fallback**: Qwen3-Coder-30B-A3B (~16.5 GB)
-- **Статус**: ✅ Готово
 
 ### 🧠 Скиллы
 AI-скиллы для автоматизации разработки:
@@ -28,6 +27,7 @@ AI-скиллы для автоматизации разработки:
 | [planner](skills/planner/SKILL.md) | Декомпозиция требований → OVERVIEW + task-файлы |
 | [executor](skills/executor/SKILL.md) | Выполнение задач из todo-директорий |
 | [skill-creator](skills/skill-creator/SKILL.md) | Создание новых скиллов с валидацией |
+| [git-github-push](skills/git-github-push/SKILL.md) | Push коммитов в GitHub через SSH (обход read-only ФС контейнера) |
 
 Полный каталог — [SKILLS.md](SKILLS.md)
 
@@ -87,7 +87,8 @@ AI-скиллы для автоматизации разработки:
 │   ├── analyst/SKILL.md
 │   ├── executor/SKILL.md
 │   ├── planner/SKILL.md
-│   └── skill-creator/SKILL.md
+│   ├── skill-creator/SKILL.md
+│   └── git-github-push/SKILL.md
 ├── templates/
 │   ├── overview.md
 │   ├── task_template.md
