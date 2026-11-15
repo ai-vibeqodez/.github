@@ -14,6 +14,14 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-15
+
+### Added
+
+- `build-example` job: cmake build of plugin + host, upload as release artifacts
+- `docker` job: `docker/build-push-action` to build and push to GHCR (was broken docker-save)
+- Release assets: `libplugin.so` and `host` binaries included in release
+
 ## [0.6.2] - 2026-11-15
 
 ### Fixed
