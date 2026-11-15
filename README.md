@@ -29,7 +29,7 @@ AI-скиллы для автоматизации разработки:
 | [skill-creator](skills/skill-creator/SKILL.md) | Создание новых скиллов с валидацией |
 | [git-github-push](skills/git-github-push/SKILL.md) | Push коммитов в GitHub через SSH (обход read-only ФС контейнера) |
 
-Полный каталог — [SKILLS.md](SKILLS.md)
+Полный каталог — [skills/README.md](skills/README.md)
 
 ### 📄 Шаблоны
 Готовые шаблоны для проектов:
@@ -58,9 +58,6 @@ AI-скиллы для автоматизации разработки:
 | [ci/README.md](ci/README.md) | Инструкция по использованию |
 
 Поддерживаемые стеки: Node.js, Python, C#, C++, Go, Rust, Java
-
-### 📚 Документация
-- [SKILLS.md](SKILLS.md) — каталог всех скиллов с входом/выходом, сложностью и зависимостями
 
 ## Как использовать
 
@@ -100,7 +97,6 @@ AI-скиллы для автоматизации разработки:
 │   ├── readme_template.md
 │   ├── changelog_template.md
 │   └── contributing_template.md
-├── SKILLS.md
 └── README.md
 ```
 
