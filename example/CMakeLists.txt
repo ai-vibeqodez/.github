@@ -8,16 +8,16 @@ else()
     set(AW_EXAMPLE_IS_TOP_LEVEL OFF)
 endif()
 
-# ── Subprojects ───────────────────────────────────────────────────────────
-add_subdirectory(plugin)
-add_subdirectory(host)
-
 # ── Coverage ────────────────────────────────────────────────────────────────
 option(AW_EXAMPLE_ENABLE_COVERAGE "Enable code coverage instrumentation" OFF)
 
 # ── Sanitizers ──────────────────────────────────────────────────────────────
 set(AW_EXAMPLE_SANITIZE "none" CACHE STRING "Sanitizer to enable: none, address (ASan+UBSan) or thread (TSan)")
 set_property(CACHE AW_EXAMPLE_SANITIZE PROPERTY STRINGS none address thread)
+
+# ── Subprojects ───────────────────────────────────────────────────────────
+add_subdirectory(plugin)
+add_subdirectory(host)
 
 # ── Tests (opt-in, off when consumed as a subproject) ──────────────────────
 option(AW_EXAMPLE_BUILD_TESTS "Build example unit tests" ${AW_EXAMPLE_IS_TOP_LEVEL})
@@ -42,11 +42,22 @@ if(AW_EXAMPLE_BUILD_TESTS)
     add_subdirectory(plugin/tests)
 endif()
 
-# ── Apply coverage / sanitizer flags to all targets ─────────────────────────
+# ── Apply coverage / sanitizer flags to all project targets ─────────────────
+# Explicitly list project targets (not FetchContent deps like Catch2).
+set(_AW_PROJECT_TARGETS plugin host)
+
+if(AW_EXAMPLE_BUILD_TESTS)
+    list(APPEND _AW_PROJECT_TARGETS plugin_tests)
+endif()
+
 if(AW_EXAMPLE_ENABLE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    # --coverage adds -lgcov automatically
-    add_compile_options(--coverage -O0 -g -fprofile-update=atomic)
-    add_link_options(--coverage)
+    # --coverage adds -lgcov automatically; -O0 -g required for meaningful data
+    foreach(_tgt IN LISTS _AW_PROJECT_TARGETS)
+        if(TARGET ${_tgt})
+            target_compile_options(${_tgt} PRIVATE --coverage -O0 -g -fprofile-update=atomic)
+            target_link_options(${_tgt} PRIVATE --coverage)
+        endif()
+    endforeach()
 endif()
 
 if(NOT AW_EXAMPLE_SANITIZE STREQUAL "none")
@@ -63,6 +74,10 @@ if(NOT AW_EXAMPLE_SANITIZE STREQUAL "none")
     else()
         message(FATAL_ERROR "AW_EXAMPLE_SANITIZE must be one of: none, address, thread")
     endif()
-    add_compile_options(-fsanitize=${AW_EXAMPLE_SANITIZE_FLAGS} -fno-omit-frame-pointer -g)
-    add_link_options(-fsanitize=${AW_EXAMPLE_SANITIZE_FLAGS})
+    foreach(_tgt IN LISTS _AW_PROJECT_TARGETS)
+        if(TARGET ${_tgt})
+            target_compile_options(${_tgt} PRIVATE -fsanitize=${AW_EXAMPLE_SANITIZE_FLAGS} -fno-omit-frame-pointer -g)
+            target_link_options(${_tgt} PRIVATE -fsanitize=${AW_EXAMPLE_SANITIZE_FLAGS})
+        endif()
+    endforeach()
 endif()
