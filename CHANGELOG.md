@@ -14,6 +14,12 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [0.7.3] - 2026-11-15
+
+### Fixed
+
+- Docker build: fix `context` and `file` paths in `build-push-action` to use `./example` context with correct Dockerfile reference
+
 ## [0.7.2] - 2026-11-15
 
 ### Fixed
