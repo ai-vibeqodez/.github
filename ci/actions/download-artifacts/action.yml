@@ -3,7 +3,7 @@
 # Обёртка над actions/download-artifacts@v4 для удобной загрузки
 # нескольких артефактов по паттерну с объединением в одну директорию.
 #
-# Паттерн из production workflow MimironsGoldOMatic:
+# Паттерн из production workflow:
 #   download-artifact с pattern + merge-multiple
 #
 # Usage:

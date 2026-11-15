@@ -4,7 +4,7 @@
 # GitHub Actions. Используется в production workflow для переноса
 # образа между jobs (build → release).
 #
-# Паттерн из production workflow MimironsGoldOMatic:
+# Паттерн из production workflow:
 #   docker build → docker save → upload-artifact
 #
 # Usage:

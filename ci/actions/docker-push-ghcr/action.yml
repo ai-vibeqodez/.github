@@ -3,7 +3,7 @@
 # Загружает Docker image из tar-артефакта и пушит в GHCR с тегами
 # :vX.Y.Z и :latest. Используется на этапе release.
 #
-# Паттерн из production workflow MimironsGoldOMatic:
+# Паттерн из production workflow:
 #   download-artifact (docker-image) → docker load → docker push
 #
 # Usage:

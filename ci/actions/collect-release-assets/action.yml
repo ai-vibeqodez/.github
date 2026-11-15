@@ -1,10 +1,10 @@
 # collect-release-assets — Collect build artifacts for GitHub Release
 #
-# Объединяет артефакты из нескольких jobs (desktop, addon, extension,
-# Docker image) в единую директорию перед созданием GitHub Release.
+# Объединяет артефакты из нескольких jobs в единую директорию
+# перед созданием GitHub Release.
 #
-# Паттерн из production workflow MimironsGoldOMatic:
-#   4 параллельных билда → collect → checksum → release
+# Паттерн из production workflow:
+#   параллельные билды → collect → checksum → release
 #
 # Usage:
 #   - name: Collect release assets
