@@ -14,6 +14,19 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.2.12] - 2026-11-16
+
+### Fixed
+
+- remove event condition from coverage steps
+- add gcovr-report action to example-ci paths filter
+- add gcovr-report action to example-ci paths filter
+
+### Changed
+
+- Revert "fix(ci): add gcovr-report action to example-ci paths filter"
+- Revert "fix(ci): add gcovr-report action to example-ci paths filter"
+
 ## [1.2.11] - 2026-11-16
 
 ### Fixed
