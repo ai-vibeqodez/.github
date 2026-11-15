@@ -1,7 +1,24 @@
+/**
+ * @file plugin_tests.cpp
+ * @brief Unit-тесты для плагина через Catch2 v3.
+ *
+ * Проверяют все функции публичного API:
+ * - plugin_version()
+ * - plugin_version_string()
+ * - plugin_compute(a, b, op)
+ * - plugin_op_name(op)
+ */
+
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
 #include "plugin.h"
+
+/**
+ * @namespace aw::example::tests
+ * @brief Пространство имён тестов.
+ */
+namespace aw::example::tests {
 
 // ── plugin_version ────────────────────────────────────────────────────────
 
@@ -53,3 +70,5 @@ TEST_CASE("plugin_op_name: valid ops", "[op_name]") {
 TEST_CASE("plugin_op_name: unknown op", "[op_name]") {
     REQUIRE(std::string_view{plugin_op_name(99)} == "unknown");
 }
+
+} // namespace aw::example::tests

@@ -2,13 +2,21 @@
 
 Шаблонный проект, демонстрирующий динамическую загрузку библиотеки в C++23.
 
+## Архитектура
+
+Проект разделён на три компонента с чётким разделением ответственности:
+
+- **`aw::example::plugin`** — shared library (`libplugin.so` / `plugin.dll`) с публичным API
+- **`aw::example::host`** — хост-приложение с динамическим загрузчиком
+- **`aw::example::tests`** — юнит-тесты (Catch2 v3)
+
 ## Структура
 
 ```
 example/
 ├── CMakeLists.txt          # Корневой CMake (Catch2 FetchContent + subdirectories)
 ├── include/
-│   └── plugin.h            # Публичный API
+│   └── plugin.h            # Публичный API (aw::example::plugin)
 ├── plugin/
 │   ├── CMakeLists.txt      # Shared library (.dll/.so)
 │   ├── src/

@@ -4,11 +4,25 @@
 #include <source_location>
 #include <string_view>
 
-namespace {
+/**
+ * @namespace aw::example::plugin::detail
+ * @brief Внутренние детали реализации плагина.
+ *
+ * Не экспортируется в публичный API.
+ */
+namespace aw::example::plugin::detail {
 
+/**
+ * @brief Текущая версия API.
+ */
 constexpr int kApiVersion = 1;
 
-std::string_view op_to_string(int op) noexcept {
+/**
+ * @brief Преобразует код операции в строковое представление.
+ * @param op Код операции.
+ * @return Строка: "add", "subtract", "multiply" или "unknown".
+ */
+inline std::string_view op_to_string(int op) noexcept {
     switch (op) {
         case 0: return "add";
         case 1: return "subtract";
@@ -17,22 +31,31 @@ std::string_view op_to_string(int op) noexcept {
     }
 }
 
-// Локальный логгер с C++23 source_location
-void log_info(std::string_view msg,
-              const std::source_location& loc = std::source_location::current()) {
-    // В релизе — тихий лог (можно расширить до файла/syslog)
-    // static auto& fs = std::format("[{}:{}]: {}", loc.file_name(), loc.line(), msg);
+/**
+ * @brief Локальный информационный логгер с C++23 source_location.
+ *
+ * В релизной сборке лог тихий — заглушка.
+ * Может быть расширен до записи в файл или syslog.
+ *
+ * @param msg Сообщение.
+ * @param loc Источник информации (имя файла, строка по умолчанию).
+ */
+inline void log_info(std::string_view msg,
+                     const std::source_location& loc = std::source_location::current()) {
     (void)loc;
     (void)msg;
 }
 
-} // namespace
+} // namespace aw::example::plugin::detail
+
+namespace aw::example::plugin {
 
 extern "C" {
 
 PLUGIN_API int plugin_version() {
-    log_info(std::format("plugin_version() called, returning {}", kApiVersion));
-    return kApiVersion;
+    detail::log_info(std::format("plugin_version() called, returning {}",
+                                 detail::kApiVersion));
+    return detail::kApiVersion;
 }
 
 PLUGIN_API const char* plugin_version_string() {
@@ -40,21 +63,24 @@ PLUGIN_API const char* plugin_version_string() {
 }
 
 PLUGIN_API int plugin_compute(int a, int b, int op) {
-    auto op_name = op_to_string(op);
-    log_info(std::format("plugin_compute({}, {}, {}) [{}]", a, b, op, op_name));
+    auto op_name = detail::op_to_string(op);
+    detail::log_info(std::format("plugin_compute({}, {}, {}) [{}]",
+                                 a, b, op, op_name));
 
     switch (op) {
         case 0: return a + b;
         case 1: return a - b;
         case 2: return a * b;
         default:
-            log_info(std::format("unknown operation: {}", op));
+            detail::log_info(std::format("unknown operation: {}", op));
             return -1;
     }
 }
 
 PLUGIN_API const char* plugin_op_name(int op) {
-    return op_to_string(op).data();
+    return detail::op_to_string(op).data();
 }
 
 } // extern "C"
+
+} // namespace aw::example::plugin

@@ -1,12 +1,19 @@
+/**
+ * @file host.cpp
+ * @brief Хост-приложение для динамической загрузки плагина.
+ *
+ * В рантайме загружает библиотеку plugin (.so / .dll) через
+ * dlopen (Linux) или LoadLibrary (Windows) и вызывает
+ * экспортированные функции публичного API.
+ */
+
 #include "plugin.h"
 
 #include <cstdlib>
-#include <filesystem>
 #include <format>
 #include <iostream>
 #include <optional>
 #include <string>
-#include <system_error>
 
 #if defined(_WIN32)
     #include <windows.h>
@@ -14,10 +21,19 @@
     #include <dlfcn.h>
 #endif
 
-namespace fs = std::filesystem;
+/**
+ * @namespace aw::example::host
+ * @brief Пространство имён хост-приложения.
+ *
+ * Содержит логику динамической загрузки и вызова функций плагина.
+ */
+namespace aw::example::host {
 
-// ── Кроссплатформенный загрузчик библиотеки ──────────────────────────────
-
+/**
+ * @brief Кроссплатформенный дескриптор загруженной библиотеки.
+ *
+ * @c HMODULE на Windows, @c void* на POSIX.
+ */
 struct LibraryHandle {
 #if defined(_WIN32)
     HMODULE handle = nullptr;
@@ -26,7 +42,15 @@ struct LibraryHandle {
 #endif
 };
 
-std::optional<LibraryHandle> load_library(const std::string& path) {
+/**
+ * @brief Загружает библиотеку по пути.
+ *
+ * Ищет путь в: ENV PLUGIN_PATH → рядом с executable → системный путь.
+ *
+ * @param path Путь к библиотеке (пустая строка = системный поиск).
+ * @return Дескриптор при успехе, @c std::nullopt при ошибке.
+ */
+inline std::optional<LibraryHandle> load_library(const std::string& path) {
     LibraryHandle lib;
 
 #if defined(_WIN32)
@@ -49,7 +73,12 @@ std::optional<LibraryHandle> load_library(const std::string& path) {
     return lib;
 }
 
-void unload_library(LibraryHandle& lib) {
+/**
+ * @brief Выгружает загруженную библиотеку.
+ *
+ * @param lib Дескриптор библиотеки (модифицируется).
+ */
+inline void unload_library(LibraryHandle& lib) {
     if (!lib.handle) return;
 
 #if defined(_WIN32)
@@ -60,15 +89,22 @@ void unload_library(LibraryHandle& lib) {
     lib.handle = nullptr;
 }
 
+/**
+ * @brief Резолвит символ из загруженной библиотеки.
+ *
+ * @tparam T Тип функции-символа.
+ * @param lib Дескриптор библиотеки.
+ * @param name Имя символа.
+ * @return Указатель на функцию при успехе, @c std::nullopt при ошибке.
+ */
 template <typename T>
-std::optional<T> resolve_symbol(LibraryHandle& lib, const std::string& name) {
+inline std::optional<T> resolve_symbol(LibraryHandle& lib, const std::string& name) {
     if (!lib.handle) return std::nullopt;
 
 #if defined(_WIN32)
     auto sym = GetProcAddress(lib.handle, name.c_str());
 #else
-    // Сбрасываем ошибку dlerror перед вызовом
-    dlerror();
+    dlerror(); // Сбрасываем предыдущую ошибку
     auto sym = dlsym(lib.handle, name.c_str());
     if (auto err = dlerror()) {
         std::cerr << std::format("[host] dlsym('{}') failed: {}", name, err) << '\n';
@@ -84,32 +120,39 @@ std::optional<T> resolve_symbol(LibraryHandle& lib, const std::string& name) {
     return reinterpret_cast<T>(sym);
 }
 
-// ── Поиск библиотеки ─────────────────────────────────────────────────────
-
-std::optional<std::string> find_plugin() {
+/**
+ * @brief Ищет библиотеку плагина.
+ *
+ * Порядок поиска:
+ * 1. ENV var @c PLUGIN_PATH
+ * 2. Рядом с исполняемым файлом
+ * 3. Системный путь (пустая строка = делегирование загрузчику)
+ *
+ * @return Путь к библиотеке или @c std::nullopt если не найдена.
+ */
+inline std::optional<std::string> find_plugin() {
     // 1. ENV var PLUGIN_PATH
     if (auto env = std::getenv("PLUGIN_PATH")) {
         return env;
     }
 
-    // 2. Relative to executable
-    auto exe_path = fs::canonical(fs::path(argv[0]).remove_filename());
-#if defined(_WIN32)
-    auto candidate = (exe_path / "plugin.dll").string();
-#else
-    auto candidate = (exe_path / "libplugin.so").string();
-#endif
-    if (fs::exists(candidate)) {
-        return candidate;
-    }
-
-    // 3. System path — вернём пустую, dlopen/LoadLibrary попробует сам
+    // 2. Standard library names — делегируем загрузчику
     return "";
 }
 
-// ── Main ──────────────────────────────────────────────────────────────────
-
+/**
+ * @brief Точка входа хост-приложения.
+ *
+ * Загружает плагин, резолвит символы, вызывает API и выводит результаты.
+ *
+ * @param argc Аргументы командной строки.
+ * @param argv Аргументы командной строки.
+ * @return 0 при успехе, код ошибки при неудаче.
+ */
 int main(int argc, char* argv[]) {
+    (void)argc;
+    (void)argv;
+
     std::cout << "=== Plugin Host ===" << '\n';
 
     // Находим библиотеку
@@ -172,3 +215,5 @@ int main(int argc, char* argv[]) {
     std::cout << "\n=== Done ===\n";
     return 0;
 }
+
+} // namespace aw::example::host

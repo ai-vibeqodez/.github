@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstdio>
 #include <string_view>
 
 // ── Кроссплатформенный декоратор экспорта ────────────────────────────────
@@ -14,17 +13,44 @@
     #define PLUGIN_API __attribute__((visibility("default")))
 #endif
 
-// ── Публичный API ────────────────────────────────────────────────────────
-// Возвращает версию API (текущая: 1).
+/**
+ * @namespace aw::example::plugin
+ * @brief Пространство имён публичного API плагина.
+ *
+ * Все экспортируемые функции находятся в этом неймспейсе.
+ * Функции экспортируются через extern "C" для совместимости
+ * с динамическими загрузчиками (dlopen / LoadLibrary).
+ */
+namespace aw::example::plugin {
+
+/**
+ * @brief Возвращает текущую версию API.
+ * @return Версия API (текущая: 1).
+ */
 extern "C" PLUGIN_API int plugin_version();
 
-// Возвращает строковое представление версии API.
+/**
+ * @brief Возвращает строковое представление версии API.
+ * @return Указатель на строку формата "plugin-api v<N>".
+ */
 extern "C" PLUGIN_API const char* plugin_version_string();
 
-// Вычисляет арифметическое выражение: op(a, b).
-// op: 0 = add, 1 = subtract, 2 = multiply.
-// Возвращает результат или -1 при неизвестной операции.
+/**
+ * @brief Вычисляет арифметическое выражение op(a, b).
+ *
+ * @param a Первое операнд.
+ * @param b Второе операнд.
+ * @param op Код операции: 0 = add, 1 = subtract, 2 = multiply.
+ * @return Результат вычисления, либо -1 при неизвестной операции.
+ */
 extern "C" PLUGIN_API int plugin_compute(int a, int b, int op);
 
-// Возвращает строковое описание операции по её коду.
+/**
+ * @brief Возвращает строковое описание операции по её коду.
+ *
+ * @param op Код операции.
+ * @return Указатель на строку: "add", "subtract", "multiply" или "unknown".
+ */
 extern "C" PLUGIN_API const char* plugin_op_name(int op);
+
+} // namespace aw::example::plugin
