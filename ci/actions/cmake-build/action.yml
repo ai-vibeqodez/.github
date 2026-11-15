@@ -1,0 +1,56 @@
+# cmake-build — Configure and build with CMake
+#
+# Wraps the standard CMake configure + build pattern into a single reusable step.
+#
+# Usage:
+#   - name: Configure & Build
+#     uses: ai-warevo/.github/ci/actions/cmake-build@main
+#     with:
+#       source_dir: example
+#       build_dir: build
+#       build_type: Debug
+#       extra_args: -DAW_EXAMPLE_BUILD_TESTS=ON -DAW_EXAMPLE_ENABLE_COVERAGE=ON
+
+name: 'CMake Build'
+description: 'Configure and build a CMake project'
+
+inputs:
+  source_dir:
+    description: 'Source directory (relative to workspace)'
+    required: false
+    default: '.'
+  build_dir:
+    description: 'Build directory (relative to source_dir)'
+    required: false
+    default: 'build'
+  build_type:
+    description: 'CMAKE_BUILD_TYPE (Debug, Release, RelWithDebInfo, MinSizeRel)'
+    required: false
+    default: 'Release'
+  extra_args:
+    description: 'Additional CMake configure arguments (space-separated)'
+    required: false
+    default: ''
+  parallel:
+    description: 'Use --parallel for build (default: true)'
+    required: false
+    default: 'true'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Configure CMake
+      shell: bash
+      env:
+        CC: ${{ env.CC }}
+        CXX: ${{ env.CXX }}
+      run: |
+        cmake -S "${{ inputs.source_dir }}" -B "${{ inputs.source_dir }}/${{ inputs.build_dir }}" \
+          -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} \
+          ${{ inputs.extra_args }}
+
+    - name: Build
+      shell: bash
+      run: |
+        PARALLEL_FLAG="${{ inputs.parallel == 'true' && '--parallel' || '' }}"
+        cmake --build "${{ inputs.source_dir }}/${{ inputs.build_dir }}" $PARALLEL_FLAG

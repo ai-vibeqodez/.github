@@ -25,35 +25,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install gcovr
-        run: sudo apt-get update && sudo apt-get install -y gcovr
+      - name: Configure & Build
+        uses: ai-warevo/.github/ci/actions/cmake-build@main
+        with:
+          source_dir: example
+          build_dir: build
+          build_type: Debug
+          extra_args: -DAW_EXAMPLE_BUILD_TESTS=ON -DAW_EXAMPLE_ENABLE_COVERAGE=ON
 
-      - name: Configure & Build Tests with Coverage
-        env:
-          CC: gcc
-          CXX: g++
-        run: |
-          cmake -S example -B build \
-            -DCMAKE_BUILD_TYPE=Debug \
-            -DAW_EXAMPLE_BUILD_TESTS=ON \
-            -DAW_EXAMPLE_ENABLE_COVERAGE=ON
-          cmake --build build --parallel
+      - name: Run Tests
+        uses: ai-warevo/.github/ci/actions/ctest-run@main
+        with:
+          build_dir: build
+          config: Debug
 
-      - name: Run CTest
-        run: ctest --test-dir build -C Debug --output-on-failure
-
-      - name: Generate Coverage Reports (XML & HTML)
-        run: |
-          mkdir -p htmlcov
-          gcovr -r build/ \
-            --gcov-ignore-errors=no_working_dir_found \
-            --filter 'example/' \
-            --exclude 'build/_deps/*' \
-            --exclude-unreachable-branches \
-            --exclude-throw-branches \
-            --print-summary \
-            --xml coverage.xml \
-            --html-details htmlcov/index.html
+      - name: Generate Coverage
+        uses: ai-warevo/.github/ci/actions/gcovr-report@main
+        with:
+          build_dir: build
+          source_filter: example/
+          exclude: build/_deps/*
+          output_dir: htmlcov
 
       - name: Parse Coverage Metrics
         id: coverage_parser
@@ -74,33 +66,16 @@ jobs:
           bg_color_right: '${{ steps.coverage_parser.outputs.color }}'
           filename: 'coverage.svg'
 
-      - name: Isolate Badge for Deploy
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          mkdir -p badge-upload
-          cp "${{ steps.badge_generator.outputs.badge_path }}" badge-upload/coverage.svg
-
       - name: Deploy Badge
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: JamesIves/github-pages-deploy-action@v4
+        uses: ai-warevo/.github/ci/actions/badge-deploy@main
         with:
-          branch: badges
-          folder: badge-upload
-          target-folder: .
-          git-config-name: "github-actions[bot]"
-          git-config-email: "github-actions[bot]@users.noreply.github.com"
-          single-commit: true
-
-      - name: Deploy Coverage Report to gh-pages
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          touch htmlcov/.nojekyll
+          badge_path: coverage.svg
 
       - name: Deploy Coverage HTML
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: JamesIves/github-pages-deploy-action@v4
+        uses: ai-warevo/.github/ci/actions/coverage-html-deploy@main
         with:
-          branch: gh-pages
           folder: htmlcov
 
   sanitizers:
@@ -121,15 +96,15 @@ jobs:
         run: sudo sysctl vm.mmap_rnd_bits=28
 
       - name: Configure & Build
-        env:
-          CC: gcc
-          CXX: g++
-        run: |
-          cmake -S example -B build \
-            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-            -DAW_EXAMPLE_BUILD_TESTS=ON \
-            -DAW_EXAMPLE_SANITIZE=${{ matrix.sanitizer }}
-          cmake --build build --parallel
+        uses: ai-warevo/.github/ci/actions/cmake-build@main
+        with:
+          source_dir: example
+          build_dir: build
+          build_type: RelWithDebInfo
+          extra_args: -DAW_EXAMPLE_BUILD_TESTS=ON -DAW_EXAMPLE_SANITIZE=${{ matrix.sanitizer }}
 
-      - name: Run CTest
-        run: ctest --test-dir build --output-on-failure --timeout 120
+      - name: Run Tests
+        uses: ai-warevo/.github/ci/actions/ctest-run@main
+        with:
+          build_dir: build
+          timeout: 120

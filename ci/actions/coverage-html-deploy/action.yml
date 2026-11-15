@@ -1,0 +1,50 @@
+# coverage-html-deploy — Deploy coverage HTML report to GitHub Pages
+#
+# Creates .nojekyll marker and deploys the coverage HTML directory via
+# github-pages-deploy-action.
+#
+# Usage:
+#   - name: Deploy Coverage HTML
+#     uses: ai-warevo/.github/ci/actions/coverage-html-deploy@main
+#     with:
+#       folder: htmlcov
+#       branch: gh-pages
+
+name: 'Coverage HTML Deploy'
+description: 'Deploy coverage HTML report to GitHub Pages'
+
+inputs:
+  folder:
+    description: 'Coverage HTML directory (relative to workspace)'
+    required: false
+    default: 'htmlcov'
+  branch:
+    description: 'Target GitHub Pages branch'
+    required: false
+    default: 'gh-pages'
+  target_folder:
+    description: 'Target folder on the Pages branch'
+    required: false
+    default: ''
+  nojekyll:
+    description: 'Create .nojekyll marker (default: true)'
+    required: false
+    default: 'true'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Prepare Coverage HTML
+      if: inputs.nojekyll == 'true'
+      shell: bash
+      run: touch "${{ inputs.folder }}/.nojekyll"
+
+    - name: Deploy Coverage HTML to GitHub Pages
+      uses: JamesIves/github-pages-deploy-action@v4
+      with:
+        branch: ${{ inputs.branch }}
+        folder: ${{ inputs.folder }}
+        target-folder: ${{ inputs.target_folder }}
+        git-config-name: "github-actions[bot]"
+        git-config-email: "github-actions[bot]@users.noreply.github.com"
+        single-commit: true

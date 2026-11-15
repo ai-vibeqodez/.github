@@ -1,0 +1,50 @@
+# ctest-run — Run CTest for a CMake project
+#
+# Wraps ctest execution with configurable build config and output options.
+#
+# Usage:
+#   - name: Run Tests
+#     uses: ai-warevo/.github/ci/actions/ctest-run@main
+#     with:
+#       build_dir: build
+#       config: Debug
+#       timeout: 120
+
+name: 'CTest Run'
+description: 'Run CTest for a CMake project'
+
+inputs:
+  build_dir:
+    description: 'Build directory (relative to workspace)'
+    required: false
+    default: 'build'
+  config:
+    description: 'CMake build configuration (Debug, Release, etc.)'
+    required: false
+    default: ''
+  output_on_failure:
+    description: 'Show output only on failure (default: true)'
+    required: false
+    default: 'true'
+  timeout:
+    description: 'Test timeout in seconds'
+    required: false
+    default: ''
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Run CTest
+      shell: bash
+      run: |
+        CTEST_ARGS=("--test-dir" "${{ inputs.build_dir }}")
+        if [ -n "${{ inputs.config }}" ]; then
+          CTEST_ARGS+=("-C" "${{ inputs.config }}")
+        fi
+        if [ "${{ inputs.output_on_failure }}" = "true" ]; then
+          CTEST_ARGS+=("--output-on-failure")
+        fi
+        if [ -n "${{ inputs.timeout }}" ]; then
+          CTEST_ARGS+=("--timeout" "${{ inputs.timeout }}")
+        fi
+        ctest "${CTEST_ARGS[@]}"

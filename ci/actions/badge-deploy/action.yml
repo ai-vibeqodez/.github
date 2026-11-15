@@ -1,0 +1,55 @@
+# badge-deploy — Deploy an SVG badge to a GitHub Pages branch
+#
+# Copies an SVG badge to a staging directory and deploys it via
+# github-pages-deploy-action.
+#
+# Usage:
+#   - name: Deploy Badge
+#     uses: ai-warevo/.github/ci/actions/badge-deploy@main
+#     with:
+#       badge_path: coverage.svg
+#       branch: badges
+
+name: 'Badge Deploy'
+description: 'Deploy an SVG badge to a GitHub Pages branch'
+
+inputs:
+  badge_path:
+    description: 'Path to the SVG badge file (relative to workspace)'
+    required: true
+  badge_filename:
+    description: 'Filename to use in the deploy folder (default: basename of badge_path)'
+    required: false
+    default: ''
+  branch:
+    description: 'Target GitHub Pages branch'
+    required: false
+    default: 'badges'
+  target_folder:
+    description: 'Target folder on the Pages branch'
+    required: false
+    default: '.'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Isolate Badge for Deploy
+      shell: bash
+      run: |
+        BADGE_FILE="${{ inputs.badge_path }}"
+        FILENAME="${{ inputs.badge_filename }}"
+        if [ -z "$FILENAME" ]; then
+          FILENAME=$(basename "$BADGE_FILE")
+        fi
+        mkdir -p badge-upload
+        cp "$BADGE_FILE" "badge-upload/$FILENAME"
+
+    - name: Deploy Badge to GitHub Pages
+      uses: JamesIves/github-pages-deploy-action@v4
+      with:
+        branch: ${{ inputs.branch }}
+        folder: badge-upload
+        target-folder: ${{ inputs.target_folder }}
+        git-config-name: "github-actions[bot]"
+        git-config-email: "github-actions[bot]@users.noreply.github.com"
+        single-commit: true

@@ -59,9 +59,11 @@ jobs:
       # - run: dotnet build --no-restore
 
       # ── C++ (CMake) ──
-      # - name: Install dependencies
-      #   run: sudo apt-get update && sudo apt-get install -y cmake build-essential
-      # - run: mkdir build && cd build && cmake .. && cmake --build .
+      # - name: Configure & Build
+      #   uses: ai-warevo/.github/ci/actions/cmake-build@main
+      #   with:
+      #     source_dir: .
+      #     build_type: Release
 
       # ── Go ──
       # - name: Setup Go
@@ -126,7 +128,11 @@ jobs:
       # - run: dotnet test
 
       # ── C++ ──
-      # - run: cd build && ctest
+      # - name: Run Tests
+      #   uses: ai-warevo/.github/ci/actions/ctest-run@main
+      #   with:
+      #     build_dir: build
+      #     config: Release
 
       - name: Test (placeholder)
         run: echo "call real command to test"

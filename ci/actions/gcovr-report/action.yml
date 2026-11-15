@@ -1,0 +1,92 @@
+# gcovr-report — Install gcovr and generate coverage reports (XML + HTML)
+#
+# Installs gcovr via apt, then generates both XML (for parsing) and HTML
+# (for deployment) coverage reports from a CMake build.
+#
+# Usage:
+#   - name: Generate Coverage
+#     uses: ai-warevo/.github/ci/actions/gcovr-report@main
+#     with:
+#       build_dir: build
+#       source_filter: example/
+#       output_dir: htmlcov
+
+name: 'GCOVR Coverage Report'
+description: 'Install gcovr and generate coverage reports (XML + HTML)'
+
+inputs:
+  build_dir:
+    description: 'Build directory (relative to workspace)'
+    required: false
+    default: 'build'
+  source_root:
+    description: 'Source root for gcovr -r flag (defaults to build_dir)'
+    required: false
+    default: ''
+  source_filter:
+    description: '--filter pattern (e.g. example/)'
+    required: false
+    default: ''
+  exclude:
+    description: '--exclude pattern (may be specified multiple times)'
+    required: false
+    default: 'build/_deps/*'
+  output_dir:
+    description: 'Output directory for HTML report'
+    required: false
+    default: 'htmlcov'
+  xml_path:
+    description: 'Output path for coverage.xml'
+    required: false
+    default: 'coverage.xml'
+
+outputs:
+  xml_path:
+    description: 'Path to generated coverage.xml'
+    value: ${{ steps.gcovr.outputs.xml_path }}
+  html_dir:
+    description: 'Path to generated HTML report directory'
+    value: ${{ steps.gcovr.outputs.html_dir }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install gcovr
+      shell: bash
+      run: sudo apt-get update && sudo apt-get install -y gcovr
+
+    - name: Generate coverage reports
+      id: gcovr
+      shell: bash
+      env:
+        BUILD_DIR: ${{ inputs.build_dir }}
+        SOURCE_ROOT: ${{ inputs.source_root || inputs.build_dir }}
+        FILTER: ${{ inputs.source_filter }}
+        EXCLUDE: ${{ inputs.exclude }}
+        OUTPUT_DIR: ${{ inputs.output_dir }}
+        XML_PATH: ${{ inputs.xml_path }}
+      run: |
+        mkdir -p "$OUTPUT_DIR"
+
+        EXCLUDE_ARGS=""
+        for pattern in $(echo "$EXCLUDE" | tr ',' ' '); do
+          EXCLUDE_ARGS="$EXCLUDE_ARGS --exclude $pattern"
+        done
+
+        FILTER_ARGS=""
+        if [ -n "$FILTER" ]; then
+          FILTER_ARGS="--filter $FILTER"
+        fi
+
+        gcovr -r "$SOURCE_ROOT" \
+          --gcov-ignore-errors=no_working_dir_found \
+          $FILTER_ARGS \
+          $EXCLUDE_ARGS \
+          --exclude-unreachable-branches \
+          --exclude-throw-branches \
+          --print-summary \
+          --xml "$XML_PATH" \
+          --html-details "$OUTPUT_DIR/index.html"
+
+        echo "xml_path=${XML_PATH}" >> $GITHUB_OUTPUT
+        echo "html_dir=${OUTPUT_DIR}" >> $GITHUB_OUTPUT
