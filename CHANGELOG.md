@@ -14,6 +14,15 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-15
+
+### Added
+
+- `make release` / `make release-dry-run` targets for automated SemVer bumps from CHANGELOG
+- `scripts/release.sh` and `scripts/release.ps1` — parse [Unreleased] categories, bump version, commit + tag
+- Release workflow deployed to `.github/workflows/` for this repo (not just `ci/` templates)
+- Docker build + GHCR push job in release workflow
+
 ## [0.5.0] - 2026-11-15
 
 ### Added
