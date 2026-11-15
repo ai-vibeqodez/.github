@@ -46,7 +46,7 @@ jobs:
           source_dir: example
           build_dir: build
           source_filter: plugin/src/ plugin/tests/ host/src/ include/
-          exclude: _deps/*
+          exclude: build/_deps/*
           output_dir: htmlcov
 
       - name: Parse Coverage Metrics

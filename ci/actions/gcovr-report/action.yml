@@ -27,13 +27,13 @@ inputs:
     required: false
     default: 'build'
   source_filter:
-    description: '--filter patterns (space-separated absolute path prefixes, e.g. "src/ include/aw/tpl/")'
+    description: '--filter patterns (space-separated path prefixes relative to source root, e.g. "src/ include/aw/tpl/")'
     required: false
     default: ''
   exclude:
     description: '--exclude pattern (may be specified multiple times, comma-separated)'
     required: false
-    default: '_deps/*'
+    default: 'build/_deps/*'
   output_dir:
     description: 'Output directory for HTML report'
     required: false
@@ -72,8 +72,10 @@ runs:
         set -euo pipefail
         mkdir -p "$OUTPUT_DIR"
 
-        # Resolve build path: source_dir/build_dir (same layout as cmake-build)
-        BUILD_PATH="${SOURCE_DIR}/${BUILD_DIR}"
+        # Source root must be the source directory (not build dir) so that
+        # --filter patterns match relative paths like "plugin/src/".
+        # With -r build/ the relative paths would start with "../" and never match.
+        SOURCE_ROOT="${SOURCE_DIR}"
 
         # Collect exclude args
         EXCLUDE_ARGS=""
@@ -89,9 +91,16 @@ runs:
           done
         fi
 
-        echo "gcovr -r $BUILD_PATH $FILTER_ARGS $EXCLUDE_ARGS --xml $XML_PATH --html-details $OUTPUT_DIR/index.html"
+        # Debug: list coverage data files
+        echo "=== Coverage data files ==="
+        echo "-- .gcda files:"
+        find "$SOURCE_ROOT" -name "*.gcda" -not -path "*/build/_deps/*" 2>/dev/null | head -20
+        echo "-- .gcno files:"
+        find "$SOURCE_ROOT" -name "*.gcno" -not -path "*/build/_deps/*" 2>/dev/null | head -20
 
-        gcovr -r "$BUILD_PATH" \
+        echo "gcovr -r $SOURCE_ROOT $FILTER_ARGS $EXCLUDE_ARGS --xml $XML_PATH --html-details $OUTPUT_DIR/index.html"
+
+        gcovr -r "$SOURCE_ROOT" \
           --gcov-ignore-errors=no_working_dir_found \
           $FILTER_ARGS \
           $EXCLUDE_ARGS \
