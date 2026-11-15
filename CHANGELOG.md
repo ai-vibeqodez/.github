@@ -14,6 +14,12 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [0.7.2] - 2026-11-15
+
+### Fixed
+
+- Docker image build: replace removed `gcc:13-alpine` with `gcc:14-bookworm`, runtime with `debian:trixie-slim`, fix COPY paths for built artifacts, add `.dockerignore`
+
 ## [0.7.1] - 2026-11-15
 
 ### Fixed
