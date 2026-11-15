@@ -48,7 +48,15 @@ AI-скиллы для автоматизации разработки:
 | [.editorconfig](.editorconfig) | Единый стиль кода: utf-8, LF, отступы |
 
 ### 📋 CI/CD
-Планируется: GitHub Actions workflow'и для build, test, deploy.
+Универсальные GitHub Actions шаблоны для копирования в проекты:
+
+| Файл | Назначение |
+|------|-----------|
+| [ci/.github/workflows/ci.yml](ci/.github/workflows/ci.yml) | CI pipeline: build → lint → test |
+| [ci/.github/workflows/test.yml](ci/.github/workflows/test.yml) | Расширенное тестирование: мультиплатформа, coverage |
+| [ci/README.md](ci/README.md) | Инструкция по использованию |
+
+Поддерживаемые стеки: Node.js, Python, C#, C++, Go, Rust, Java
 
 ### 📚 Документация
 - [SKILLS.md](SKILLS.md) — каталог всех скиллов с входом/выходом, сложностью и зависимостями
@@ -70,6 +78,11 @@ AI-скиллы для автоматизации разработки:
 ├── .gitignore
 ├── docker-compose.yml
 ├── README.llama-cpp.md
+├── ci/
+│   ├── README.md
+│   └── .github/workflows/
+│       ├── ci.yml
+│       └── test.yml
 ├── skills/
 │   ├── analyst/SKILL.md
 │   ├── executor/SKILL.md
