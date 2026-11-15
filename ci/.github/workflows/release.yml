@@ -55,6 +55,22 @@ jobs:
         with:
           tag: ${{ steps.version.outputs.release_version }}
 
+      - name: Download build artifacts
+        if: ${{ always() }}
+        uses: ai-warevo/.github/ci/actions/download-artifacts@main
+        with:
+          pattern: 'libplugin-*'
+          merge-multiple: true
+          path: .
+
+      - name: Download host artifact
+        if: ${{ always() }}
+        uses: ai-warevo/.github/ci/actions/download-artifacts@main
+        with:
+          pattern: 'host-*'
+          merge-multiple: true
+          path: .
+
       - name: Generate checksums
         id: checksums_generate
         uses: ai-warevo/.github/ci/actions/checksums@main
@@ -76,7 +92,37 @@ jobs:
           body_path: ${{ steps.changelog.outputs.body_path }}
           files: |
             SHA256SUMS.txt
+            libplugin-${{ steps.version.outputs.release_version }}.so
+            host-${{ steps.version.outputs.release_version }}
           generate_release_notes: false
+
+  # ── Build example (C++23 plugin + host) ─────────────────────────────────
+  build-example:
+    name: Build example
+    runs-on: ubuntu-latest
+    needs: release
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up CMake and build
+        working-directory: example
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Release -DAW_EXAMPLE_BUILD_TESTS=OFF
+          cmake --build build -j"$(nproc)"
+
+      - name: Upload libplugin.so
+        uses: actions/upload-artifact@v4
+        with:
+          name: libplugin-${{ needs.release.outputs.release_version }}
+          path: example/build/libplugin.so
+
+      - name: Upload host
+        uses: actions/upload-artifact@v4
+        with:
+          name: host-${{ needs.release.outputs.release_version }}
+          path: example/build/host
 
   # ── Docker image build + GHCR push ──────────────────────────────────────
   docker:
@@ -91,17 +137,19 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker image
-        uses: ai-warevo/.github/ci/actions/docker-save@main
+      - name: Login to GHCR
+        uses: docker/login-action@v3
         with:
-          image: ghcr.io/ai-warevo/.github/example
-          tag: ${{ needs.release.outputs.release_version }}
-          output: example-image.tar
-          artifact_name: example-image
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Push to GHCR
-        uses: ai-warevo/.github/ci/actions/docker-push-ghcr@main
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
         with:
-          image: ghcr.io/ai-warevo/.github/example
-          version: ${{ needs.release.outputs.release_version }}
-          artifact_name: example-image
+          context: .
+          file: example/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/ai-warevo/.github/example:${{ needs.release.outputs.release_version }}
+            ghcr.io/ai-warevo/.github/example:latest
