@@ -8,6 +8,30 @@
 
 > Скиллы, шаблоны, документация, CI/CD и настройки редакторов для всех проектов.
 
+## Pre-commit hook: Conventional Commits
+
+Чтобы все коммиты в проекте следовали стандарту [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/), подключите pre-commit hook:
+
+```bash
+# 1. Скопировать hook в проект
+mkdir -p .husky
+cp .github/.husky/pre-commit .husky/pre-commit
+chmod +x .husky/pre-commit
+
+# 2. Установить в git
+cp .husky/pre-commit .git/hooks/pre-commit
+
+# 3. Проверить
+echo "feat: test" > /tmp/test.txt
+.git/hooks/pre-commit /tmp/test.txt
+```
+
+**Поддерживаемые типы**: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`
+
+**Форматы**: `type: message`, `type!: message`, `type(scope): message`, `type(scope)!: message`
+
+**Лимит длины**: 88 символов в subject line (предупреждение при >72).
+
 Общий репозиторий инфраструктуры **ai-warevo**. Содержит переиспользуемые артефакты, которые применяются в любых проектах — независимо от стека (C#, Python, JS, C++ и др.).
 
 ## Что внутри
