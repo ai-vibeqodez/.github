@@ -144,9 +144,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Debug — list example directory
-        run: ls -la example/ && echo "---" && cat example/Dockerfile
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
