@@ -110,7 +110,6 @@ jobs:
 
       # ── Node.js ──
       # - run: npm ci && npm test -- --coverage
-      # - run: npm ci && npm run lint
 
       # ── Python ──
       # - run: pip install -r requirements.txt && pytest --cov=src --cov-report=xml
