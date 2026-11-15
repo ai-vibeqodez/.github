@@ -14,6 +14,11 @@ Maintainer notes:
 
 ## [Unreleased]
 
+### Fixed
+
+- gcovr-report: install via pip (not apt), add set -euo pipefail, support multiple --filter patterns, add --gcov-ignore-parse-errors
+- example-ci: use explicit source_root and filter patterns (plugin/ host/ plugin/tests/) for reliable coverage data collection
+
 ## [1.2.3] - 2026-11-16
 
 ### Fixed
