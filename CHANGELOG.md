@@ -14,6 +14,8 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [0.7.6] - 2026-11-15
+
 ### Fixed
 
 - Docker build: use `context: ./example` with `file: example/Dockerfile` (context scoped to example/, Dockerfile path relative to repo root)
