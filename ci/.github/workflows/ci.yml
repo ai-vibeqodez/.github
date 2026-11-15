@@ -1,0 +1,124 @@
+# CI — Universal Template
+#
+# Скопируй этот файл в свой проект как .github/workflows/ci.yml
+# и замени заглушки на реальные команды для твоего стека.
+#
+# Поддерживаемые стеки (выбери нужный и раскомментируй):
+#   Node.js / TypeScript, Python, C# (.NET), C++ (CMake), Go, Rust, Java, и др.
+
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+# Отменяем старые незавершённые запуски для того же PR / ветки
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── Node.js / TypeScript ──
+      # - name: Setup Node.js
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: '20'
+      # - run: npm ci
+      # - run: npm run build
+
+      # ── Python ──
+      # - name: Setup Python
+      #   uses: actions/setup-python@v5
+      #   with:
+      #     python-version: '3.12'
+      # - run: pip install -r requirements.txt
+      # - run: python -m py_compile src/**/*.py
+
+      # ── C# (.NET) ──
+      # - name: Setup .NET
+      #   uses: actions/setup-dotnet@v4
+      #   with:
+      #     dotnet-version: '8.0.x'
+      # - run: dotnet build --no-restore
+
+      # ── C++ (CMake) ──
+      # - name: Install dependencies
+      #   run: sudo apt-get update && sudo apt-get install -y cmake build-essential
+      # - run: mkdir build && cd build && cmake .. && cmake --build .
+
+      # ── Go ──
+      # - name: Setup Go
+      #   uses: actions/setup-go@v5
+      #   with:
+      #     go-version: '1.22'
+      # - run: go build ./...
+
+      # ── Rust ──
+      # - name: Setup Rust
+      #   uses: actions/setup-rust@v1
+      #   with:
+      #     rust-version: '1.75'
+      # - run: cargo build --all
+
+      # ── Java (Maven) ──
+      # - name: Setup Java
+      #   uses: actions/setup-java@v4
+      #   with:
+      #     distribution: 'temurin'
+      #     java-version: '21'
+      # - run: mvn compile
+
+      - name: Build (placeholder)
+        run: echo "call real command to build"
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── Node.js ──
+      # - run: npm ci && npm run lint
+
+      # ── Python ──
+      # - run: pip install flake8 black && black --check . && flake8 .
+
+      # ── C# ──
+      # - run: dotnet format --verify-no-changes
+
+      - name: Lint (placeholder)
+        run: echo "call real command to lint"
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: [build, lint]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── Node.js ──
+      # - run: npm ci && npm test
+
+      # ── Python ──
+      # - run: pip install -r requirements.txt && pytest
+
+      # ── C# ──
+      # - run: dotnet test
+
+      # ── C++ ──
+      # - run: cd build && ctest
+
+      - name: Test (placeholder)
+        run: echo "call real command to test"

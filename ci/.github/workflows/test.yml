@@ -1,0 +1,77 @@
+# Test — Universal Template
+#
+# Скопируй этот файл в свой проект как .github/workflows/test.yml
+# и замени заглушки на реальные команды для твоего стека.
+#
+# Этот workflow запускается отдельно (например, по кнопке или по расписанию)
+# для целевого тестирования: unit, integration, e2e, coverage.
+
+name: Test
+
+on:
+  workflow_dispatch:  # запуск вручную по кнопке
+  schedule:
+    - cron: '0 6 * * 1'  # каждый понедельник в 06:00 UTC
+
+jobs:
+  test:
+    name: Test (${{ matrix.os }} / ${{ matrix.node-version || 'default' }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        # Добавь свои параметры для своего стека:
+        # node-version: ['18', '20', '22']
+        # python-version: ['3.10', '3.11', '3.12']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── Node.js ──
+      # - name: Setup Node.js
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: ${{ matrix.node-version }}
+      # - run: npm ci
+      # - run: npm test -- --coverage
+
+      # ── Python ──
+      # - name: Setup Python
+      #   uses: actions/setup-python@v5
+      #   with:
+      #     python-version: ${{ matrix.python-version }}
+      # - run: pip install -r requirements.txt
+      # - run: pytest --cov=src --cov-report=xml
+
+      # ── C# (.NET) ──
+      # - name: Setup .NET
+      #   uses: actions/setup-dotnet@v4
+      # - run: dotnet test --collect:"XPlat Code Coverage"
+
+      # ── C++ ──
+      # - run: mkdir build && cd build && cmake .. && cmake --build . && ctest --output-on-failure
+
+      # ── Go ──
+      # - run: go test -v -cover ./...
+
+      # ── Rust ──
+      # - run: cargo test
+
+      - name: Test (placeholder)
+        run: echo "call real command to test"
+
+  coverage:
+    name: Coverage Report
+    runs-on: ubuntu-latest
+    needs: test
+    if: always()
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Coverage status
+        run: |
+          echo "Coverage report placeholder"
+          echo "Replace with: codecov, coveralls, or custom report generation"
