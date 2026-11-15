@@ -14,6 +14,8 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.2.4] - 2026-11-16
+
 ### Fixed
 
 - gcovr-report: install via pip (not apt), add set -euo pipefail, support multiple --filter patterns, add --gcov-ignore-parse-errors
