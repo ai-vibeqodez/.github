@@ -14,6 +14,8 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-11-15
+
 ### Fixed
 
 - `ctest-run`: accept `source_dir` input, cd to build directory before running ctest (was failing when source_dir ≠ `.`)
