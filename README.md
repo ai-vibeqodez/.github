@@ -42,6 +42,23 @@ GitHub Actions шаблоны для CI/CD: [ci/README.md](ci/README.md)
 ### Для человека
 Скопировать шаблоны в свой проект и адаптировать под контекст.
 
+## Релиз
+
+Релиз режется автоматически из `CHANGELOG.md` по правилам [Keep a Changelog] + [SemVer].
+
+1. Добавить изменения в `## [Unreleased]` в нужные категории: `Breaking`, `Added`, `Changed`, `Fixed` и т.д.
+2. Проверить, что будет: `make release-dry-run`
+3. Срезать релиз: `make release`
+4. Запушить: `make release PUSH=1`
+
+Категории определяют тип версии:
+- `Breaking`, `Removed` → major
+- `Added`, `Deprecated` → minor
+- `Fixed`, `Changed`, `Security` → patch
+
+[Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
+[SemVer]: https://semver.org/spec/v2.0.0.html
+
 ## Структура
 
 | Папка | Что внутри |
