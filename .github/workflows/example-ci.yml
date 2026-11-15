@@ -52,7 +52,7 @@ jobs:
       - name: Parse Coverage Metrics
         id: coverage_parser
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: ./ci/actions/coverage-parser
+        uses: ai-warevo/.github/ci/actions/coverage-parser@main
         with:
           xml_path: coverage.xml
 
