@@ -56,6 +56,13 @@ jobs:
           build_type: Release
           extra_args: -DAW_EXAMPLE_BUILD_TESTS=OFF
 
+      - name: Debug - list build output
+        run: |
+          echo "=== ls -la example/build/ ==="
+          ls -la example/build/
+          echo "=== find example/build/ -name '*.so*' -o -name 'host' ==="
+          find example/build/ -maxdepth 2 \( -name '*.so*' -o -name 'host' -o -name 'libplugin*' \) -type f
+
       - name: Upload libplugin.so
         uses: actions/upload-artifact@v4
         with:
