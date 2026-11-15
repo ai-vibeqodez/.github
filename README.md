@@ -47,6 +47,7 @@ GitHub Actions шаблоны для CI/CD: [ci/README.md](ci/README.md)
 | Папка | Что внутри |
 |-------|-----------|
 | `ci/` | GitHub Actions: reusable workflows и composite-экшены |
+| `scripts/` | Скрипты для автоматизации релизов |
 | `skills/` | AI-скиллы для аналитики, планирования и выполнения задач |
 | `templates/` | Шаблоны документов: OVERVIEW, задачи, README, CHANGELOG, CONTRIBUTING |
 | `.editorconfig` | Единый стиль кода (utf-8, LF, отступы) |
