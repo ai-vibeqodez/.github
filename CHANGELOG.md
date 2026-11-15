@@ -14,6 +14,12 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.2.10] - 2026-11-16
+
+### Fixed
+
+- gcovr
+
 ## [1.2.9] - 2026-11-16
 
 ### Changed
