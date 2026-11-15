@@ -14,6 +14,10 @@ Maintainer notes:
 
 ## [Unreleased]
 
+### Fixed
+
+- Docker build: fix `file` path in `build-push-action` to `example/Dockerfile` with repository root context
+
 ## [0.7.4] - 2026-11-15
 
 ### Fixed

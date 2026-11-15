@@ -20,10 +20,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /build
 
 # Копируем CMakeLists.txt и исходники
-COPY CMakeLists.txt .
-COPY include/ include/
-COPY plugin/ plugin/
-COPY host/ host/
+COPY example/CMakeLists.txt .
+COPY example/include/ include/
+COPY example/plugin/ plugin/
+COPY example/host/ host/
 
 RUN mkdir -p build && \
     cd build && \
