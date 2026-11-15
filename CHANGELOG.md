@@ -14,6 +14,8 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-11-15
+
 ### Fixed
 
 - `release.yml`: download artifacts by exact name into shared dir, reference correct filenames (libplugin.so, host) instead of pattern-based download with mismatched names
