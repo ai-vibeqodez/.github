@@ -14,6 +14,13 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.2.7] - 2026-11-16
+
+### Fixed
+
+- add verbose gcovr logging for coverage debugging
+- gcovr source root must be build dir, filters match relative paths
+
 ## [1.2.6] - 2026-11-16
 
 ### Fixed
