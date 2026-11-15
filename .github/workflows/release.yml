@@ -141,7 +141,7 @@ jobs:
         uses: ai-warevo/.github/ci/actions/docker-build-push@main
         with:
           context: ./example
-          dockerfile: Dockerfile
+          dockerfile: example/Dockerfile
           image_name: ai-warevo/example
           tags: |
             ghcr.io/ai-warevo/example:${{ needs.release.outputs.release_version }}

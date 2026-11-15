@@ -23,7 +23,7 @@ inputs:
     required: false
     default: '.'
   dockerfile:
-    description: 'Dockerfile path (relative to context)'
+    description: 'Dockerfile path (relative to repository root, NOT context)'
     required: false
     default: 'Dockerfile'
   registry:
@@ -62,6 +62,6 @@ runs:
       uses: docker/build-push-action@v5
       with:
         context: ${{ inputs.context }}
-        file: ${{ inputs.context }}/${{ inputs.dockerfile }}
+        file: ${{ inputs.dockerfile }}
         push: ${{ inputs.push }}
         tags: ${{ inputs.tags }}
