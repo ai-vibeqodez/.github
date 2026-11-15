@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# prepare-commit-msg hook: validate commit message against Conventional Commits
-# Triggered after git writes the commit message, before the editor opens
-# Usage: place in .husky/prepare-commit-msg or .git/hooks/prepare-commit-msg
+# commit-msg hook: validate commit message against Conventional Commits
+# Triggered after the commit message is fully formed — use this for validation.
+# Usage: place in .husky/commit-msg or .git/hooks/commit-msg
 
 set -eo pipefail
 
@@ -19,13 +19,22 @@ print_info() {
   printf '\033[36mℹ %s\033[0m\n' "$*" >&2
 }
 
+# --- release commit exemption ---
+# Auto-release scripts generate "release vX.Y.Z" or "chore(release): vX.Y.Z"
+# These are not developer commits — skip validation.
+COMMIT_MSG="$(grep -v '^#' "$1" | head -n1)"
+if [[ "$COMMIT_MSG" =~ ^release\ v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+  print_info "Release commit — skipping validation"
+  exit 0
+fi
+
 # --- Conventional Commits regex ---
-# Type: feat | fix | docs | style | refactor | perf | test | build | ci | chore | revert | release
+# Type: feat | fix | docs | style | refactor | perf | test | build | ci | chore | revert
 # Scope: optional, in parentheses
 # Breaking: optional ! before :
 # Subject: required, after :
 
-TYPE="feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert|release"
+TYPE="feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert"
 # Four patterns covering all Conventional Commits variants:
 #   P1: type(scope)!: subject    (breaking with scope)
 #   P2: type(scope): subject     (normal with scope)
@@ -62,7 +71,7 @@ validate_message() {
     print_error "Commit message does not follow Conventional Commits:"
     print_error "  \"$subject\""
     print_error ""
-    print_info "Valid types: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert, release"
+    print_info "Valid types: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert"
     print_info "Format: type(scope)!: description"
     print_info "Examples:"
     print_info "  feat: add user profile page"
@@ -92,20 +101,9 @@ validate_message() {
 
 # --- main ---
 
-print_info "Running Conventional Commits prepare-commit-msg hook..."
+print_info "Running Conventional Commits commit-msg hook..."
 
-# Arguments: $1 = commit message file, $2 = source (message | template | merge | squash | commit)
 msg_file="$1"
-msg_source="${2:-}"
-
-# Skip validation for:
-#   - merge commits (git merge)
-#   - squash commits (git merge --squash)
-#   - commit amends (git commit --amend with existing message)
-if [[ "$msg_source" == "merge" ]] || [[ "$msg_source" == "squash" ]]; then
-  print_info "Merge/squash commit — skipping validation"
-  exit 0
-fi
 
 if [[ -z "$msg_file" ]]; then
   print_info "No commit message file — skipping validation"
