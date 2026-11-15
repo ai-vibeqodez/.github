@@ -10,21 +10,23 @@
 
 ## Pre-commit hook: Conventional Commits
 
-Чтобы все коммиты в проекте следовали стандарту [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/), подключите pre-commit hook:
+Чтобы все коммиты в проекте следовали стандарту [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/), подключите hook:
 
 ```bash
 # 1. Скопировать hook в проект
 mkdir -p .husky
-cp .github/.husky/pre-commit .husky/pre-commit
-chmod +x .husky/pre-commit
+cp .github/.husky/prepare-commit-msg .husky/prepare-commit-msg
+chmod +x .husky/prepare-commit-msg
 
 # 2. Установить в git
-cp .husky/pre-commit .git/hooks/pre-commit
+cp .husky/prepare-commit-msg .git/hooks/prepare-commit-msg
 
 # 3. Проверить
 echo "feat: test" > /tmp/test.txt
-.git/hooks/pre-commit /tmp/test.txt
+.git/hooks/prepare-commit-msg /tmp/test.txt
 ```
+
+> `prepare-commit-msg` запускается после того, как git записывает сообщение коммита — это правильный хук для валидации. `pre-commit` не подходит, потому что запускается до записи сообщения.
 
 **Поддерживаемые типы**: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`
 
