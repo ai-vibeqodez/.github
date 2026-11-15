@@ -14,6 +14,8 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-11-16
+
 ### Changed
 
 - move commit validation to commit-msg hook, fix PowerShell 5.1 compatibility
