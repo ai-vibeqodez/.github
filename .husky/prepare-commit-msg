@@ -20,12 +20,12 @@ print_info() {
 }
 
 # --- Conventional Commits regex ---
-# Type: feat | fix | docs | style | refactor | perf | test | build | ci | chore | revert
+# Type: feat | fix | docs | style | refactor | perf | test | build | ci | chore | revert | release
 # Scope: optional, in parentheses
 # Breaking: optional ! before :
 # Subject: required, after :
 
-TYPE="feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert"
+TYPE="feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert|release"
 # Four patterns covering all Conventional Commits variants:
 #   P1: type(scope)!: subject    (breaking with scope)
 #   P2: type(scope): subject     (normal with scope)
@@ -62,7 +62,7 @@ validate_message() {
     print_error "Commit message does not follow Conventional Commits:"
     print_error "  \"$subject\""
     print_error ""
-    print_info "Valid types: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert"
+    print_info "Valid types: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert, release"
     print_info "Format: type(scope)!: description"
     print_info "Examples:"
     print_info "  feat: add user profile page"
