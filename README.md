@@ -43,35 +43,14 @@ GitHub Actions шаблоны для CI/CD: [ci/README.md](ci/README.md)
 Скопировать шаблоны в свой проект и адаптировать под контекст.
 
 ## Структура
-```
-.github/
-├── .editorconfig
-├── .gitignore
-├── docker-compose.yml
-├── README.llama-cpp.md
-├── ci/
-│   ├── README.md
-│   ├── actions/
-│   │   └── badge/
-│   │       ├── action.yml
-│   │       └── README.md
-│   └── .github/workflows/
-│       ├── ci.yml
-│       └── test.yml
-├── skills/
-│   ├── analyst/SKILL.md
-│   ├── executor/SKILL.md
-│   ├── planner/SKILL.md
-│   ├── skill-creator/SKILL.md
-│   └── git-github-push/SKILL.md
-├── templates/
-│   ├── overview.md
-│   ├── task_template.md
-│   ├── readme_template.md
-│   ├── changelog_template.md
-│   └── contributing_template.md
-└── README.md
-```
+
+| Папка | Что внутри |
+|-------|-----------|
+| `ci/` | GitHub Actions: CI/CD pipeline и генератор SVG-бейджей |
+| `skills/` | AI-скиллы для аналитики, планирования и выполнения задач |
+| `templates/` | Шаблоны документов: OVERVIEW, задачи, README, CHANGELOG, CONTRIBUTING |
+| `.editorconfig` | Единый стиль кода (utf-8, LF, отступы) |
+| `docker-compose.yml` | llama.cpp сервер для локального запуска LLM |
 
 ## Лицензия
 MIT
