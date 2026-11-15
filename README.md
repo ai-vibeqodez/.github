@@ -9,11 +9,12 @@
 ### 🧠 Скиллы
 AI-скиллы для автоматизации разработки:
 
-| Файл | Назначение |
-|------|-----------|
-| [01_analyst.md](skills/01_analyst.md) | Сбор и формализация требований через интервью |
-| [02_planner.md](skills/02_planner.md) | Декомпозиция требований → OVERVIEW + task-файлы |
-| [03_skill_creator.md](skills/03_skill_creator.md) | Создание новых скиллов с валидацией |
+| Скилл | Назначение |
+|-------|-----------|
+| [analyst](skills/analyst/SKILL.md) | Сбор и формализация требований через интервью |
+| [planner](skills/planner/SKILL.md) | Декомпозиция требований → OVERVIEW + task-файлы |
+| [executor](skills/executor/SKILL.md) | Выполнение задач из todo-директорий |
+| [skill-creator](skills/skill-creator/SKILL.md) | Создание новых скиллов с валидацией |
 
 Полный каталог — [SKILLS.md](SKILLS.md)
 
@@ -39,7 +40,7 @@ llama.cpp сервер для запуска LLM-моделей через Docke
 - **API**: `http://host.docker.internal:8080/v1` (порт 8080, может конфликтовать)
 - **Основная модель**: Qwen3.6-35B-A3B-UD-Q4_K_XL (~21 GB, MoE ~3B active params)
 - **Fallback**: Qwen3-Coder-30B-A3B (~16.5 GB)
-- **Статус**: В разработке
+- **Статус**: ✅ Готово
 
 ### ⚙️ Конфигурации
 | Файл | Назначение |
@@ -80,13 +81,6 @@ llama.cpp сервер для запуска LLM-моделей через Docke
 │   ├── readme_template.md
 │   ├── changelog_template.md
 │   └── contributing_template.md
-├── todo/
-│   └── llamacpp-docker-setup/
-│       ├── OVERVIEW.md
-│       ├── task_01.md
-│       ├── task_02.md
-│       ├── task_03.md
-│       └── task_04.md
 ├── SKILLS.md
 └── README.md
 ```
