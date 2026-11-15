@@ -14,6 +14,12 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.2.11] - 2026-11-16
+
+### Fixed
+
+- use build dir as -r and absolute paths in filters
+
 ## [1.2.10] - 2026-11-16
 
 ### Fixed
