@@ -14,11 +14,14 @@
 #include <iostream>
 #include <optional>
 #include <string>
+#include <system_error>
 
 #if defined(_WIN32)
     #include <windows.h>
 #else
     #include <dlfcn.h>
+    #include <linux/limits.h>
+    #include <unistd.h>
 #endif
 
 /**
@@ -136,9 +139,36 @@ inline std::optional<std::string> find_plugin() {
         return env;
     }
 
-    // 2. Standard library names — делегируем загрузчику
+    // 2. Рядом с executable — определяем директорию бинарника
+#if defined(_WIN32)
+    char exe_path[MAX_PATH] = {0};
+    if (GetModuleFileNameA(nullptr, exe_path, MAX_PATH)) {
+        std::string dir = exe_path;
+        auto slash = dir.find_last_of('\\');
+        if (slash != std::string::npos) {
+            dir = dir.substr(0, slash) + "\\plugin.dll";
+            return dir;
+        }
+    }
+#else
+    char exe_path[PATH_MAX] = {0};
+    ssize_t len = readlink("/proc/self/exe", exe_path, sizeof(exe_path) - 1);
+    if (len > 0) {
+        exe_path[len] = '\0';
+        std::string dir = exe_path;
+        auto slash = dir.find_last_of('/');
+        if (slash != std::string::npos) {
+            dir = dir.substr(0, slash) + "/libplugin.so";
+            return dir;
+        }
+    }
+#endif
+
+    // 3. Системный путь
     return "";
 }
+
+} // namespace aw::example::host
 
 /**
  * @brief Точка входа хост-приложения.
@@ -156,7 +186,7 @@ int main(int argc, char* argv[]) {
     std::cout << "=== Plugin Host ===" << '\n';
 
     // Находим библиотеку
-    auto lib_path = find_plugin();
+    auto lib_path = aw::example::host::find_plugin();
     if (!lib_path.has_value()) {
         std::cerr << "[host] Cannot find plugin path\n";
         return 1;
@@ -170,26 +200,26 @@ int main(int argc, char* argv[]) {
     }
 
     // Загружаем библиотеку
-    auto lib = load_library(path);
+    auto lib = aw::example::host::load_library(path);
     if (!lib) {
         std::cerr << "[host] Failed to load plugin\n";
         return 1;
     }
 
     // Резолвим символы
-    using version_fn   = int(*)();
-    using compute_fn   = int(*)(int, int, int);
+    using version_fn     = int(*)();
+    using compute_fn     = int(*)(int, int, int);
     using version_str_fn = const char*(*)();
-    using op_name_fn   = const char*(*)();
+    using op_name_fn     = const char*(*) (int);
 
-    auto fn_version   = resolve_symbol<version_fn>(lib.value(), "plugin_version");
-    auto fn_compute   = resolve_symbol<compute_fn>(lib.value(), "plugin_compute");
-    auto fn_version_s = resolve_symbol<version_str_fn>(lib.value(), "plugin_version_string");
-    auto fn_op_name   = resolve_symbol<op_name_fn>(lib.value(), "plugin_op_name");
+    auto fn_version     = aw::example::host::resolve_symbol<version_fn>(lib.value(), "plugin_version");
+    auto fn_compute     = aw::example::host::resolve_symbol<compute_fn>(lib.value(), "plugin_compute");
+    auto fn_version_s   = aw::example::host::resolve_symbol<version_str_fn>(lib.value(), "plugin_version_string");
+    auto fn_op_name     = aw::example::host::resolve_symbol<op_name_fn>(lib.value(), "plugin_op_name");
 
     if (!fn_version || !fn_compute || !fn_version_s || !fn_op_name) {
         std::cerr << "[host] Failed to resolve plugin symbols\n";
-        unload_library(lib.value());
+        aw::example::host::unload_library(lib.value());
         return 1;
     }
 
@@ -202,7 +232,7 @@ int main(int argc, char* argv[]) {
     int a = 42, b = 13;
     for (int op = 0; op <= 2; ++op) {
         std::cout << std::format("  {}({}, {})\n",
-                                  (*fn_op_name)(), a, b)
+                                  (*fn_op_name)(op), a, b)
                   << std::format("    = {}\n", (*fn_compute)(a, b, op));
     }
 
@@ -211,9 +241,7 @@ int main(int argc, char* argv[]) {
                               a, b, (*fn_compute)(a, b, 99));
 
     // Очищаем
-    unload_library(lib.value());
+    aw::example::host::unload_library(lib.value());
     std::cout << "\n=== Done ===\n";
     return 0;
 }
-
-} // namespace aw::example::host

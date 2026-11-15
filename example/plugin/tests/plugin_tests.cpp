@@ -23,52 +23,52 @@ namespace aw::example::tests {
 // ── plugin_version ────────────────────────────────────────────────────────
 
 TEST_CASE("plugin_version returns 1", "[version]") {
-    REQUIRE(plugin_version() == 1);
+    REQUIRE(aw::example::plugin::plugin_version() == 1);
 }
 
 // ── plugin_version_string ─────────────────────────────────────────────────
 
 TEST_CASE("plugin_version_string returns non-empty", "[version]") {
-    auto s = plugin_version_string();
+    auto s = aw::example::plugin::plugin_version_string();
     REQUIRE(s != nullptr);
-    REQUIRE(std::string_view{s}.find("plugin-api") != std::string_view::npos);
+    REQUIRE(std::string_view(s).find("plugin-api") != std::string_view::npos);
 }
 
 // ── plugin_compute ────────────────────────────────────────────────────────
 
 TEST_CASE("plugin_compute: add", "[compute]") {
-    REQUIRE(plugin_compute(2, 3, 0) == 5);
-    REQUIRE(plugin_compute(-1, 1, 0) == 0);
-    REQUIRE(plugin_compute(0, 0, 0) == 0);
+    REQUIRE(aw::example::plugin::plugin_compute(2, 3, 0) == 5);
+    REQUIRE(aw::example::plugin::plugin_compute(-1, 1, 0) == 0);
+    REQUIRE(aw::example::plugin::plugin_compute(0, 0, 0) == 0);
 }
 
 TEST_CASE("plugin_compute: subtract", "[compute]") {
-    REQUIRE(plugin_compute(10, 3, 1) == 7);
-    REQUIRE(plugin_compute(0, 0, 1) == 0);
-    REQUIRE(plugin_compute(-5, -3, 1) == -2);
+    REQUIRE(aw::example::plugin::plugin_compute(10, 3, 1) == 7);
+    REQUIRE(aw::example::plugin::plugin_compute(0, 0, 1) == 0);
+    REQUIRE(aw::example::plugin::plugin_compute(-5, -3, 1) == -2);
 }
 
 TEST_CASE("plugin_compute: multiply", "[compute]") {
-    REQUIRE(plugin_compute(3, 4, 2) == 12);
-    REQUIRE(plugin_compute(0, 99, 2) == 0);
-    REQUIRE(plugin_compute(-2, 3, 2) == -6);
+    REQUIRE(aw::example::plugin::plugin_compute(3, 4, 2) == 12);
+    REQUIRE(aw::example::plugin::plugin_compute(0, 99, 2) == 0);
+    REQUIRE(aw::example::plugin::plugin_compute(-2, 3, 2) == -6);
 }
 
 TEST_CASE("plugin_compute: unknown op returns -1", "[compute]") {
-    REQUIRE(plugin_compute(1, 2, 99) == -1);
-    REQUIRE(plugin_compute(0, 0, -1) == -1);
+    REQUIRE(aw::example::plugin::plugin_compute(1, 2, 99) == -1);
+    REQUIRE(aw::example::plugin::plugin_compute(0, 0, -1) == -1);
 }
 
 // ── plugin_op_name ────────────────────────────────────────────────────────
 
 TEST_CASE("plugin_op_name: valid ops", "[op_name]") {
-    REQUIRE(std::string_view{plugin_op_name(0)} == "add");
-    REQUIRE(std::string_view{plugin_op_name(1)} == "subtract");
-    REQUIRE(std::string_view{plugin_op_name(2)} == "multiply");
+    REQUIRE(std::string_view(aw::example::plugin::plugin_op_name(0)) == "add");
+    REQUIRE(std::string_view(aw::example::plugin::plugin_op_name(1)) == "subtract");
+    REQUIRE(std::string_view(aw::example::plugin::plugin_op_name(2)) == "multiply");
 }
 
 TEST_CASE("plugin_op_name: unknown op", "[op_name]") {
-    REQUIRE(std::string_view{plugin_op_name(99)} == "unknown");
+    REQUIRE(std::string_view(aw::example::plugin::plugin_op_name(99)) == "unknown");
 }
 
 } // namespace aw::example::tests

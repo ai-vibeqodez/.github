@@ -1,21 +1,24 @@
 # Build outputs
 build/
-Debug/
-Release/
-MinSizeRel/
-RelWithDebInfo/
+out/
 
 # IDE
+.vscode/
+.idea/
 *.sln
-*.vcxproj
-*.idea/
-*.vscode/
+*.vcxproj*
 
-# Plugins
-*.dll
+# Binaries
 *.so
+*.dll
 *.dylib
+*.exe
+*.obj
+*.lib
+*.a
 
-# Test outputs
-*.log
-*.xml
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
