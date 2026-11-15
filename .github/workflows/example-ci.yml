@@ -35,7 +35,8 @@ jobs:
         run: |
           cmake -S example -B build \
             -DCMAKE_BUILD_TYPE=Debug \
-            -DAW_EXAMPLE_BUILD_TESTS=ON
+            -DAW_EXAMPLE_BUILD_TESTS=ON \
+            -DAW_EXAMPLE_ENABLE_COVERAGE=ON
           cmake --build build --parallel
 
       - name: Run CTest
@@ -57,19 +58,9 @@ jobs:
       - name: Parse Coverage Metrics
         id: coverage_parser
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          PERCENTAGE=$(python3 -c "import xml.etree.ElementTree as ET; tree = ET.parse('coverage.xml'); root = tree.getroot(); print(int(float(root.attrib['line-rate']) * 100))")
-          echo "percent=${PERCENTAGE}%" >> $GITHUB_OUTPUT
-
-          if [ "$PERCENTAGE" -lt 50 ]; then
-            COLOR="#e05d44"
-          elif [ "$PERCENTAGE" -lt 80 ]; then
-            COLOR="#dfb317"
-          else
-            COLOR="#44cc11"
-          fi
-
-          echo "color=${COLOR}" >> $GITHUB_OUTPUT
+        uses: ./.github/ci/actions/coverage-parser
+        with:
+          xml_path: coverage.xml
 
       - name: Generate Coverage Badge
         id: badge_generator
