@@ -14,9 +14,16 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-15
+
 ### Added
 
+- add 'release' type to commit message hook
 - add changelog and changelog-dry-run make targets
+
+### Fixed
+
+- remove 'Other' category, map to 'Changed' for release compatibility
 
 ### Changed
 
@@ -25,12 +32,9 @@ Maintainer notes:
 - add pre-commit hook for Conventional Commits validation
 - add changelog-update scripts for auto-generating [Unreleased] from git log
 - add .gitattributes rule for shell script LF line endings
-- remove debug logging from release workflow
-
-### Other
-
 - add 3 bug fixes to Unreleased
 - fix gcovr source_root, coverage-parser xmllint, docker-buildx v4
+- remove debug logging from release workflow
 
 ## [1.0.6] - 2026-11-15
 

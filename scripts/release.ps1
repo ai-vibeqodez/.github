@@ -188,7 +188,7 @@ $text = ($result -join $newline) + $newline
 [System.IO.File]::WriteAllText((Join-Path $root $versionFile), "$version`n", (New-Object System.Text.UTF8Encoding($false)))
 
 Invoke-Git add -- $changelog $versionFile
-Invoke-Git commit -m "release $tag" -- $changelog $versionFile
+Invoke-Git commit -m "release: $tag" -- $changelog $versionFile
 Invoke-Git tag -a $tag -m "release $tag"
 Write-Host "Created commit and annotated tag $tag."
 
