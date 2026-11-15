@@ -28,6 +28,19 @@ AI-скиллы для автоматизации разработки:
 | [changelog_template.md](templates/changelog_template.md) | CHANGELOG.md (Keep a Changelog + SemVer) |
 | [contributing_template.md](templates/contributing_template.md) | CONTRIBUTING.md — правила вклада |
 
+### 🐳 LLM Server
+llama.cpp сервер для запуска LLM-моделей через Docker с GPU-ускорением:
+
+| Файл | Назначение |
+|------|-----------|
+| [docker-compose.llama.yml](docker-compose.llama.yml) | Docker Compose для llama.cpp сервера (RTX 4080, CUDA) |
+| [README.llama-cpp.md](README.llama-cpp.md) | Документация по запуску и настройке |
+
+- **API**: `http://host.docker.internal:8080/v1` (порт 8080, может конфликтовать)
+- **Основная модель**: Qwen3.6-35B-A3B-UD-Q4_K_XL (~21 GB, MoE ~3B active params)
+- **Fallback**: Qwen3-Coder-30B-A3B (~16.5 GB)
+- **Статус**: В разработке
+
 ### ⚙️ Конфигурации
 | Файл | Назначение |
 |------|-----------|
@@ -53,16 +66,27 @@ AI-скиллы для автоматизации разработки:
 ```
 .github/
 ├── .editorconfig
+├── .gitignore
+├── docker-compose.llama.yml
+├── README.llama-cpp.md
 ├── skills/
-│   ├── 01_analyst.md
-│   ├── 02_planner.md
-│   └── 03_skill_creator.md
+│   ├── analyst/SKILL.md
+│   ├── executor/SKILL.md
+│   ├── planner/SKILL.md
+│   └── skill-creator/SKILL.md
 ├── templates/
 │   ├── overview.md
 │   ├── task_template.md
 │   ├── readme_template.md
 │   ├── changelog_template.md
 │   └── contributing_template.md
+├── todo/
+│   └── llamacpp-docker-setup/
+│       ├── OVERVIEW.md
+│       ├── task_01.md
+│       ├── task_02.md
+│       ├── task_03.md
+│       └── task_04.md
 ├── SKILLS.md
 └── README.md
 ```

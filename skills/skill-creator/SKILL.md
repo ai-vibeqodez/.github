@@ -1,5 +1,5 @@
 ---
-name: 03_skill_creator
+name: skill-creator
 description: Создание новых skill'ов и актуализация репозитория skill'ов
 ---
 

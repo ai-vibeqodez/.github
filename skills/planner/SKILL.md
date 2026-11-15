@@ -1,5 +1,5 @@
 ---
-name: 02_planner
+name: planner
 description: Создание плана проекта, OVERVIEW.md и task-файлов из документов требований
 ---
 
