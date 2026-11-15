@@ -111,26 +111,7 @@ jobs:
 
       - name: Parse Coverage Metrics
         id: coverage_parser
-        run: |
-          if [ -f "coverage.xml" ]; then
-            PERCENTAGE=$(python3 -c "import xml.etree.ElementTree as ET; tree = ET.parse('coverage.xml'); root = tree.getroot(); print(int(float(root.attrib['line-rate']) * 100))")
-          elif [ -f "coverage.lcov" ]; then
-            PERCENTAGE=$(grep '^DA:' coverage.lcov | awk -F: '{sum+=$2; count++} END {if(count>0) printf "%d", sum/count; else print 0}')
-          else
-            PERCENTAGE=0
-          fi
-          echo "DEBUG: Extracted percentage: '$PERCENTAGE'"
-
-          if [ "$PERCENTAGE" -lt 50 ]; then
-            COLOR="#e05d44"
-          elif [ "$PERCENTAGE" -lt 80 ]; then
-            COLOR="#dfb317"
-          else
-            COLOR="#44cc11"
-          fi
-
-          echo "percent=${PERCENTAGE}%" >> $GITHUB_OUTPUT
-          echo "color=${COLOR}" >> $GITHUB_OUTPUT
+        uses: ai-warevo/.github/ci/actions/coverage-parser@main
 
       - name: Generate Coverage Badge
         id: badge_generator

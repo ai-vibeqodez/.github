@@ -1,0 +1,49 @@
+name: 'Coverage Parser'
+description: 'Извлекает процент покрытия из coverage.xml или coverage.lcov, возвращает процент и цвет бейджа'
+
+inputs:
+  xml_path:
+    description: 'Путь к coverage.xml'
+    required: false
+    default: 'coverage.xml'
+  lcov_path:
+    description: 'Путь к coverage.lcov'
+    required: false
+    default: 'coverage.lcov'
+
+outputs:
+  percent:
+    description: 'Процент покрытия'
+    value: ${{ steps.parse.outputs.percent }}
+  color:
+    description: 'Цвет бейджа (HEX)'
+    value: ${{ steps.parse.outputs.color }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Parse coverage metrics
+      id: parse
+      shell: bash
+      env:
+        XML_PATH: ${{ inputs.xml_path }}
+        LCOV_PATH: ${{ inputs.lcov_path }}
+      run: |
+        if [ -f "$XML_PATH" ]; then
+          PERCENTAGE=$(python3 -c "import xml.etree.ElementTree as ET; tree = ET.parse('$XML_PATH'); root = tree.getroot(); print(int(float(root.attrib['line-rate']) * 100))")
+        elif [ -f "$LCOV_PATH" ]; then
+          PERCENTAGE=$(grep '^DA:' "$LCOV_PATH" | awk -F: '{sum+=$2; count++} END {if(count>0) printf "%d", sum/count; else print 0}')
+        else
+          PERCENTAGE=0
+        fi
+
+        if [ "$PERCENTAGE" -lt 50 ]; then
+          COLOR="#e05d44"
+        elif [ "$PERCENTAGE" -lt 80 ]; then
+          COLOR="#dfb317"
+        else
+          COLOR="#44cc11"
+        fi
+
+        echo "percent=${PERCENTAGE}%" >> $GITHUB_OUTPUT
+        echo "color=${COLOR}" >> $GITHUB_OUTPUT
