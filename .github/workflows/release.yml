@@ -123,7 +123,7 @@ jobs:
           body_path: ${{ steps.changelog.outputs.body_path }}
           files: |
             SHA256SUMS.txt
-            libplugin-${{ needs.build-example.outputs.release_version }}.so
+            libplugin-${{ needs.build-example.outputs.release_version }}
             host-${{ needs.build-example.outputs.release_version }}
           generate_release_notes: false
 
