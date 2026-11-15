@@ -14,6 +14,8 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.2.2] - 2026-11-16
+
 ### Fixed
 
 - apply coverage/sanitizer flags via target_compile_options
