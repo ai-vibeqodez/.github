@@ -19,16 +19,6 @@ llama.cpp сервер для запуска LLM-моделей через Docke
 - **Fallback**: Qwen3-Coder-30B-A3B (~16.5 GB)
 
 ### 🧠 Скиллы
-AI-скиллы для автоматизации разработки:
-
-| Скилл | Назначение |
-|-------|-----------|
-| [analyst](skills/analyst/SKILL.md) | Сбор и формализация требований через интервью |
-| [planner](skills/planner/SKILL.md) | Декомпозиция требований → OVERVIEW + task-файлы |
-| [executor](skills/executor/SKILL.md) | Выполнение задач из todo-директорий |
-| [skill-creator](skills/skill-creator/SKILL.md) | Создание новых скиллов с валидацией |
-| [git-github-push](skills/git-github-push/SKILL.md) | Push коммитов в GitHub через SSH (обход read-only ФС контейнера) |
-
 Полный каталог — [skills/README.md](skills/README.md)
 
 ### 📄 Шаблоны
