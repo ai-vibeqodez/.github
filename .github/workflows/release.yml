@@ -86,7 +86,7 @@ jobs:
         id: changelog
         uses: ai-warevo/.github/ci/actions/changelog-release@main
         with:
-          tag: v${{ needs.build-example.outputs.release_version }}
+          tag: ${{ needs.build-example.outputs.release_version }}
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
@@ -118,8 +118,8 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ needs.build-example.outputs.release_version }}
-          name: v${{ needs.build-example.outputs.release_version }}
+          tag_name: ${{ needs.build-example.outputs.release_version }}
+          name: ${{ needs.build-example.outputs.release_version }}
           body_path: ${{ steps.changelog.outputs.body_path }}
           files: |
             SHA256SUMS.txt

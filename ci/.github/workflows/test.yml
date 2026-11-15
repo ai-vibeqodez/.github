@@ -71,6 +71,7 @@ jobs:
       # - name: Run Tests
       #   uses: ai-warevo/.github/ci/actions/ctest-run@main
       #   with:
+      #     source_dir: .
       #     build_dir: build
       #     config: Debug
 
@@ -114,6 +115,7 @@ jobs:
       # - name: Generate Coverage
       #   uses: ai-warevo/.github/ci/actions/gcovr-report@main
       #   with:
+      #     source_dir: .
       #     build_dir: build
       #     source_filter: src/
       #     output_dir: htmlcov

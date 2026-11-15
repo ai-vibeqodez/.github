@@ -6,6 +6,7 @@
 #   - name: Run Tests
 #     uses: ai-warevo/.github/ci/actions/ctest-run@main
 #     with:
+#       source_dir: example
 #       build_dir: build
 #       config: Debug
 #       timeout: 120
@@ -14,8 +15,12 @@ name: 'CTest Run'
 description: 'Run CTest for a CMake project'
 
 inputs:
+  source_dir:
+    description: 'Source directory (relative to workspace)'
+    required: false
+    default: '.'
   build_dir:
-    description: 'Build directory (relative to workspace)'
+    description: 'Build directory (relative to source_dir)'
     required: false
     default: 'build'
   config:
@@ -37,7 +42,8 @@ runs:
     - name: Run CTest
       shell: bash
       run: |
-        CTEST_ARGS=("--test-dir" "${{ inputs.build_dir }}")
+        cd "${{ inputs.source_dir }}/${{ inputs.build_dir }}"
+        CTEST_ARGS=()
         if [ -n "${{ inputs.config }}" ]; then
           CTEST_ARGS+=("-C" "${{ inputs.config }}")
         fi

@@ -7,6 +7,7 @@
 #   - name: Generate Coverage
 #     uses: ai-warevo/.github/ci/actions/gcovr-report@main
 #     with:
+#       source_dir: example
 #       build_dir: build
 #       source_filter: example/
 #       output_dir: htmlcov
@@ -15,12 +16,16 @@ name: 'GCOVR Coverage Report'
 description: 'Install gcovr and generate coverage reports (XML + HTML)'
 
 inputs:
+  source_dir:
+    description: 'Source directory (relative to workspace)'
+    required: false
+    default: '.'
   build_dir:
-    description: 'Build directory (relative to workspace)'
+    description: 'Build directory (relative to source_dir)'
     required: false
     default: 'build'
   source_root:
-    description: 'Source root for gcovr -r flag (defaults to build_dir)'
+    description: 'Source root for gcovr -r flag (overrides source_dir/source_filter)'
     required: false
     default: ''
   source_filter:
@@ -59,14 +64,24 @@ runs:
       id: gcovr
       shell: bash
       env:
+        SOURCE_DIR: ${{ inputs.source_dir }}
         BUILD_DIR: ${{ inputs.build_dir }}
-        SOURCE_ROOT: ${{ inputs.source_root || inputs.build_dir }}
+        SOURCE_ROOT: ${{ inputs.source_root }}
         FILTER: ${{ inputs.source_filter }}
         EXCLUDE: ${{ inputs.exclude }}
         OUTPUT_DIR: ${{ inputs.output_dir }}
         XML_PATH: ${{ inputs.xml_path }}
       run: |
         mkdir -p "$OUTPUT_DIR"
+
+        # Resolve source root: explicit > source_dir/build_dir, then source_filter, then build_dir
+        if [ -n "$SOURCE_ROOT" ]; then
+          : # use as-is
+        elif [ -n "$FILTER" ]; then
+          SOURCE_ROOT="${SOURCE_DIR}/${BUILD_DIR}"
+        else
+          SOURCE_ROOT="${SOURCE_DIR}/${BUILD_DIR}"
+        fi
 
         EXCLUDE_ARGS=""
         for pattern in $(echo "$EXCLUDE" | tr ',' ' '); do

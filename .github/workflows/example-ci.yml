@@ -36,12 +36,14 @@ jobs:
       - name: Run Tests
         uses: ai-warevo/.github/ci/actions/ctest-run@main
         with:
+          source_dir: example
           build_dir: build
           config: Debug
 
       - name: Generate Coverage
         uses: ai-warevo/.github/ci/actions/gcovr-report@main
         with:
+          source_dir: example
           build_dir: build
           source_filter: example/
           exclude: build/_deps/*
@@ -106,5 +108,6 @@ jobs:
       - name: Run Tests
         uses: ai-warevo/.github/ci/actions/ctest-run@main
         with:
+          source_dir: example
           build_dir: build
           timeout: 120
