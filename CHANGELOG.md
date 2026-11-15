@@ -14,6 +14,14 @@ Maintainer notes:
 
 ## [Unreleased]
 
+### Fixed
+
+- apply coverage/sanitizer flags via target_compile_options
+
+### Changed
+
+- add AGENTS.md guide and update README files
+
 ## [1.2.1] - 2026-11-16
 
 ### Changed

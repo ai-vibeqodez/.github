@@ -100,8 +100,7 @@ if [ "$dry_run" -eq 1 ]; then
 fi
 
 git rev-parse -q --verify "refs/tags/$tag" > /dev/null && die "tag $tag already exists"
-if ! git diff --quiet --cached; then die "the index has staged changes; commit or unstage them first"; fi
-others="$(git status --porcelain --untracked-files=no | grep -v -E "^.. \"?($changelog|$version_file)\"?$" || true)"
+others="$(git status --porcelain --untracked-files=no | grep -v -E "^[ AM] \"?($changelog|$version_file)\"?$" || true)"
 [ -z "$others" ] || die "working tree has uncommitted changes besides $changelog and $version_file:"$'\n'"$others"
 
 awk -v ver="$version" -v tag="$tag" -v prev="v$current" -v has_prev="$has_previous" -v date="$today" '
