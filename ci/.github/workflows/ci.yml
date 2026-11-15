@@ -5,14 +5,17 @@
 #
 # Поддерживаемые стеки (выбери нужный и раскомментируй):
 #   Node.js / TypeScript, Python, C# (.NET), C++ (CMake), Go, Rust, Java, и др.
+#
+# Триггеры: pull_request к main/master, merge_group (при слиянии PR).
+# Обычный push в main/master НЕ запускает CI — экономит GitHub Actions лимиты.
 
 name: CI
 
 on:
-  push:
-    branches: [main, develop]
   pull_request:
-    branches: [main]
+    branches: [main, master]
+  merge_group:
+    branches: [main, master]
 
 # Отменяем старые незавершённые запуски для того же PR / ветки
 concurrency:
