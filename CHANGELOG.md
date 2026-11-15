@@ -14,6 +14,12 @@ Maintainer notes:
 
 ## [Unreleased]
 
+### Fixed
+
+- `ctest-run`: accept `source_dir` input, cd to build directory before running ctest (was failing when source_dir ≠ `.`)
+- `gcovr-report`: accept `source_dir` input, resolve source_root correctly for non-root source directories
+- `release.yml`: remove duplicate `v` prefix from `tag`, `tag_name`, and `name` inputs (release-version already returns version with `v`)
+
 ## [1.0.0] - 2026-11-15
 
 ### Added
