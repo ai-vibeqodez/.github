@@ -14,6 +14,12 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [0.7.10] - 2026-11-15
+
+### Fixed
+
+- Release workflow: checkout main instead of tag so changelog-release can find release notes
+
 ## [0.7.9] - 2026-11-15
 
 ### Fixed
