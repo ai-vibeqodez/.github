@@ -14,6 +14,12 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.2.5] - 2026-11-16
+
+### Fixed
+
+- gcovr filter patterns to match tpl workflow approach
+
 ## [1.2.4] - 2026-11-16
 
 ### Fixed
