@@ -35,8 +35,8 @@ remote="${RELEASE_REMOTE:-origin}"
 # Work on an LF copy so the awk below is line-ending agnostic; restore CRLF on write if the file used it.
 crlf=0
 if grep -q $'\r' "$changelog"; then crlf=1; fi
-work="$(mktemp)"
-out="$(mktemp)"
+work="$(mktemp -p /tmp)"
+out="$(mktemp -p /tmp)"
 trap 'rm -f "$work" "$out"' EXIT
 tr -d '\r' < "$changelog" > "$work"
 
