@@ -22,15 +22,7 @@ llama.cpp сервер для запуска LLM-моделей через Docke
 Полный каталог — [skills/README.md](skills/README.md)
 
 ### 📄 Шаблоны
-Готовые шаблоны для проектов:
-
-| Файл | Назначение |
-|------|-----------|
-| [overview.md](templates/overview.md) | OVERVIEW проекта с чекбоксами и прогрессом |
-| [task_template.md](templates/task_template.md) | Файл отдельной задачи с критериями готовности |
-| [readme_template.md](templates/readme_template.md) | README.md проекта |
-| [changelog_template.md](templates/changelog_template.md) | CHANGELOG.md (Keep a Changelog + SemVer) |
-| [contributing_template.md](templates/contributing_template.md) | CONTRIBUTING.md — правила вклада |
+Готовые шаблоны для проектов: [templates/](templates/)
 
 ### ⚙️ Конфигурации
 | Файл | Назначение |
