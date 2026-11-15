@@ -14,6 +14,12 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [0.7.9] - 2026-11-15
+
+### Fixed
+
+- Changelog release action: add release notes for v0.7.8
+
 ## [0.7.8] - 2026-11-15
 
 ### Fixed
