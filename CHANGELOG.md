@@ -14,6 +14,10 @@ Maintainer notes:
 
 ## [Unreleased]
 
+### Fixed
+
+- `release.yml`: fix libplugin.so upload path to `example/build/plugin/libplugin.so`
+
 ## [1.0.5] - 2026-11-15
 
 ### Fixed
