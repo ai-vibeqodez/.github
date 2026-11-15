@@ -45,25 +45,25 @@ jobs:
 
       - name: Resolve version
         id: version
-        uses: ai-warevo/.github/ci/actions/release-version@main
+        uses: ai-warevo/.github/ci/actions/release-version@fdafa1a
         with:
           version: ${{ github.event.inputs.version }}
 
       - name: Generate Release Body
         id: changelog
-        uses: ai-warevo/.github/ci/actions/changelog-release@main
+        uses: ai-warevo/.github/ci/actions/changelog-release@fdafa1a
         with:
           tag: ${{ steps.version.outputs.release_version }}
 
       - name: Generate checksums
         id: checksums_generate
-        uses: ai-warevo/.github/ci/actions/checksums@main
+        uses: ai-warevo/.github/ci/actions/checksums@fdafa1a
         with:
           artifacts_dir: '.'
           checksums_file: 'SHA256SUMS.txt'
 
       - name: Verify checksums
-        uses: ai-warevo/.github/ci/actions/checksums-verify@main
+        uses: ai-warevo/.github/ci/actions/checksums-verify@fdafa1a
         with:
           artifacts_dir: '.'
           checksums_file: 'SHA256SUMS.txt'
@@ -92,7 +92,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build Docker image
-        uses: ai-warevo/.github/ci/actions/docker-save@main
+        uses: ai-warevo/.github/ci/actions/docker-save@fdafa1a
         with:
           image: ghcr.io/ai-warevo/.github/example
           tag: ${{ needs.release.outputs.release_version }}
@@ -100,7 +100,7 @@ jobs:
           artifact_name: example-image
 
       - name: Push to GHCR
-        uses: ai-warevo/.github/ci/actions/docker-push-ghcr@main
+        uses: ai-warevo/.github/ci/actions/docker-push-ghcr@fdafa1a
         with:
           image: ghcr.io/ai-warevo/.github/example
           version: ${{ needs.release.outputs.release_version }}
