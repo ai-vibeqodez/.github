@@ -14,6 +14,10 @@ Maintainer notes:
 
 ## [Unreleased]
 
+### Fixed
+
+- `release.yml`: add debug logging for artifact download troubleshooting (list available artifacts, ls -laR before/after download)
+
 ## [1.0.2] - 2026-11-15
 
 ### Fixed
