@@ -30,16 +30,7 @@ llama.cpp сервер для запуска LLM-моделей через Docke
 | [.editorconfig](.editorconfig) | Единый стиль кода: utf-8, LF, отступы |
 
 ### 📋 CI/CD
-Универсальные GitHub Actions шаблоны для копирования в проекты:
-
-| Файл | Назначение |
-|------|-----------|
-| [ci/.github/workflows/ci.yml](ci/.github/workflows/ci.yml) | CI pipeline: build → lint → test |
-| [ci/.github/workflows/test.yml](ci/.github/workflows/test.yml) | Расширенное тестирование: мультиплатформа, coverage |
-| [ci/actions/badge/README.md](ci/actions/badge/README.md) | Генератор кастомных SVG-бейджей |
-| [ci/README.md](ci/README.md) | Инструкция по использованию |
-
-Поддерживаемые стеки: Node.js, Python, C#, C++, Go, Rust, Java
+GitHub Actions шаблоны для CI/CD: [ci/README.md](ci/README.md)
 
 ## Как использовать
 
