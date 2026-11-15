@@ -5,10 +5,10 @@
 #   stage2 (runtime) — только бинарники host + libplugin
 #
 # Сборка:
-#   docker build -t ghcr.io/ai-warevo/.github/example -f example/Dockerfile .
+#   docker build -t ghcr.io/ai-warevo/example -f example/Dockerfile .
 #
 # Запуск:
-#   docker run --rm ghcr.io/ai-warevo/.github/example
+#   docker run --rm ghcr.io/ai-warevo/example
 
 # ── Builder ───────────────────────────────────────────────────────────────
 FROM gcc:13-alpine AS builder
