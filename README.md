@@ -11,7 +11,7 @@ llama.cpp сервер для запуска LLM-моделей через Docke
 
 | Файл | Назначение |
 |------|-----------|
-| [docker-compose.llama.yml](docker-compose.llama.yml) | Docker Compose для llama.cpp сервера (RTX 4080, CUDA) |
+| [docker-compose.yml](docker-compose.yml) | Docker Compose для llama.cpp сервера (RTX 4080, CUDA, профиль `llamacpp`) |
 | [README.llama-cpp.md](README.llama-cpp.md) | Документация по запуску и настройке |
 
 - **API**: `http://host.docker.internal:8080/v1` (порт 8080, может конфликтовать)
@@ -68,7 +68,7 @@ AI-скиллы для автоматизации разработки:
 .github/
 ├── .editorconfig
 ├── .gitignore
-├── docker-compose.llama.yml
+├── docker-compose.yml
 ├── README.llama-cpp.md
 ├── skills/
 │   ├── analyst/SKILL.md

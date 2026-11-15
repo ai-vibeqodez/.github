@@ -3,11 +3,13 @@
 # Does not fit 16GB VRAM fully -> hybrid: attention/dense + KV on GPU, overflow MoE experts on CPU RAM.
 #
 #   download : see README.llama-cpp.md
-#   start    : docker compose -f docker-compose.llama.yml up -d
-#   logs     : docker compose -f docker-compose.llama.yml logs -f llama-server
+#   start    : docker compose --profile llamacpp up -d
+#   logs     : docker compose --profile llamacpp logs -f llama-server
 
 services:
   llama-server:
+    profiles:
+      - llamacpp
     image: ghcr.io/ggml-org/llama.cpp:server-cuda   # entrypoint is already llama-server
     container_name: llama-cpp-provider
     restart: unless-stopped

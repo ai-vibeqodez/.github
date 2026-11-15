@@ -27,9 +27,9 @@ curl -L -C - -o models/Qwen3.6-35B-A3B-UD-Q4_K_XL.gguf \
 ## 2. Start llama-server
 
 ```sh
-docker compose -f docker-compose.llama.yml pull
-docker compose -f docker-compose.llama.yml up -d --force-recreate
-docker compose -f docker-compose.llama.yml logs -f llama-server   # wait for "server is listening"
+docker compose --profile llamacpp pull
+docker compose --profile llamacpp up -d --force-recreate
+docker compose --profile llamacpp logs -f llama-server   # wait for "server is listening"
 ```
 
 ### Smoke test (tool calling)
@@ -50,7 +50,7 @@ Expect `tool_calls` with `get_weather`.
 ### Stop
 
 ```sh
-docker compose -f docker-compose.llama.yml down
+docker compose --profile llamacpp down
 ```
 
 ## 3. Configure DSH
@@ -83,7 +83,7 @@ In the DSH UI pick provider **llamacpp** -> model **Qwen3.6-35B-A3B (UD-Q4_K_XL,
 
 ## 4. Customizing the port
 
-If port 8080 is already in use, change the port mapping in `docker-compose.llama.yml`:
+If port 8080 is already in use, change the port mapping in `docker-compose.yml`:
 
 ```yaml
 ports:
@@ -112,7 +112,7 @@ baseURL: http://host.docker.internal:8081/v1
 | DSH "connection refused" | `docker ps`; DSH must use `http://host.docker.internal:8080/v1` (extra_hosts is set in its compose) |
 | 401 Unauthorized | Key mismatch between `--api-key` in compose and `.credentials.yaml` |
 | Model download stuck | Use `curl -L -C -` for resumable download, or `hf download` from huggingface_hub |
-| Container exits immediately | Check logs: `docker compose -f docker-compose.llama.yml logs llama-server`; verify model file exists in `./models/` |
+| Container exits immediately | Check logs: `docker compose --profile llamacpp logs llama-server`; verify model file exists in `./models/` |
 | Slow inference | Check `--threads` (should match CPU cores), ensure `--load-mode: none` is used on bind mounts |
 
 ## GPU Requirements
