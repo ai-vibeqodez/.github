@@ -14,6 +14,20 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.2.15] - 2026-11-16
+
+### Fixed
+
+- docker-save tests pull alpine:3.19 before saving
+- edge-cases default_badge creates output directory
+- edge-cases missing_tag expects changelog-release failure
+- checksums-verify test creates test files and SHA256SUMS.txt
+- changelog-release missing tag test expects action failure
+
+### Changed
+
+- update pre-commit hook instructions in README
+
 ## [1.2.14] - 2026-11-16
 
 ### Fixed
