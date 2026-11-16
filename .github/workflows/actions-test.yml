@@ -405,6 +405,10 @@ jobs:
         run: echo "✓ coverage-html-deploy → actions-test:test-coverage/"
 
       # ── docker-save ──
+      - name: docker-save — pull image
+        if: success()
+        run: docker pull alpine:3.19
+
       - name: docker-save — build & save
         id: docker_save
         if: success()
@@ -686,6 +690,9 @@ jobs:
         uses: actions/checkout@v4
 
       # ── docker-save: build image, save to tar, upload artifact ──
+      - name: docker-save — pull image
+        run: docker pull alpine:3.19
+
       - name: docker-save — create artifact
         id: docker_save
         uses: ai-warevo/.github/ci/actions/docker-save@main
