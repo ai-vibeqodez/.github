@@ -14,6 +14,13 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.2.14] - 2026-11-16
+
+### Fixed
+
+- fix coverage badge — gcov version mismatch and parser formula
+- remove duplicate @main in uses references
+
 ## [1.2.13] - 2026-11-16
 
 ### Fixed
