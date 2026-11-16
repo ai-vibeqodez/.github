@@ -766,9 +766,10 @@ jobs:
           echo "✓ zero coverage"
 
       # ── Missing tag ──
-      - name: missing tag
+      - name: missing tag (expect failure)
         if: matrix.case == 'missing_tag'
         id: cr_missing
+        continue-on-error: true
         uses: ai-warevo/.github/ci/actions/changelog-release@main
         with:
           tag: v9.9.9
@@ -779,8 +780,10 @@ jobs:
         if: matrix.case == 'missing_tag'
         run: |
           set -euo pipefail
-          [ -f /tmp/edge-tests/missing.md ] || { echo "::error::Body not created"; exit 1; }
-          echo "✓ missing tag → empty body"
+          [ "${{ steps.cr_missing.outcome }}" = "failure" ] || \
+            { echo "::error::Expected action to fail for missing tag"; exit 1; }
+          [ ! -f /tmp/edge-tests/missing.md ] || { echo "::error::Body should not exist"; exit 1; }
+          echo "✓ missing tag (correctly fails)"
 
       # ── Empty dir ──
       - name: empty dir
