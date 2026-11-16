@@ -14,6 +14,12 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.2.13] - 2026-11-16
+
+### Fixed
+
+- fix logical errors and standardize @main references
+
 ## [1.2.12] - 2026-11-16
 
 ### Fixed
