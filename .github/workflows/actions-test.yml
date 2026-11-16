@@ -813,21 +813,17 @@ jobs:
       # ── Default badge ──
       - name: default badge
         if: matrix.case == 'default_badge'
-        run: mkdir -p /tmp/edge-tests
-
-      - name: default badge
-        if: matrix.case == 'default_badge'
         uses: ai-warevo/.github/ci/actions/badge@main
         with:
           text_left: 'coverage'
           text_right: '100%'
           bg_color_right: '#44cc11'
-          filename: /tmp/edge-tests/default.svg
+          filename: edge-tests/default.svg
 
       - name: validate default badge
         if: matrix.case == 'default_badge'
         run: |
           set -euo pipefail
-          [ -f /tmp/edge-tests/default.svg ] || { echo "::error::Badge missing"; exit 1; }
-          grep -q '<svg' /tmp/edge-tests/default.svg || { echo "::error::Invalid SVG"; exit 1; }
+          [ -f edge-tests/default.svg ] || { echo "::error::Badge missing"; exit 1; }
+          grep -q '<svg' edge-tests/default.svg || { echo "::error::Invalid SVG"; exit 1; }
           echo "✓ default badge"
