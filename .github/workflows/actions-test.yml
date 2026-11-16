@@ -432,8 +432,8 @@ jobs:
         if: success()
         uses: ai-warevo/.github/ci/actions/docker-build-push@main
         with:
-          context: example
-          dockerfile: Dockerfile
+          context: ./example
+          dockerfile: example/Dockerfile
           registry: ghcr.io
           image_name: ghcr.io/${{ github.repository_owner }}/actions-test
           tags: |
