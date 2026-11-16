@@ -40,6 +40,10 @@ inputs:
     description: 'Push the image (default: true)'
     required: false
     default: 'true'
+  load:
+    description: 'Load the image into the local Docker daemon (default: false)'
+    required: false
+    default: 'false'
   github_token:
     description: 'GitHub token for registry authentication'
     required: false
@@ -64,5 +68,5 @@ runs:
         context: ${{ inputs.context }}
         file: ${{ inputs.dockerfile }}
         push: ${{ inputs.push }}
-        load: 'true'
+        load: ${{ inputs.load }}
         tags: ${{ inputs.tags }}
