@@ -30,7 +30,7 @@ inputs:
   checks:
     description: 'clang-tidy check patterns (comma-separated)'
     required: false
-    default: 'bugprone-*,modernize-*,performance-*,readability-*'
+    default: '>*,\n  bugprone-*,\n  cppcoreguidelines-avoid-capturing-lambda-coroutines,\n  cppcoreguidelines-avoid-reference-coroutine-parameters,\n  cppcoreguidelines-missing-std-forward,\n  cppcoreguidelines-slicing,\n  misc-const-correctness,\n  misc-definitions-in-headers,\n  misc-unused-using-decls,\n  modernize-use-nodiscard,\n  modernize-use-override,\n  modernize-use-using,\n  performance-*,\n  readability-container-size-empty,\n  readability-redundant-member-init,\n  -bugprone-easily-swappable-parameters,\n  -bugprone-exception-escape,\n  -bugprone-unchecked-optional-access'
   header_filter:
     description: 'Regex for headers to include in diagnostics'
     required: false
