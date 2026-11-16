@@ -167,9 +167,10 @@ jobs:
           grep -q 'v1.2.12' release_existing.md || { echo "::error::Version missing"; exit 1; }
           echo "✓ changelog-release existing tag"
 
-      - name: changelog-release — missing tag
+      - name: changelog-release — missing tag (expect failure)
         if: matrix.action == 'changelog-release'
         id: cr_missing
+        continue-on-error: true
         uses: ai-warevo/.github/ci/actions/changelog-release@main
         with:
           tag: v9.9.9
@@ -180,8 +181,10 @@ jobs:
         if: matrix.action == 'changelog-release'
         run: |
           set -euo pipefail
-          [ -f release_missing.md ] || { echo "::error::Missing tag body not created"; exit 1; }
-          echo "✓ changelog-release missing tag"
+          [ "${{ steps.cr_missing.outcome }}" = "failure" ] || \
+            { echo "::error::Expected action to fail for missing tag"; exit 1; }
+          [ ! -f release_missing.md ] || { echo "::error::Release body should not exist"; exit 1; }
+          echo "✓ changelog-release missing tag (correctly fails)"
 
       # ─── checksums ───
       - name: checksums — single file
