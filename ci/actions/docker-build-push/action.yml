@@ -64,5 +64,5 @@ runs:
         context: ${{ inputs.context }}
         file: ${{ inputs.dockerfile }}
         push: ${{ inputs.push }}
-        load: ${{ inputs.push == 'false' && 'true' || 'false' }}
+        load: 'true'
         tags: ${{ inputs.tags }}
