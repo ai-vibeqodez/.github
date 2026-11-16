@@ -103,7 +103,7 @@ ci/
 
 - Each action lives in `ci/actions/<name>/action.yml` with a `README.md`.
 - Actions accept inputs, produce outputs (via `$GITHUB_OUTPUT`).
-- Pin to commit SHAs, not `@main`, in workflows that reference them.
+- Always pin to `@main` in workflows that reference them.
 - Actions should be **idempotent** and **self-healing** (retry on transient failures).
 
 ### Workflow conventions
@@ -111,7 +111,7 @@ ci/
 - Use `concurrency` blocks to cancel stale runs on the same branch/PR.
 - Use `needs` to establish job dependencies; keep the graph shallow.
 - Matrix jobs for multi-platform/multi-version testing; single jobs for release.
-- All workflows reference shared composite actions from `ai-warevo/.github/ci/actions/<name>@<sha>`.
+- All workflows reference shared composite actions from `ai-warevo/.github/ci/actions/<name>@main`.
 
 ## Documentation & comments
 

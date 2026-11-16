@@ -33,11 +33,11 @@ runs:
 
         if [ -f "$XML_PATH" ]; then
           # Parse line-rate from coverage.xml using grep+awk (no xmllint dependency)
-          PERCENTAGE=$(grep -oP 'line-rate="\K[0-9.]+' "$XML_PATH" | head -1 | awk -F. '{printf "%d", $1 * 100}')
+          PERCENTAGE=$(grep -oP 'line-rate="\K[0-9.]+' "$XML_PATH" | head -1 | awk -F. '{printf "%d", $1 * 100 + $2}')
         fi
 
-        if [ -z "$PERCENTAGE" ] && [ -f "$LCOV_PATH" ]; then
-          PERCENTAGE=$(grep '^DA:' "$LCOV_PATH" | awk -F: '{sum+=$2; count++} END {if(count>0) printf "%d", sum/count; else print 0}')
+        if [ "$PERCENTAGE" = "0" ] && [ -f "$LCOV_PATH" ]; then
+          PERCENTAGE=$(grep '^DA:' "$LCOV_PATH" | awk -F'[:,]' '{total++; if($3>0) covered++} END {if(total>0) printf "%d", (covered/total)*100; else print 0}')
         fi
 
         : "${PERCENTAGE:=0}"
