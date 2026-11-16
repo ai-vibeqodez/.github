@@ -217,6 +217,15 @@ jobs:
           echo "✓ checksums custom filename"
 
       # ─── checksums-verify ───
+      - name: checksums-verify — prepare test files
+        if: matrix.action == 'checksums-verify'
+        run: |
+          set -euo pipefail
+          echo "test content 1" > file1.txt
+          echo "test content 2" > file2.txt
+          sha256sum file1.txt file2.txt > SHA256SUMS.txt
+          echo "✓ test files and checksums created"
+
       - name: checksums-verify — valid
         if: matrix.action == 'checksums-verify'
         id: cv_valid
