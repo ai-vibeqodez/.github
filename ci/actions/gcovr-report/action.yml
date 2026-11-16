@@ -60,12 +60,17 @@ runs:
         sudo apt-get install -y gcovr
         # Ensure gcovr finds the gcov matching the compiler that built the .gcda files.
         # gcovr searches for "gcov" on PATH; the default may differ from the
-        # compiler version used to build coverage data. Pin it explicitly.
+        # compiler version used to build the .gcda files. Pin it explicitly.
         GCC_VER=$(gcc -dumpversion | cut -d. -f1)
         echo "Detected GCC version: $GCC_VER"
         if command -v gcov-${GCC_VER} &>/dev/null; then
-          sudo ln -sf "$(which gcov-${GCC_VER})" /usr/local/bin/gcov
-          echo "Linked /usr/local/bin/gcov -> gcov-${GCC_VER}"
+          # Prefer a writable user bin dir; fall back to /usr/local/bin (may need sudo).
+          mkdir -p "$HOME/bin"
+          ln -sf "$(which gcov-${GCC_VER})" "$HOME/bin/gcov"
+          export PATH="$HOME/bin:$PATH"
+          echo "Linked $HOME/bin/gcov -> gcov-${GCC_VER} (PATH=$PATH)"
+        else
+          echo "WARNING: gcov-${GCC_VER} not found; using default gcov"
         fi
         gcov --version | head -1
 
