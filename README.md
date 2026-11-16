@@ -13,26 +13,25 @@
 Чтобы все коммиты в проекте следовали стандарту [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/), подключите hook:
 
 ```bash
-# 1. Скопировать hook в проект
-mkdir -p .husky
-cp .github/.husky/prepare-commit-msg .husky/prepare-commit-msg
-chmod +x .husky/prepare-commit-msg
+# Скопировать hook в проект и установить в git
+mkdir -p .husky .git/hooks
+cp .github/.husky/commit-msg .husky/commit-msg .git/hooks/commit-msg
+chmod +x .git/hooks/commit-msg
 
-# 2. Установить в git
-cp .husky/prepare-commit-msg .git/hooks/prepare-commit-msg
-
-# 3. Проверить
+# Проверить
 echo "feat: test" > /tmp/test.txt
-.git/hooks/prepare-commit-msg /tmp/test.txt
+.git/hooks/commit-msg /tmp/test.txt
 ```
 
-> `prepare-commit-msg` запускается после того, как git записывает сообщение коммита — это правильный хук для валидации. `pre-commit` не подходит, потому что запускается до записи сообщения.
+> `commit-msg` запускается после записи сообщения коммита — это правильный хук для валидации. `pre-commit` не подходит, потому что запускается до записи сообщения.
 
 **Поддерживаемые типы**: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`
 
 **Форматы**: `type: message`, `type!: message`, `type(scope): message`, `type(scope)!: message`
 
 **Лимит длины**: 88 символов в subject line (предупреждение при >72).
+
+**Исключения**: коммиты вида `release vX.Y.Z` пропускают валидацию (автоматически генерируются скриптами релизов).
 
 Общий репозиторий инфраструктуры **ai-warevo**. Содержит переиспользуемые артефакты, которые применяются в любых проектах — независимо от стека (C#, Python, JS, C++ и др.).
 
