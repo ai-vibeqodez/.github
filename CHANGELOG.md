@@ -14,6 +14,12 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-11-16
+
+### Added
+
+- add ci-infrastructure-integrator skill
+
 ## [1.2.16] - 2026-11-16
 
 ### Fixed
