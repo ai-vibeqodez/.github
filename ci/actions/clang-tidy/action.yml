@@ -74,7 +74,11 @@ runs:
               exit 1
             fi
           fi
-        done < <(find "$SOURCE_DIR" \( -name '*.cpp' -o -name '*.hpp' -o -name '*.h' -o -name '*.c' \) -print0)
+        done < <(find "$SOURCE_DIR" \( -name '*.cpp' -o -name '*.hpp' -o -name '*.h' -o -name '*.c' \) \
+          -not -path '*/build/*' -not -path '*/_build/*' \
+          -not -path '*/_deps/*' -not -path '*/CMakeFiles/*' \
+          -not -path '*/cmake/*' \
+          -print0)
 
         if [ "$ERRORS" -gt 0 ]; then
           echo "clang-tidy found issues in $ERRORS file(s)"
