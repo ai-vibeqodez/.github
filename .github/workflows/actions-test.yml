@@ -231,7 +231,7 @@ jobs:
       - name: checksums-verify — invalid
         if: matrix.action == 'checksums-verify'
         id: cv_invalid
-        uses: ai-warevo/.github/ci/actions/checksums-verify@main@main
+        uses: ai-warevo/.github/ci/actions/checksums-verify@main
         with:
           artifacts_dir: .
           checksums_file: bad_sha.txt
@@ -266,7 +266,7 @@ jobs:
       - name: coverage-parser — parse high
         if: matrix.action == 'coverage-parser'
         id: cp_parse
-        uses: ai-warevo/.github/ci/actions/coverage-parser@main@main
+        uses: ai-warevo/.github/ci/actions/coverage-parser@main
         with:
           xml_path: /tmp/cov-test/coverage.xml
 
@@ -298,7 +298,7 @@ jobs:
       - name: coverage-parser — parse zero
         if: matrix.action == 'coverage-parser'
         id: cp_zero_parse
-        uses: ai-warevo/.github/ci/actions/coverage-parser@main@main
+        uses: ai-warevo/.github/ci/actions/coverage-parser@main
         with:
           xml_path: /tmp/cov-test/coverage.xml
 
@@ -315,7 +315,7 @@ jobs:
       - name: coverage-parser — missing file (default 0)
         if: matrix.action == 'coverage-parser'
         id: cp_missing
-        uses: ai-warevo/.github/ci/actions/coverage-parser@main@main
+        uses: ai-warevo/.github/ci/actions/coverage-parser@main
         with:
           xml_path: /nonexistent/coverage.xml
 
@@ -741,7 +741,7 @@ jobs:
       - name: zero coverage — parse
         if: matrix.case == 'zero_coverage'
         id: edge_cov_parse
-        uses: ai-warevo/.github/ci/actions/coverage-parser@main@main
+        uses: ai-warevo/.github/ci/actions/coverage-parser@main
         with:
           xml_path: /tmp/edge-tests/coverage.xml
 
