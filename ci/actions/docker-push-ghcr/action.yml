@@ -28,6 +28,10 @@ inputs:
     description: 'Name of the docker image artifact'
     required: false
     default: 'docker-image'
+  artifact_path:
+    description: 'Filename of the tar inside the artifact (default: image.tar)'
+    required: false
+    default: 'image.tar'
   token:
     description: 'GitHub token for GHCR authentication'
     required: false
@@ -53,7 +57,7 @@ runs:
         VERSION="${{ inputs.version }}"
 
         echo "Loading Docker image from artifact..."
-        docker load -i image.tar
+        docker load -i "${{ inputs.artifact_path }}"
 
         echo "Tagging image..."
         docker tag image "$IMAGE:v$VERSION"

@@ -717,6 +717,7 @@ jobs:
           image: ghcr.io/${{ github.repository_owner }}/actions-test
           version: '0.0.1-test'
           artifact_name: docker-image
+          artifact_path: alpine-push.tar
           token: ${{ secrets.GITHUB_TOKEN }}
           push_latest: 'false'
 
