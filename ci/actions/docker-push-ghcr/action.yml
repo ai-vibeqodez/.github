@@ -59,11 +59,20 @@ runs:
         echo "Loading Docker image from artifact..."
         docker load -i "${{ inputs.artifact_path }}"
 
+        # docker load may restore the image under a different name;
+        # find the most recently loaded image and tag it.
+        LOADED=$(docker images --format '{{.Repository}}:{{.Tag}}' --filter "reference=${{ inputs.artifact_path }}" 2>/dev/null | head -n1)
+        if [ -z "$LOADED" ]; then
+          # fallback: use the first non-sha256:<none> image
+          LOADED=$(docker images --format '{{.Repository}}:{{.Tag}}' --filter "dangling=false" | grep -v '<none>' | tail -n1)
+        fi
+        [ -n "$LOADED" ] || { echo "::error::Could not find loaded image"; exit 1; }
+
         echo "Tagging image..."
-        docker tag image "$IMAGE:v$VERSION"
+        docker tag "$LOADED" "$IMAGE:v$VERSION"
 
         if [ "${{ inputs.push_latest }}" = "true" ]; then
-          docker tag image "$IMAGE:latest"
+          docker tag "$LOADED" "$IMAGE:latest"
           echo "Tagged as $IMAGE:latest"
         fi
 
