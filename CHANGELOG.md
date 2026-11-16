@@ -14,6 +14,19 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.2.16] - 2026-11-16
+
+### Fixed
+
+- use loaded image name instead of hardcoded 'image'
+- add 'artifact_path' input for flexible tar filename
+- add 'load' input to control local daemon load
+- always load image to local daemon
+- load image locally when push=false for testing
+- edge-cases default_badge uses workspace-relative path
+- docker-build-push match release.yml context/dockerfile pattern
+- docker-build-push uses example/ as build context
+
 ## [1.2.15] - 2026-11-16
 
 ### Fixed
