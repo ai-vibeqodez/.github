@@ -1,0 +1,83 @@
+# clang-tidy — Run clang-tidy on C++ source files and fail on errors
+#
+# Scans C++ files through clang-tidy using the project's compile_commands.json.
+# Non-zero exit (any warning from the selected check suite) fails the step.
+#
+# Usage:
+#   - name: Run clang-tidy
+#     uses: ai-warevo/.github/ci/actions/clang-tidy@main
+#     with:
+#       source_dir: .
+#       build_dir: build/dev
+#       checks: bugprone-*,cppcoreguidelines-*,modernize-*,performance-*,readability-*
+#       header_filter: .*/include/aw/tpl/.*
+#   # Minimal invocation (uses defaults: source_dir=., build_dir=build)
+#   - name: Run clang-tidy
+#     uses: ai-warevo/.github/ci/actions/clang-tidy@main
+
+name: 'Clang-Tidy Lint'
+description: 'Run clang-tidy on C++ source and header files, fail on any warnings'
+
+inputs:
+  source_dir:
+    description: 'Source directory to scan (relative to workspace)'
+    required: false
+    default: '.'
+  build_dir:
+    description: 'CMake build directory containing compile_commands.json'
+    required: false
+    default: 'build'
+  checks:
+    description: 'clang-tidy check patterns (comma-separated)'
+    required: false
+    default: 'bugprone-*,modernize-*,performance-*,readability-*'
+  header_filter:
+    description: 'Regex for headers to include in diagnostics'
+    required: false
+    default: '.*'
+  fail_on_error:
+    description: 'Whether non-zero exit code fails the step (default: true)'
+    required: false
+    default: 'true'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Run clang-tidy
+      shell: bash
+      env:
+        SOURCE_DIR: ${{ inputs.source_dir }}
+        BUILD_DIR: ${{ inputs.build_dir }}
+        CHECKS: ${{ inputs.checks }}
+        HEADER_FILTER: ${{ inputs.header_filter }}
+        FAIL_ON_ERROR: ${{ inputs.fail_on_error }}
+      run: |
+        set -euo pipefail
+
+        BUILD_PATH="${SOURCE_DIR}/${BUILD_DIR}"
+        if [ ! -f "${BUILD_PATH}/compile_commands.json" ]; then
+          echo "::error::compile_commands.json not found at ${BUILD_PATH}/compile_commands.json"
+          echo "Run cmake with CMAKE_EXPORT_COMPILE_COMMANDS=ON first."
+          exit 1
+        fi
+
+        ERRORS=0
+        while IFS= read -r -d '' file; do
+          if ! clang-tidy "$file" \
+            -p "$BUILD_PATH" \
+            --checks="$CHECKS" \
+            --header-filter="$HEADER_FILTER" \
+            --format-style=file; then
+            ERRORS=$((ERRORS + 1))
+            if [ "$FAIL_ON_ERROR" = "true" ]; then
+              echo "::error::clang-tidy reported issues in $file"
+              exit 1
+            fi
+          fi
+        done < <(find "$SOURCE_DIR" \( -name '*.cpp' -o -name '*.hpp' -o -name '*.h' -o -name '*.c' \) -print0)
+
+        if [ "$ERRORS" -gt 0 ]; then
+          echo "clang-tidy found issues in $ERRORS file(s)"
+        else
+          echo "clang-tidy passed: all files clean"
+        fi

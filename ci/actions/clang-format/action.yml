@@ -1,0 +1,75 @@
+# clang-format — Check that C++ files are properly formatted
+#
+# Runs clang-format --dry-run --Werror on all C++ source and header files.
+# Fails the step if any file is not properly formatted (CI breaks on format violations).
+#
+# Usage:
+#   - name: Check formatting
+#     uses: ai-warevo/.github/ci/actions/clang-format@main
+#     with:
+#       source_dir: .
+#       extensions: cpp,hpp
+#       config_file: .clang-format
+#   # Custom config location
+#   - name: Check formatting
+#     uses: ai-warevo/.github/ci/actions/clang-format@main
+#     with:
+#       source_dir: plugin/src
+#       extensions: cpp,hpp,h
+#       config_file: .clang-format
+
+name: 'Clang-Format Check'
+description: 'Check C++ formatting with clang-format, fail if any file is misformatted'
+
+inputs:
+  source_dir:
+    description: 'Source directory to check (relative to workspace)'
+    required: false
+    default: '.'
+  extensions:
+    description: 'File extensions to check, comma-separated'
+    required: false
+    default: 'cpp,hpp'
+  config_file:
+    description: 'clang-format config file path'
+    required: false
+    default: '.clang-format'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Check clang-format
+      shell: bash
+      env:
+        SOURCE_DIR: ${{ inputs.source_dir }}
+        EXTENSIONS: ${{ inputs.extensions }}
+        CONFIG_FILE: ${{ inputs.config_file }}
+      run: |
+        set -euo pipefail
+
+        if [ ! -f "$CONFIG_FILE" ]; then
+          echo "::error::clang-format config not found: $CONFIG_FILE"
+          exit 1
+        fi
+
+        # Build find name expressions from comma-separated extensions
+        FIND_EXPRS=()
+        IFS=',' read -ra EXT_LIST <<< "$EXTENSIONS"
+        for ext in "${EXT_LIST[@]}"; do
+          FIND_EXPRS+=(-name "*.${ext}")
+        done
+
+        ERRORS=0
+        while IFS= read -r -d '' file; do
+          if ! clang-format --dry-run --Werror --style=file:"$CONFIG_FILE" "$file"; then
+            ERRORS=$((ERRORS + 1))
+            echo "::error::Format violation in $file"
+            exit 1
+          fi
+        done < <(find "$SOURCE_DIR" "${FIND_EXPRS[@]}" -print0)
+
+        if [ "$ERRORS" -gt 0 ]; then
+          echo "clang-format found violations in $ERRORS file(s)"
+        else
+          echo "clang-format passed: all files properly formatted"
+        fi
