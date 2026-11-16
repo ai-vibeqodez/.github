@@ -1,6 +1,7 @@
-# cmake-build — Configure and build with CMake
+# cmake-build — Configure, build, and optionally install with CMake
 #
-# Wraps the standard CMake configure + build pattern into a single reusable step.
+# Wraps the standard CMake configure → build → install lifecycle into a single reusable step.
+# Supports multi-config generators (MSVC) via the `config` input and optional `cmake --install`.
 #
 # Usage:
 #   - name: Configure & Build
@@ -9,10 +10,20 @@
 #       source_dir: example
 #       build_dir: build
 #       build_type: Debug
-#       extra_args: -DAW_EXAMPLE_BUILD_TESTS=ON -DAW_EXAMPLE_ENABLE_COVERAGE=ON
+#       extra_args: -DAW_EXAMPLE_BUILD_TESTS=ON -DAW_TPL_ENABLE_COVERAGE=ON
+#   # For MSVC multi-config generators:
+#   - name: Configure & Build (MSVC)
+#     uses: ai-warevo/.github/ci/actions/cmake-build@main
+#     with:
+#       source_dir: example
+#       build_dir: build
+#       build_type: Release
+#       config: Release
+#       install: true
+#       extra_args: -G "Visual Studio 17 2022"
 
 name: 'CMake Build'
-description: 'Configure and build a CMake project'
+description: 'Configure, build, and optionally install a CMake project'
 
 inputs:
   source_dir:
@@ -35,6 +46,14 @@ inputs:
     description: 'Use --parallel for build (default: true)'
     required: false
     default: 'true'
+  config:
+    description: 'Build config for multi-config generators (e.g. Release for MSVC). Empty = auto-detect from build_type.'
+    required: false
+    default: ''
+  install:
+    description: 'Run cmake --install after build (default: false)'
+    required: false
+    default: 'false'
 
 runs:
   using: 'composite'
@@ -53,4 +72,12 @@ runs:
       shell: bash
       run: |
         PARALLEL_FLAG="${{ inputs.parallel == 'true' && '--parallel' || '' }}"
-        cmake --build "${{ inputs.source_dir }}/${{ inputs.build_dir }}" $PARALLEL_FLAG
+        CONFIG_FLAG="${{ inputs.config != '' && format('--config {0}', inputs.config) || '' }}"
+        cmake --build "${{ inputs.source_dir }}/${{ inputs.build_dir }}" $PARALLEL_FLAG $CONFIG_FLAG
+
+    - name: Install CMake Package
+      if: inputs.install == 'true'
+      shell: bash
+      run: |
+        CONFIG_FLAG="${{ inputs.config != '' && format('--config {0}', inputs.config) || '' }}"
+        cmake --install "${{ inputs.source_dir }}/${{ inputs.build_dir }}" $CONFIG_FLAG
