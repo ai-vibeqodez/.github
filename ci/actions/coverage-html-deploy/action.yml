@@ -1,7 +1,7 @@
 # coverage-html-deploy — Deploy coverage HTML report to GitHub Pages
 #
-# Creates .nojekyll marker and deploys the coverage HTML directory via
-# github-pages-deploy-action.
+# Creates .nojekyll marker and deploys the coverage HTML directory
+# directly to the target branch (no external actions required).
 #
 # Usage:
 #   - name: Deploy Coverage HTML
@@ -11,7 +11,7 @@
 #       branch: gh-pages
 
 name: 'Coverage HTML Deploy'
-description: 'Deploy coverage HTML report to GitHub Pages'
+description: 'Deploy coverage HTML report to GitHub Pages (self-contained)'
 
 inputs:
   folder:
@@ -34,17 +34,51 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    # ── Prepare coverage HTML ──
     - name: Prepare Coverage HTML
       if: inputs.nojekyll == 'true'
       shell: bash
       run: touch "${{ inputs.folder }}/.nojekyll"
 
+    # ── Deploy (self-contained, no external actions) ──
     - name: Deploy Coverage HTML to GitHub Pages
-      uses: JamesIves/github-pages-deploy-action@v4
-      with:
-        branch: ${{ inputs.branch }}
-        folder: ${{ inputs.folder }}
-        target-folder: ${{ inputs.target_folder }}
-        git-config-name: "github-actions[bot]"
-        git-config-email: "github-actions[bot]@users.noreply.github.com"
-        single-commit: true
+      shell: bash
+      env:
+        FOLDER: ${{ inputs.folder }}
+        BRANCH: ${{ inputs.branch }}
+        TARGET: ${{ inputs.target_folder }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        set -euo pipefail
+
+        # Configure git
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+        # Ensure we can push
+        if [ -z "$GITHUB_TOKEN" ]; then
+          echo "::error::GITHUB_TOKEN is not set"
+          exit 1
+        fi
+
+        # Create or checkout the target branch
+        if git rev-parse --verify "$BRANCH" >/dev/null 2>&1; then
+          git checkout "$BRANCH"
+        else
+          git checkout --orphan "$BRANCH"
+          git rm -rf .
+        fi
+
+        # Copy coverage HTML to target folder
+        rm -rf "$TARGET"
+        mkdir -p "$TARGET"
+        cp -r "$FOLDER"/* "$TARGET/"
+
+        # Commit and push
+        git add -A
+        if git diff --cached --quiet; then
+          echo "No changes to deploy"
+          exit 0
+        fi
+        git commit -m "Deploy coverage HTML: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+        git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$BRANCH" --force

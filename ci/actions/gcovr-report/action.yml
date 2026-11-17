@@ -1,20 +1,23 @@
-# gcovr-report — Install gcovr and generate coverage reports (XML + HTML)
+# gcovr-report — Generate coverage reports (XML + HTML)
 #
 # Generates both XML (for parsing) and HTML (for deployment) coverage reports
 # from a CMake build.
+#
+# In a container (e.g. ci-cpp20) gcovr and gcov are pre-installed.
+# This action pins gcov to match the compiler version used for the build.
 #
 # Usage:
 #   - name: Generate Coverage
 #     uses: ai-warevo/.github/ci/actions/gcovr-report@main
 #     with:
-#       source_dir: example
+#       source_dir: .
 #       build_dir: build
-#       source_filter: plugin/src/ plugin/tests/ host/src/ include/
+#       source_filter: include/aw/tpl/ src/
 #       exclude: _deps/*
 #       output_dir: htmlcov
 
 name: 'GCOVR Coverage Report'
-description: 'Install gcovr and generate coverage reports (XML + HTML)'
+description: 'Generate coverage reports (XML + HTML) from a CMake build'
 
 inputs:
   source_dir:
@@ -26,7 +29,7 @@ inputs:
     required: false
     default: 'build'
   source_filter:
-    description: '--filter patterns (space-separated path prefixes to match against absolute source paths, e.g. "plugin/src/ plugin/tests/ host/src/ include/")'
+    description: '--filter patterns (space-separated path prefixes to match against absolute source paths)'
     required: false
     default: ''
   exclude:
@@ -49,31 +52,32 @@ outputs:
   html_dir:
     description: 'Path to generated HTML report directory'
     value: ${{ steps.gcovr.outputs.html_dir }}
+  percent:
+    description: 'Line coverage percentage'
+    value: ${{ steps.gcovr.outputs.percent }}
 
 runs:
   using: 'composite'
   steps:
-    - name: Install gcovr + matching gcov
+    # ── Pin gcov to match the compiler ──
+    - name: Pin gcov version
       shell: bash
       run: |
-        sudo apt-get update
-        sudo apt-get install -y gcovr
-        # Ensure gcovr finds the gcov matching the compiler that built the .gcda files.
-        # gcovr searches for "gcov" on PATH; the default may differ from the
-        # compiler version used to build the .gcda files. Pin it explicitly.
+        set -euo pipefail
         GCC_VER=$(gcc -dumpversion | cut -d. -f1)
         echo "Detected GCC version: $GCC_VER"
         if command -v gcov-${GCC_VER} &>/dev/null; then
-          # Prefer a writable user bin dir; fall back to /usr/local/bin (may need sudo).
-          mkdir -p "$HOME/bin"
-          ln -sf "$(which gcov-${GCC_VER})" "$HOME/bin/gcov"
-          export PATH="$HOME/bin:$PATH"
-          echo "Linked $HOME/bin/gcov -> gcov-${GCC_VER} (PATH=$PATH)"
+          mkdir -p "$GITHUB_WORKSPACE/bin"
+          ln -sf "$(which gcov-${GCC_VER})" "$GITHUB_WORKSPACE/bin/gcov"
+          export PATH="$GITHUB_WORKSPACE/bin:$PATH"
+          echo "Linked $GITHUB_WORKSPACE/bin/gcov -> gcov-${GCC_VER}"
         else
           echo "WARNING: gcov-${GCC_VER} not found; using default gcov"
         fi
         gcov --version | head -1
+        gcovr --version
 
+    # ── Generate coverage reports ──
     - name: Generate coverage reports
       id: gcovr
       shell: bash
@@ -86,29 +90,18 @@ runs:
         XML_PATH: ${{ inputs.xml_path }}
       run: |
         set -euo pipefail
-        mkdir -p "$OUTPUT_DIR"
 
-        # Key insight: CMake embeds ABSOLUTE source paths into .gcno files
-        # (e.g. /home/runner/work/repo/example/plugin/src/plugin.cpp).
-        #
-        # gcovr -r serves two purposes:
-        #   1) It is the directory scanned for .gcda/.gcno files.
-        #   2) It is the root for resolving relative filter patterns.
-        #
-        # Therefore -r MUST point to the build directory (where .gcda live),
-        # and filters MUST use absolute source paths so they match what is
-        # stored inside .gcno.
         BUILD_ROOT="$GITHUB_WORKSPACE/${SOURCE_DIR}/${BUILD_DIR}"
         SOURCE_ABS="$GITHUB_WORKSPACE/${SOURCE_DIR}"
 
         # Collect exclude args
         EXCLUDE_ARGS=""
         for pattern in $(echo "$EXCLUDE" | tr ',' ' '); do
-          EXCLUDE_ARGS="$EXCLUDE_ARGS --exclude $pattern"
+          pattern=$(echo "$pattern" | xargs)
+          [ -n "$pattern" ] && EXCLUDE_ARGS="$EXCLUDE_ARGS --exclude $pattern"
         done
 
-        # Collect filter args — convert relative filter prefixes to absolute
-        # paths that match the source file entries inside .gcno.
+        # Collect filter args — convert relative filter prefixes to absolute paths
         FILTER_ARGS=""
         if [ -n "${FILTER:-}" ]; then
           for pattern in $FILTER; do
@@ -116,29 +109,11 @@ runs:
           done
         fi
 
-        # Debug: list coverage data files
-        echo "=== Coverage data files ==="
-        echo "BUILD_ROOT=$BUILD_ROOT"
-        echo "SOURCE_ABS=$SOURCE_ABS"
-        echo "FILTER=$FILTER"
-        echo "EXCLUDE=$EXCLUDE"
-        echo "-- .gcda files:"
-        find "$BUILD_ROOT" -name "*.gcda" -not -path "*_deps/*" 2>/dev/null | head -30
-        echo "-- .gcno files:"
-        find "$BUILD_ROOT" -name "*.gcno" -not -path "*_deps/*" 2>/dev/null | head -30
-
-        # Inspect absolute source paths stored in a .gcno file
-        echo "-- sample .gcno source paths:"
-        GCT_FILE=$(find "$BUILD_ROOT" -name "*.gcno" -not -path "*_deps/*" 2>/dev/null | head -1)
-        if [ -n "$GCT_FILE" ]; then
-          echo "  gcno=$GCT_FILE"
-          strings "$GCT_FILE" | grep -oP '/[^[:space:]{:,;)]+\.cpp' | sort -u | head -10
-        fi
-
-        echo "=== gcovr command ==="
-        echo "gcovr -r $BUILD_ROOT $FILTER_ARGS $EXCLUDE_ARGS --xml $XML_PATH --html-details $OUTPUT_DIR/index.html"
+        mkdir -p "$OUTPUT_DIR"
 
         echo "=== Running gcovr ==="
+        echo "gcovr -r $BUILD_ROOT $FILTER_ARGS $EXCLUDE_ARGS --xml $XML_PATH --html-details $OUTPUT_DIR/index.html"
+
         gcovr -r "$BUILD_ROOT" \
           --gcov-ignore-errors=no_working_dir_found \
           $FILTER_ARGS \
@@ -149,8 +124,14 @@ runs:
           --xml "$XML_PATH" \
           --html-details "$OUTPUT_DIR/index.html" 2>&1 || true
 
-        echo "=== Coverage XML output ==="
-        cat "$XML_PATH" 2>/dev/null || echo "(no XML generated)"
+        # Extract percentage
+        PERCENTAGE=0
+        if [ -f "$XML_PATH" ]; then
+          PERCENTAGE=$(grep -oP 'line-rate="\K[0-9.]+' "$XML_PATH" | head -1 | awk '{printf "%d", $1 * 100}')
+        fi
+        : "${PERCENTAGE:=0}"
 
-        echo "xml_path=${XML_PATH}" >> $GITHUB_OUTPUT
-        echo "html_dir=${OUTPUT_DIR}" >> $GITHUB_OUTPUT
+        echo "Coverage: ${PERCENTAGE}%"
+        echo "xml_path=${XML_PATH}" >> "$GITHUB_OUTPUT"
+        echo "html_dir=${OUTPUT_DIR}" >> "$GITHUB_OUTPUT"
+        echo "percent=${PERCENTAGE}" >> "$GITHUB_OUTPUT"

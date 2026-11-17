@@ -1,7 +1,7 @@
-# badge-deploy — Deploy an SVG badge to a GitHub Pages branch
+# badge-deploy — Deploy an SVG badge to a branch
 #
-# Copies an SVG badge to a staging directory and deploys it via
-# github-pages-deploy-action.
+# Copies an SVG badge to a staging directory and deploys it by pushing
+# directly to the target branch (no external actions required).
 #
 # Usage:
 #   - name: Deploy Badge
@@ -9,9 +9,10 @@
 #     with:
 #       badge_path: coverage.svg
 #       branch: badges
+#       target_folder: .
 
 name: 'Badge Deploy'
-description: 'Deploy an SVG badge to a GitHub Pages branch'
+description: 'Deploy an SVG badge to a branch (self-contained, no external actions)'
 
 inputs:
   badge_path:
@@ -22,17 +23,18 @@ inputs:
     required: false
     default: ''
   branch:
-    description: 'Target GitHub Pages branch'
+    description: 'Target branch'
     required: false
     default: 'badges'
   target_folder:
-    description: 'Target folder on the Pages branch'
+    description: 'Target folder on the branch'
     required: false
     default: '.'
 
 runs:
   using: 'composite'
   steps:
+    # ── Isolate badge for deploy ──
     - name: Isolate Badge for Deploy
       shell: bash
       run: |
@@ -43,13 +45,48 @@ runs:
         fi
         mkdir -p badge-upload
         cp "$BADGE_FILE" "badge-upload/$FILENAME"
+        echo "Deploying: badge-upload/$FILENAME → ${{ inputs.branch }}/${{ inputs.target_folder }}/"
 
-    - name: Deploy Badge to GitHub Pages
-      uses: JamesIves/github-pages-deploy-action@v4
-      with:
-        branch: ${{ inputs.branch }}
-        folder: badge-upload
-        target-folder: ${{ inputs.target_folder }}
-        git-config-name: "github-actions[bot]"
-        git-config-email: "github-actions[bot]@users.noreply.github.com"
-        single-commit: true
+    # ── Deploy (self-contained, no external actions) ──
+    - name: Deploy Badge to Branch
+      shell: bash
+      env:
+        BRANCH: ${{ inputs.branch }}
+        TARGET: ${{ inputs.target_folder }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        set -euo pipefail
+        BRANCH="$BRANCH"
+        TARGET="$TARGET"
+
+        # Configure git
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+        # Ensure we can push
+        if [ -z "$GITHUB_TOKEN" ]; then
+          echo "::error::GITHUB_TOKEN is not set"
+          exit 1
+        fi
+
+        # Create or checkout the target branch
+        if git rev-parse --verify "$BRANCH" >/dev/null 2>&1; then
+          git checkout "$BRANCH"
+        else
+          git checkout --orphan "$BRANCH"
+          git rm -rf .
+        fi
+
+        # Copy badge to target folder
+        rm -rf "$TARGET"
+        mkdir -p "$TARGET"
+        cp -r badge-upload/* "$TARGET/"
+
+        # Commit and push
+        git add -A
+        if git diff --cached --quiet; then
+          echo "No changes to deploy"
+          exit 0
+        fi
+        git commit -m "Deploy badge: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+        git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$BRANCH" --force

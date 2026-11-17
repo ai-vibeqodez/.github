@@ -3,17 +3,17 @@
 # Scans C++ files through clang-tidy using the project's compile_commands.json.
 # Non-zero exit (any warning from the selected check suite) fails the step.
 #
+# In a container (e.g. ci-cpp20) clang-tidy-18 is pre-installed.
+#
 # Usage:
 #   - name: Run clang-tidy
 #     uses: ai-warevo/.github/ci/actions/clang-tidy@main
 #     with:
 #       source_dir: .
-#       build_dir: build/dev
-#       checks: bugprone-*,cppcoreguidelines-*,modernize-*,performance-*,readability-*
+#       build_dir: build
+#       checks: 'bugprone-*,modernize-*'
 #       header_filter: .*/include/aw/tpl/.*
-#   # Minimal invocation (uses defaults: source_dir=., build_dir=build)
-#   - name: Run clang-tidy
-#     uses: ai-warevo/.github/ci/actions/clang-tidy@main
+#       exclude: _deps/*,build/*
 
 name: 'Clang-Tidy Lint'
 description: 'Run clang-tidy on C++ source and header files, fail on any warnings'
@@ -30,11 +30,33 @@ inputs:
   checks:
     description: 'clang-tidy check patterns (comma-separated)'
     required: false
-    default: '>*,\n  bugprone-*,\n  cppcoreguidelines-avoid-capturing-lambda-coroutines,\n  cppcoreguidelines-avoid-reference-coroutine-parameters,\n  cppcoreguidelines-missing-std-forward,\n  cppcoreguidelines-slicing,\n  misc-const-correctness,\n  misc-definitions-in-headers,\n  misc-unused-using-decls,\n  modernize-use-nodiscard,\n  modernize-use-override,\n  modernize-use-using,\n  performance-*,\n  readability-container-size-empty,\n  readability-redundant-member-init,\n  -bugprone-easily-swappable-parameters,\n  -bugprone-exception-escape,\n  -bugprone-unchecked-optional-access'
+    default: >-
+      *,
+      bugprone-*,
+      cppcoreguidelines-avoid-capturing-lambda-coroutines,
+      cppcoreguidelines-avoid-reference-coroutine-parameters,
+      cppcoreguidelines-missing-std-forward,
+      cppcoreguidelines-slicing,
+      misc-const-correctness,
+      misc-definitions-in-headers,
+      misc-unused-using-decls,
+      modernize-use-nodiscard,
+      modernize-use-override,
+      modernize-use-using,
+      performance-*,
+      readability-container-size-empty,
+      readability-redundant-member-init,
+      -bugprone-easily-swappable-parameters,
+      -bugprone-exception-escape,
+      -bugprone-unchecked-optional-access
   header_filter:
     description: 'Regex for headers to include in diagnostics'
     required: false
     default: '.*'
+  exclude:
+    description: 'Exclude patterns (comma-separated, passed to find -prune)'
+    required: false
+    default: '_deps/*,build/*,CMakeFiles/*,cmake/*'
   fail_on_error:
     description: 'Whether non-zero exit code fails the step (default: true)'
     required: false
@@ -50,6 +72,7 @@ runs:
         BUILD_DIR: ${{ inputs.build_dir }}
         CHECKS: ${{ inputs.checks }}
         HEADER_FILTER: ${{ inputs.header_filter }}
+        EXCLUDE: ${{ inputs.exclude }}
         FAIL_ON_ERROR: ${{ inputs.fail_on_error }}
       run: |
         set -euo pipefail
@@ -61,27 +84,38 @@ runs:
           exit 1
         fi
 
+        # Parse checks: allow multi-line YAML lists (join with comma)
+        CHECKS_CLEAN=$(echo "$CHECKS" | tr '\n' ',' | sed 's/,,*/,/g; s/^[[:space:]]*//; s/[[:space:]]*$//')
+
+        # Build find exclude prune expressions
+        EXCLUDE_PRUNES=()
+        IFS=',' read -ra EXCLUDE_LIST <<< "$EXCLUDE"
+        for exc in "${EXCLUDE_LIST[@]}"; do
+          exc=$(echo "$exc" | xargs)  # trim whitespace
+          if [ -n "$exc" ]; then
+            EXCLUDE_PRUNES+=(-name "$exc" -prune -o)
+          fi
+        done
+
         ERRORS=0
+        WARNINGS=""
         while IFS= read -r -d '' file; do
           if ! clang-tidy "$file" \
             -p "$BUILD_PATH" \
-            --checks="$CHECKS" \
+            --checks="$CHECKS_CLEAN" \
             --header-filter="$HEADER_FILTER" \
-            --format-style=file; then
+            --format-style=file 2>&1; then
             ERRORS=$((ERRORS + 1))
+            WARNINGS="$WARNINGS  - $file\n"
             if [ "$FAIL_ON_ERROR" = "true" ]; then
               echo "::error::clang-tidy reported issues in $file"
               exit 1
             fi
           fi
-        done < <(find "$SOURCE_DIR" \( -name '*.cpp' -o -name '*.hpp' -o -name '*.h' -o -name '*.c' \) \
-          -not -path '*/build/*' -not -path '*/_build/*' \
-          -not -path '*/_deps/*' -not -path '*/CMakeFiles/*' \
-          -not -path '*/cmake/*' \
-          -print0)
+        done < <(find "$SOURCE_DIR" "${EXCLUDE_PRUNES[@]}" \( -name '*.cpp' -o -name '*.hpp' -o -name '*.h' -o -name '*.c' \) -print0 2>/dev/null)
 
         if [ "$ERRORS" -gt 0 ]; then
-          echo "clang-tidy found issues in $ERRORS file(s)"
+          echo -e "clang-tidy found issues in $ERRORS file(s):\n$WARNINGS"
         else
           echo "clang-tidy passed: all files clean"
         fi
