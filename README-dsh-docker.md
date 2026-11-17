@@ -3,7 +3,7 @@
 ## clone
 ```sh
 cd ~/Projects/
-git clone git@github.com:runzhliu/deepseek-harness-docker.git
+git clone git@github.com:ai-warevo/deepseek-harness-docker.git
 ```
 
 ## configure
@@ -16,8 +16,9 @@ sed -i "s|DSH_WORKSPACE=dsh-workspace|DSH_WORKSPACE=$(pwd)|g" deepseek-harness-d
 ## run
 ```sh
 cd deepseek-harness-docker
-docker compose pull
 docker compose -f compose.yaml -f compose.fix.yaml up --no-build -d
+# or
+docker compose -f compose.yaml -f compose.fix.yaml up --build -d
 ```
 
 ## explore http://127.0.0.1:3080/
