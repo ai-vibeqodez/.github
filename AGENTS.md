@@ -81,7 +81,7 @@ Skills are loaded via the `skill` tool. When editing a skill, keep it concise �
 ci/
 ├── .github/workflows/
 │   ├── ci.yml          # build → lint → test (push/PR to main/develop)
-│   ├── test.yml        # extended test (manual, push to main, weekly cron)
+│   ├── test.yml        # extended test (manual, push to main)
 │   └── release.yml     # build → release → docker (tag push or workflow_dispatch)
 └── actions/
     ├── badge/              # SVG coverage badge generation
