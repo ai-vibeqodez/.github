@@ -61,7 +61,27 @@ runs:
         if [ "$SANITIZER_RUNTIME" = "true" ]; then PKGS+=(libclang-rt-18-dev); fi
         if [ "$TOOLS" = "true" ]; then PKGS+=(clang-format-18 clang-tidy-18); fi
         sudo apt-get update || true
-        sudo apt-get install -y --fix-missing --no-install-recommends "${PKGS[@]}" || sudo apt-get install -y --fix-missing --no-install-recommends "${PKGS[@]}"
+        # Retry loop: the ubuntu-toolchain-r/test PPA sometimes returns 503.
+        # On failure, fix broken dpkg state and retry up to 3 times.
+        MAX_RETRIES=3
+        RETRY=0
+        while [ $RETRY -lt $MAX_RETRIES ]; do
+          if sudo apt-get install -y --fix-missing --no-install-recommends "${PKGS[@]}" 2>&1; then
+            break
+          fi
+          RETRY=$((RETRY + 1))
+          if [ $RETRY -lt $MAX_RETRIES ]; then
+            echo "::warning::apt-get install failed (attempt $RETRY/$MAX_RETRIES); fixing broken packages and retrying..."
+            sudo apt-get update || true
+            sudo apt-get --fix-broken install -y --no-install-recommends || true
+            sudo rm -f /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock /var/cache/apt/archives/lock
+            sudo dpkg --configure -a || true
+            sudo apt-get update || true
+          else
+            echo "::error::apt-get install failed after $MAX_RETRIES attempts"
+            exit 1
+          fi
+        done
         if [ "$TOOLS" = "true" ]; then
           # The CI actions call plain `clang-format` / `clang-tidy`: point them at version 18.
           mkdir -p "$HOME/.local/bin"
