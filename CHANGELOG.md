@@ -14,6 +14,23 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-11-17
+
+### Added
+
+- add msvc toolchain option to setup-toolchain
+- clang-linter
+
+### Fixed
+
+- dsh
+- linter fix
+- cmake
+
+### Changed
+
+- fix clang-tidy
+
 ## [1.3.0] - 2026-11-16
 
 ### Added
