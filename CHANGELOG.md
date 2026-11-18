@@ -14,6 +14,8 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-11-18
+
 ### Added
 
 - `scripts/updater.sh` — automated script sync from remote `ai-warevo/.github`; HTTP version check, consent prompts, conflict detection
