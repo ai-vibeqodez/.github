@@ -59,7 +59,7 @@ runs:
         QUARTER_WIDTH=$(( WIDTH / 4 ))
         THREE_QUARTERS=$(( WIDTH * 3 / 4 ))
 
-        OUTPUT_PATH="${{ github.workspace }}/${FILENAME}"
+        OUTPUT_PATH="$(pwd)/${FILENAME}"
         mkdir -p "$(dirname "$OUTPUT_PATH")"
 
         cat <<EOF | sed 's/^        //' > "$OUTPUT_PATH"
