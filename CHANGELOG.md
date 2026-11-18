@@ -14,6 +14,21 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.4.1] - 2026-11-18
+
+### Fixed
+
+- cmake-build extra_args quoting and setup-toolchain flag generation
+- quote CMake flag values with spaces in setup-toolchain action
+- fix
+- retry loop with dpkg fix for transient PPA 503 errors
+
+### Changed
+
+- add container_mode support to composite actions
+- add MSVC support to container CI templates
+- Update README.md
+
 ## [1.4.0] - 2026-11-17
 
 ### Added
