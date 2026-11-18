@@ -14,6 +14,29 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.4.8] - 2026-11-18
+
+### Fixed
+
+- ci
+
+### Changed
+
+- fix
+- fix
+- fix
+- fix
+- fix
+- fix
+- fix
+- fix
+- fix
+- fix
+- fix
+- fix
+- fix
+- fix
+
 ## [1.4.7] - 2026-11-18
 
 ### Fixed
