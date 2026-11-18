@@ -42,7 +42,7 @@ runs:
     - name: Prepare Coverage HTML
       if: inputs.nojekyll == 'true'
       shell: bash
-      run: touch "${{ inputs.folder }}/.nojekyll"
+      run: mkdir -p "${{ inputs.folder }}" && touch "${{ inputs.folder }}/.nojekyll"
 
     # ── Deploy (self-contained, no external actions) ──
     - name: Deploy Coverage HTML to GitHub Pages

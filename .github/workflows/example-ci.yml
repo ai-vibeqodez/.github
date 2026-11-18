@@ -112,6 +112,20 @@ jobs:
           name: coverage-html
           path: htmlcov/
 
+      - name: Debug — list files
+        if: always()
+        run: |
+          echo "=== Working directory ==="
+          pwd
+          echo "=== ls -la ==="
+          ls -la
+          echo "=== htmlcov/ ==="
+          ls -la htmlcov/ 2>&1 || echo "htmlcov/ not found"
+          echo "=== coverage.svg ==="
+          ls -la coverage.svg 2>&1 || echo "coverage.svg not found"
+          echo "=== coverage.svg content ==="
+          cat coverage.svg 2>&1 || echo "coverage.svg not found"
+
       - name: Deploy Badge
         uses: ai-warevo/.github/ci/actions/badge-deploy@main
         with:
