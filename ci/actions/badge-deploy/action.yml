@@ -78,11 +78,14 @@ runs:
           git checkout "$BRANCH"
         else
           git checkout --orphan "$BRANCH"
-          git rm -rf .
         fi
 
+        # Clean the working tree while preserving .git
+        git rm -rf --cached . 2>/dev/null || true
+        # Remove all files/dirs except .git
+        find . -mindepth 1 -not -name '.git' -not -path './.git/*' -not -path './.git' -exec rm -rf {} + 2>/dev/null || true
+
         # Copy badge to target folder
-        rm -rf "$TARGET"
         mkdir -p "$TARGET"
         cp -r badge-upload/* "$TARGET/"
 

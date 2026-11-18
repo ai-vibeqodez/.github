@@ -14,6 +14,10 @@ Maintainer notes:
 
 ## [Unreleased]
 
+### Fixed
+
+- badge-deploy: preserve `.git` directory when cleaning orphan branch (fix `fatal: not in a git directory`)
+
 ## [1.4.5] - 2026-11-18
 
 ### Fixed
