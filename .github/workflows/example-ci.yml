@@ -87,7 +87,7 @@ jobs:
     name: Deploy Badges & HTML
     runs-on: ubuntu-latest
     needs: [tests-and-coverage, sanitizers]
-    if: always() && needs.tests-and-coverage.result != 'skipped'
+    if: always() && needs.tests-and-coverage.result == 'success' && needs.sanitizers.result == 'success'
     permissions:
       contents: write
     steps:
