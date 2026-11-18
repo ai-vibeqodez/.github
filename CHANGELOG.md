@@ -14,6 +14,18 @@ Maintainer notes:
 
 ## [Unreleased]
 
+### Added
+
+- `scripts/updater.sh` — automated script sync from remote `ai-warevo/.github`; HTTP version check, consent prompts, conflict detection
+- `scripts/updater.ps1` — PowerShell wrapper for `updater.sh` (Windows)
+- `make update` target — cross-platform script sync (bash on Linux/macOS, PowerShell on Windows)
+- `SCRIPT_VERSION` metadata in all scripts for version tracking
+- Pre-flight update checks in `changelog-update.sh` and `release.sh`
+
+### Fixed
+
+- Makefile `ifneq`/`ifeq` tab indentation in `changelog-dry-run` and `update` targets
+
 ## [1.4.8] - 2026-11-18
 
 ### Fixed

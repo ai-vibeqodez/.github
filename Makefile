@@ -2,7 +2,7 @@
 # Only pure Windows (no /usr/bin) falls back to PowerShell.
 IS_POSIX := $(strip $(if $(wildcard /usr/bin),1,))
 
-.PHONY: test release release-dry-run changelog changelog-dry-run
+.PHONY: test release release-dry-run changelog changelog-dry-run update
 
 # Cut a SemVer release from CHANGELOG.md.
 # to push:
@@ -36,4 +36,12 @@ ifeq ($(IS_POSIX),1)
 	bash scripts/changelog-update.sh --dry-run
 else
 	powershell -NoProfile -ExecutionPolicy Bypass -File scripts/changelog-update.ps1 -DryRun
+endif
+
+# Update all scripts from ai-warevo/.github.
+update:
+ifeq ($(IS_POSIX),1)
+	bash scripts/updater.sh
+else
+	powershell -NoProfile -ExecutionPolicy Bypass -File scripts/updater.ps1
 endif
