@@ -31,7 +31,7 @@ inputs:
     required: false
     default: 'true'
   token:
-    description: 'GitHub token for authentication (leave empty to use ${{ github.token }})'
+    description: 'GitHub token for authentication (leave empty to use the runner token)'
     required: false
     default: ''
 
