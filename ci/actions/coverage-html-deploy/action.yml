@@ -75,7 +75,9 @@ runs:
 
         # Copy coverage HTML to target folder
         mkdir -p "$TARGET"
-        cp -r "$FOLDER"/* "$TARGET/"
+        # Use cp with --no-target-directory to handle dotfiles and avoid overwriting target itself
+        (cd "$FOLDER" && find . -mindepth 1 -exec cp -r --parents {} "$TARGET/" \; 2>/dev/null) || \
+          cp -r "$FOLDER"/. "$TARGET/"
 
         # Commit and push
         git add -A
