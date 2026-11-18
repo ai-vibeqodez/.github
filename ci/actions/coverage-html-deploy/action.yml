@@ -70,7 +70,7 @@ runs:
           git checkout "$BRANCH"
         else
           git checkout --orphan "$BRANCH"
-          git rm -rf .
+          git rm -rf . 2>/dev/null || true
         fi
 
         # Copy coverage HTML to target folder
