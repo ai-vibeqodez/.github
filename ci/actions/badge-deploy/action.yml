@@ -42,7 +42,7 @@ runs:
     - name: Isolate Badge for Deploy
       shell: bash
       run: |
-        BADGE_FILE="${{ inputs.badge_path }}"
+        BADGE_FILE="${{ github.workspace }}/${{ inputs.badge_path }}"
         FILENAME="${{ inputs.badge_filename }}"
         if [ -z "$FILENAME" ]; then
           FILENAME=$(basename "$BADGE_FILE")
