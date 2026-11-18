@@ -1,6 +1,7 @@
 # dsh docker
 
 ## clone
+https://github.com/ai-warevo/deepseek-harness-docker
 ```sh
 cd ~/Projects/
 git clone git@github.com:ai-warevo/deepseek-harness-docker.git
