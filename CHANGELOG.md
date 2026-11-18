@@ -14,6 +14,12 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.4.7] - 2026-11-18
+
+### Fixed
+
+- fix sysctl and badge-deploy ordering issues
+
 ## [1.4.6] - 2026-11-18
 
 ### Fixed
