@@ -31,9 +31,9 @@ inputs:
     required: false
     default: 'true'
   token:
-    description: 'GitHub token for authentication (default: ${{ github.token }})'
+    description: 'GitHub token for authentication (leave empty to use ${{ github.token }})'
     required: false
-    default: '${{ github.token }}'
+    default: ''
 
 runs:
   using: 'composite'
@@ -51,7 +51,7 @@ runs:
         FOLDER: ${{ inputs.folder }}
         BRANCH: ${{ inputs.branch }}
         TARGET: ${{ inputs.target_folder }}
-        GITHUB_TOKEN: ${{ inputs.token }}
+        GITHUB_TOKEN: ${{ inputs.token || github.token }}
       run: |
         set -euo pipefail
 
