@@ -14,6 +14,12 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.4.3] - 2026-11-18
+
+### Fixed
+
+- fix duplicate heading and empty tag list handling
+
 ## [1.4.2] - 2026-11-18
 
 ### Fixed
