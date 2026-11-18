@@ -218,10 +218,10 @@ runs:
 
         ARGS="-GNinja -DCMAKE_CXX_COMPILER=$CXX"
         if [ -n "$CXX_FLAGS" ]; then
-          ARGS="$ARGS '-DCMAKE_CXX_FLAGS=$CXX_FLAGS'"
+          ARGS="$ARGS -DCMAKE_CXX_FLAGS=$CXX_FLAGS"
         fi
         if [ -n "$LINKER_FLAGS" ]; then
-          ARGS="$ARGS '-DCMAKE_EXE_LINKER_FLAGS=$LINKER_FLAGS' '-DCMAKE_SHARED_LINKER_FLAGS=$LINKER_FLAGS'"
+          ARGS="$ARGS -DCMAKE_EXE_LINKER_FLAGS=$LINKER_FLAGS -DCMAKE_SHARED_LINKER_FLAGS=$LINKER_FLAGS"
         fi
 
         echo "cmake_args=$ARGS" >> "$GITHUB_OUTPUT"

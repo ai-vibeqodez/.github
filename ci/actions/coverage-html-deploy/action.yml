@@ -30,6 +30,10 @@ inputs:
     description: 'Create .nojekyll marker (default: true)'
     required: false
     default: 'true'
+  token:
+    description: 'GitHub token for authentication (default: ${{ github.token }})'
+    required: false
+    default: '${{ github.token }}'
 
 runs:
   using: 'composite'
@@ -47,7 +51,7 @@ runs:
         FOLDER: ${{ inputs.folder }}
         BRANCH: ${{ inputs.branch }}
         TARGET: ${{ inputs.target_folder }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.token }}
       run: |
         set -euo pipefail
 

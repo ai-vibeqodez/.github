@@ -286,8 +286,8 @@ jobs:
         if: matrix.action == 'coverage-parser'
         run: |
           set -euo pipefail
-          [ "${{ steps.cp_parse.outputs.percent }}" = "95%" ] || \
-            { echo "::error::Expected 95%, got ${{ steps.cp_parse.outputs.percent }}"; exit 1; }
+          [ "${{ steps.cp_parse.outputs.percent }}" = "95" ] || \
+            { echo "::error::Expected 95, got ${{ steps.cp_parse.outputs.percent }}"; exit 1; }
           [ "${{ steps.cp_parse.outputs.color }}" = "#44cc11" ] || \
             { echo "::error::Expected #44cc11, got ${{ steps.cp_parse.outputs.color }}"; exit 1; }
           echo "✓ coverage-parser high coverage"
@@ -318,8 +318,8 @@ jobs:
         if: matrix.action == 'coverage-parser'
         run: |
           set -euo pipefail
-          [ "${{ steps.cp_zero_parse.outputs.percent }}" = "0%" ] || \
-            { echo "::error::Expected 0%, got ${{ steps.cp_zero_parse.outputs.percent }}"; exit 1; }
+          [ "${{ steps.cp_zero_parse.outputs.percent }}" = "0" ] || \
+            { echo "::error::Expected 0, got ${{ steps.cp_zero_parse.outputs.percent }}"; exit 1; }
           [ "${{ steps.cp_zero_parse.outputs.color }}" = "#e05d44" ] || \
             { echo "::error::Expected #e05d44, got ${{ steps.cp_zero_parse.outputs.color }}"; exit 1; }
           echo "✓ coverage-parser zero coverage"
@@ -335,8 +335,8 @@ jobs:
         if: matrix.action == 'coverage-parser'
         run: |
           set -euo pipefail
-          [ "${{ steps.cp_missing.outputs.percent }}" = "0%" ] || \
-            { echo "::error::Expected 0% for missing file, got ${{ steps.cp_missing.outputs.percent }}"; exit 1; }
+          [ "${{ steps.cp_missing.outputs.percent }}" = "0" ] || \
+            { echo "::error::Expected 0 for missing file, got ${{ steps.cp_missing.outputs.percent }}"; exit 1; }
           echo "✓ coverage-parser missing file → 0%"
 
   # ──────────────────────────────────────────────
@@ -770,8 +770,8 @@ jobs:
         if: matrix.case == 'zero_coverage'
         run: |
           set -euo pipefail
-          [ "${{ steps.edge_cov_parse.outputs.percent }}" = "0%" ] || \
-            { echo "::error::Expected 0%, got ${{ steps.edge_cov_parse.outputs.percent }}"; exit 1; }
+          [ "${{ steps.edge_cov_parse.outputs.percent }}" = "0" ] || \
+            { echo "::error::Expected 0, got ${{ steps.edge_cov_parse.outputs.percent }}"; exit 1; }
           echo "✓ zero coverage"
 
       # ── Missing tag ──

@@ -30,6 +30,10 @@ inputs:
     description: 'Target folder on the branch'
     required: false
     default: '.'
+  token:
+    description: 'GitHub token for authentication (default: ${{ github.token }})'
+    required: false
+    default: '${{ github.token }}'
 
 runs:
   using: 'composite'
@@ -53,7 +57,7 @@ runs:
       env:
         BRANCH: ${{ inputs.branch }}
         TARGET: ${{ inputs.target_folder }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.token }}
       run: |
         set -euo pipefail
         BRANCH="$BRANCH"

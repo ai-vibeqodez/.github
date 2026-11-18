@@ -68,8 +68,7 @@ runs:
         set -euo pipefail
         echo "Configuring: cmake -S $SOURCE_DIR -B $SOURCE_DIR/$BUILD_DIR -DCMAKE_BUILD_TYPE=$BUILD_TYPE $EXTRA_ARGS"
         cmake -S "$SOURCE_DIR" -B "$SOURCE_DIR/$BUILD_DIR" \
-          -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
-          $EXTRA_ARGS
+          -DCMAKE_BUILD_TYPE="$BUILD_TYPE" $EXTRA_ARGS
 
     # ── Build ──
     - name: Build
