@@ -14,6 +14,12 @@ Maintainer notes:
 
 ## [Unreleased]
 
+### Fixed
+
+- scripts
+- remove github.token template from input description
+- composite action token input ΓÇö use github.token fallback in env block
+
 ## [1.4.1] - 2026-11-18
 
 ### Fixed
