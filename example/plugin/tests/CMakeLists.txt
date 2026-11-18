@@ -22,6 +22,8 @@ add_custom_command(TARGET plugin_tests POST_BUILD
     COMMENT "Copying plugin library next to test executable"
 )
 
-# Per-test discovery via Catch(CMake)
+# Per-test discovery via Catch(CMake) — PRE_TEST to avoid running the binary
+# during CMake configure (TSan + Docker ASLR/seccomp conflict → exit 66).
+# Tests are discovered and run only when ctest is invoked.
 include(Catch)
-catch_discover_tests(plugin_tests PROPERTIES TIMEOUT 120)
+catch_discover_tests(plugin_tests PROPERTIES TIMEOUT 120 DISCOVERY_MODE PRE_TEST)
