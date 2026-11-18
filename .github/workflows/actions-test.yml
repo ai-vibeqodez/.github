@@ -551,14 +551,12 @@ jobs:
   integration:
     name: Integration (C++ pipeline)
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/ai-warevo/ci-cpp20
+      options: --user root
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Install build tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y cmake ninja-build gcovr
 
       - name: Configure & Build
         id: build
