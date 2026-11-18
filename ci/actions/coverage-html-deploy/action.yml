@@ -74,7 +74,10 @@ runs:
         fi
 
         # Copy coverage HTML to target folder
-        rm -rf "$TARGET"
+        mkdir -p "${TARGET:-.}"
+        if [ -n "$TARGET" ]; then
+          rm -rf "$TARGET"
+        fi
         mkdir -p "$TARGET"
         cp -r "$FOLDER"/* "$TARGET/"
 
