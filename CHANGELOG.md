@@ -14,6 +14,12 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.4.4] - 2026-11-18
+
+### Fixed
+
+- run C++ jobs in ci-cpp20 Docker container
+
 ## [1.4.3] - 2026-11-18
 
 ### Fixed
