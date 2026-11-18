@@ -434,18 +434,18 @@ jobs:
           echo "=== Workspace ==="
           ls -la "$GITHUB_WORKSPACE"
           echo "=== Example dir ==="
-          ls -la "$GITHUB_WORKSPACE/example" 2>&1 || echo "example dir NOT FOUND"
+          ls -la example 2>&1 || echo "example dir NOT FOUND"
           echo "=== Docker info ==="
           docker info 2>&1 | head -20
           echo "=== BuildKit context check ==="
-          stat "$GITHUB_WORKSPACE/example" 2>&1 || echo "stat failed"
+          stat example 2>&1 || echo "stat failed"
 
       - name: docker-build-push — build only (no push)
         id: docker_build
         if: success()
         uses: ai-warevo/.github/ci/actions/docker-build-push@main
         with:
-          context: ${{ github.workspace }}/example
+          context: example
           dockerfile: example/Dockerfile
           registry: ghcr.io
           image_name: ghcr.io/${{ github.repository_owner }}/actions-test
