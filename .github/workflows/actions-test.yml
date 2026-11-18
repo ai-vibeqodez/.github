@@ -427,26 +427,20 @@ jobs:
           echo "✓ docker-save → alpine-image.tar"
 
       # ── docker-build-push ──
-      - name: Debug Docker context
-        if: success()
+      - name: Prepare minimal Docker context
         run: |
-          set -euo pipefail
-          echo "=== Workspace ==="
-          ls -la "$GITHUB_WORKSPACE"
-          echo "=== Example dir ==="
-          ls -la example 2>&1 || echo "example dir NOT FOUND"
-          echo "=== Docker info ==="
-          docker info 2>&1 | head -20
-          echo "=== BuildKit context check ==="
-          stat example 2>&1 || echo "stat failed"
+          mkdir -p /tmp/docker-test
+          cat > /tmp/docker-test/Dockerfile <<'EOF'
+          FROM alpine:3.19
+          CMD ["echo", "ok"]
+          EOF
 
       - name: docker-build-push — build only (no push)
         id: docker_build
-        if: success()
         uses: ai-warevo/.github/ci/actions/docker-build-push@main
         with:
-          context: example
-          dockerfile: example/Dockerfile
+          context: /tmp/docker-test
+          dockerfile: /tmp/docker-test/Dockerfile
           registry: ghcr.io
           image_name: ghcr.io/${{ github.repository_owner }}/actions-test
           tags: |
@@ -455,10 +449,9 @@ jobs:
           load: 'true'
 
       - name: docker-build-push — validate build
-        if: success()
         run: |
           set -euo pipefail
-          docker images ghcr.io/${{ github.repository_owner }}/actions-test:test 2>/dev/null | grep test || \
+          docker image inspect ghcr.io/${{ github.repository_owner }}/actions-test:test >/dev/null || \
             { echo "::error::Image not built"; exit 1; }
           echo "✓ docker-build-push — build OK (push=false)"
 
@@ -622,6 +615,9 @@ jobs:
       - name: Validate integration
         run: |
           set -euo pipefail
+          echo "Percent: '${{ steps.parse.outputs.percent }}'"
+          echo "Color: '${{ steps.parse.outputs.color }}'"
+          ls -la
           [ -d "example/build" ] || { echo "::error::Build dir missing"; exit 1; }
           [ -f "coverage.xml" ] || { echo "::error::coverage.xml missing"; exit 1; }
           [ -f "htmlcov/index.html" ] || { echo "::error::HTML report missing"; exit 1; }
