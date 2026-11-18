@@ -146,14 +146,19 @@ runs:
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
         fi
 
-    # ── TSan sysctl (native runner only — container may have different limits) ──
+    # ── TSan sysctl (native runner only — GitHub Actions sandbox blocks
+    #    vm.mmap_rnd_bits writes; make it non-fatal so TSan still runs
+    #    with the default ASLR level) ──
     - name: Configure TSan
       if: steps.detect.outputs.mode == 'false' && inputs.sanitizer == 'thread'
       shell: bash
       run: |
         set -euo pipefail
-        echo "::warning::TSan on native runner: setting vm.mmap_rnd_bits=28"
-        sudo sysctl -w vm.mmap_rnd_bits=28
+        if sudo sysctl -w vm.mmap_rnd_bits=28 2>&1; then
+          echo "::notice::TSan: reduced ASLR entropy (vm.mmap_rnd_bits=28)"
+        else
+          echo "::warning::TSan: could not set vm.mmap_rnd_bits (GitHub Actions sandbox); proceeding with default"
+        fi
 
     # ── MSVC setup ──
     - name: Setup MSVC environment

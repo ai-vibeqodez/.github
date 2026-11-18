@@ -95,10 +95,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Relax ASLR for ThreadSanitizer
-        if: matrix.sanitizer == 'thread'
-        run: sysctl vm.mmap_rnd_bits=28
-
       - name: Configure & Build
         uses: ai-warevo/.github/ci/actions/cmake-build@main
         with:
