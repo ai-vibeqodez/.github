@@ -427,6 +427,19 @@ jobs:
           echo "✓ docker-save → alpine-image.tar"
 
       # ── docker-build-push ──
+      - name: Debug Docker context
+        if: success()
+        run: |
+          set -euo pipefail
+          echo "=== Workspace ==="
+          ls -la "$GITHUB_WORKSPACE"
+          echo "=== Example dir ==="
+          ls -la "$GITHUB_WORKSPACE/example" 2>&1 || echo "example dir NOT FOUND"
+          echo "=== Docker info ==="
+          docker info 2>&1 | head -20
+          echo "=== BuildKit context check ==="
+          stat "$GITHUB_WORKSPACE/example" 2>&1 || echo "stat failed"
+
       - name: docker-build-push — build only (no push)
         id: docker_build
         if: success()
