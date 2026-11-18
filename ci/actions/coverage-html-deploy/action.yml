@@ -25,7 +25,7 @@ inputs:
   target_folder:
     description: 'Target folder on the Pages branch'
     required: false
-    default: ''
+    default: '.'
   nojekyll:
     description: 'Create .nojekyll marker (default: true)'
     required: false
@@ -74,10 +74,7 @@ runs:
         fi
 
         # Copy coverage HTML to target folder
-        mkdir -p "${TARGET:-.}"
-        if [ -n "$TARGET" ]; then
-          rm -rf "$TARGET"
-        fi
+        rm -rf "$TARGET"
         mkdir -p "$TARGET"
         cp -r "$FOLDER"/* "$TARGET/"
 

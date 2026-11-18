@@ -135,6 +135,7 @@ jobs:
         uses: ai-warevo/.github/ci/actions/coverage-html-deploy@main
         with:
           folder: htmlcov
+          target_folder: .
 
   sanitizers:
     name: Sanitizers (${{ matrix.sanitizer }})
