@@ -14,6 +14,13 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.4.5] - 2026-11-18
+
+### Fixed
+
+- split CXX flags to avoid shell-split in cmake_args
+- resolve badge path relative to github.workspace in badge-deploy
+
 ## [1.4.4] - 2026-11-18
 
 ### Fixed
