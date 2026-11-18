@@ -95,6 +95,11 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Download Badge
         uses: actions/download-artifact@v4
         with:
@@ -106,11 +111,6 @@ jobs:
         with:
           name: coverage-html
           path: htmlcov/
-
-      - name: Checkout repo
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Deploy Badge
         uses: ai-warevo/.github/ci/actions/badge-deploy@main
