@@ -1,13 +1,13 @@
 # ── Example C++23 Plugin — Docker image ──────────────────────────────────
 #
-# Многоэтапная сборка:
-#   stage1 (builder) — cmake + make, C++23 на Debian bookworm
-#   stage2 (runtime) — только бинарники host + libplugin
+# Multi-stage build:
+#   stage1 (builder) — cmake + make, C++23 on Debian bookworm
+#   stage2 (runtime) — only host + libplugin binaries
 #
-# Сборка:
+# Build:
 #   docker build -t ghcr.io/ai-warevo/example -f example/Dockerfile .
 #
-# Запуск:
+# Run:
 #   docker run --rm ghcr.io/ai-warevo/example
 
 # ── Builder ───────────────────────────────────────────────────────────────
@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /build
 
-# Копируем CMakeLists.txt и исходники
+# Copy CMakeLists.txt and source files
 COPY CMakeLists.txt .
 COPY include/ include/
 COPY plugin/ plugin/

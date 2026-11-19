@@ -1,51 +1,51 @@
 # Example C++23 Plugin Project
 
-Шаблонный проект, демонстрирующий динамическую загрузку библиотеки в C++23.
+A template project demonstrating dynamic library loading in C++23.
 
-## Архитектура
+## Architecture
 
-Проект разделён на три компонента с чётким разделением ответственности:
+The project is divided into three components with clear separation of responsibilities:
 
-- **`aw::example::plugin`** — shared library (`libplugin.so` / `plugin.dll`) с публичным API
-- **`aw::example::host`** — хост-приложение с динамическим загрузчиком
-- **`aw::example::tests`** — юнит-тесты (Catch2 v3)
+- **`aw::example::plugin`** — shared library (`libplugin.so` / `plugin.dll`) with public API
+- **`aw::example::host`** — host application with dynamic loader
+- **`aw::example::tests`** — unit tests (Catch2 v3)
 
-## Структура
+## Structure
 
 ```
 example/
-├── CMakeLists.txt          # Корневой CMake (Catch2 FetchContent + subdirectories)
+├── CMakeLists.txt          # Root CMake (Catch2 FetchContent + subdirectories)
 ├── include/
-│   └── plugin.h            # Публичный API (aw::example::plugin)
+│   └── plugin.h            # Public API (aw::example::plugin)
 ├── plugin/
 │   ├── CMakeLists.txt      # Shared library (.dll/.so)
 │   ├── src/
-│   │   └── plugin.cpp      # Реализация (C++23: std::format, source_location)
+│   │   └── plugin.cpp      # Implementation (C++23: std::format, source_location)
 │   └── tests/
-│       ├── CMakeLists.txt  # Тесты
-│       └── plugin_tests.cpp  # Catch2 v3 тесты
+│       ├── CMakeLists.txt  # Tests
+│       └── plugin_tests.cpp  # Catch2 v3 tests
 └── host/
     ├── CMakeLists.txt      # Executable
     └── src/
-        └── host.cpp        # Динамическая загрузка (dlopen/LoadLibrary)
+        └── host.cpp        # Dynamic loading (dlopen/LoadLibrary)
 ```
 
-## Сборка
+## Build
 
 ```bash
 cmake -S example -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release
 ```
 
-## Запуск
+## Running
 
 ```bash
 ./build/host
 ```
 
-Host автоматически найдёт `libplugin.so` / `plugin.dll` рядом с executable.
+The host will automatically find `libplugin.so` / `plugin.dll` next to the executable.
 
-## Тесты
+## Tests
 
 ```bash
 cd build

@@ -1,10 +1,10 @@
 # docker-save — Save Docker image as tar artifact
 #
-# Экспортирует Docker image в tar-файл и сохраняет как артефакт
-# GitHub Actions. Используется в production workflow для переноса
-# образа между jobs (build → release).
+# Exports a Docker image to a tar file and saves it as a GitHub Actions
+# artifact. Used in the production workflow to transfer images between
+# jobs (build → release).
 #
-# Паттерн из production workflow:
+# Pattern from production workflow:
 #   docker build → docker save → upload-artifact
 #
 # Usage:

@@ -1,61 +1,61 @@
 ---
 name: executor
-description: Выполнение задач — передать путь к директории todo/<name>/ или конкретный task_XX.md
+description: Execute tasks — pass a path to todo/<name>/ or a specific task_XX.md
 ---
 
-# Skill: Исполнитель
+# Skill: Executor
 
-## Назначение
-Выполнение задач из `todo/<task_short_name>/`. Принимает путь к директории задачи или конкретный task-файл.
+## Purpose
+Execute tasks from `todo/<task_short_name>/`. Accepts a path to the task directory or a specific task file.
 
-## Как запустить
-Написать:
-- `todo/<task_short_name>/` — выполнить все невыполненные задачи в директории
-- `todo/<task_short_name>/task_XX.md` — выполнить конкретную задачу
-- Или просто: "выполнить task_01"
+## How to Run
+Write:
+- `todo/<task_short_name>/` — execute all unexecuted tasks in the directory
+- `todo/<task_short_name>/task_XX.md` — execute a specific task
+- Or simply: "execute task_01"
 
-## Сценарий работы
+## Workflow
 
-1. **Определить задачу**
-    - Если передан путь к директории `todo/<name>/` — прочитать OVERVIEW.md, найти первую невыполненную задачу
-    - Если передан путь к `task_XX.md` — работать с ней
-    - Если просто номер задачи — найти её в OVERVIEW.md
+1. **Identify the task**
+    - If a path to `todo/<name>/` is provided — read OVERVIEW.md, find the first unexecuted task
+    - If a path to `task_XX.md` is provided — work with that file
+    - If only a task number is given — find it in OVERVIEW.md
 
-2. **Чтение контекста**
-    - Открыть `todo/<task_short_name>/task_XX.md`
-    - Открыть `todo/<task_short_name>/OVERVIEW.md` для общего контекста
-    - Проверить зависимости — все ли задачи-зависимости выполнены
+2. **Read context**
+    - Open `todo/<task_short_name>/task_XX.md`
+    - Open `todo/<task_short_name>/OVERVIEW.md` for overall context
+    - Check dependencies — verify that all dependent tasks are completed
 
-3. **Проверка готовности**
-    - Убедиться что зависимости удовлетворены
-    - Проверить что есть все необходимые ресурсы
-    - Если что-то отсутствует — сообщить, не начинать работу
+3. **Readiness check**
+    - Ensure dependencies are satisfied
+    - Verify all necessary resources are available
+    - If something is missing — report it, do not start work
 
-4. **Выполнение задачи**
-    - Пройтись по чек-листу выполнения
-    - Создать/изменить файлы согласно описанию задачи
-    - Следовать критериям готовности
-    - Фиксировать каждый выполненный шаг
+4. **Execute the task**
+    - Go through the execution checklist
+    - Create/modify files according to the task description
+    - Follow the acceptance criteria
+    - Record each completed step
 
-5. **Заполнение результата**
-    - Заполнить секцию «Результат» в task_XX.md
-    - Отметить все критерии готовности как выполненные
-    - Обновить OVERVIEW.md (отметить задачу чекбоксом)
+5. **Fill in the result**
+    - Fill the "Result" section in task_XX.md
+    - Mark all acceptance criteria as completed
+    - Update OVERVIEW.md (check off the task)
 
-6. **Коммит**
-    - Закоммитить изменения в task_XX.md и OVERVIEW.md
+6. **Commit**
+    - Commit changes to task_XX.md and OVERVIEW.md
 
-## Чек-лист начала работы
-- [ ] Задача определена и прочитана
-- [ ] OVERVIEW.md прочитан для контекста
-- [ ] Зависимости проверены и удовлетворены
-- [ ] Критерии готовности ясны
+## Start Checklist
+- [ ] Task identified and read
+- [ ] OVERVIEW.md read for context
+- [ ] Dependencies checked and satisfied
+- [ ] Acceptance criteria are clear
 
-## Правила
-- Не начинать задачу если зависимости не выполнены
-- Всегда читать OVERVIEW.md из той же директории что и task-файл
-- Следовать чек-листу выполнения шаг за шагом
-- Заполнять секцию «Результат» после выполнения
-- Обновлять OVERVIEW.md (чекбоксы задач)
-- Если задача не может быть выполнена — объяснить почему
-- Все изменения коммитить
+## Rules
+- Do not start a task if dependencies are not met
+- Always read OVERVIEW.md from the same directory as the task file
+- Follow the execution checklist step by step
+- Fill in the "Result" section after completion
+- Update OVERVIEW.md (task checkboxes)
+- If a task cannot be completed — explain why
+- Commit all changes

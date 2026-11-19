@@ -1,21 +1,21 @@
 name: 'Checksum Generator'
-description: 'Генерирует SHA256SUMS.txt для файлов в директории'
+description: 'Generates SHA256SUMS.txt for files in a directory'
 
 inputs:
   artifacts_dir:
-    description: 'Директория с файлами для генерации checksums'
+    description: 'Directory with files to generate checksums for'
     required: true
   checksums_file:
-    description: 'Имя файла checksums'
+    description: 'Checksums filename'
     required: false
     default: 'SHA256SUMS.txt'
 
 outputs:
   checksums_file:
-    description: 'Путь к сгенерированному файлу checksums'
+    description: 'Path to the generated checksums file'
     value: ${{ steps.generate.outputs.checksums_file }}
   file_count:
-    description: 'Количество файлов с checksums'
+    description: 'Number of files with checksums'
     value: ${{ steps.generate.outputs.file_count }}
 
 runs:
@@ -32,12 +32,12 @@ runs:
 
         cd "$ARTIFACTS_DIR"
 
-        # Генерируем checksums для всех файлов, кроме самого checksums-файла
+        # Generate checksums for all files except the checksums file itself
         if compgen -G "*" > /dev/null 2>&1; then
           sha256sum $(find . -maxdepth 1 -type f ! -name "$CHECKSUMS_FILE" -printf '%f\n') > "$CHECKSUMS_FILE"
           COUNT=$(wc -l < "$CHECKSUMS_FILE")
         else
-          # Нет артефактов — создаём пустой файл
+          # No artifacts — create an empty file
           touch "$CHECKSUMS_FILE"
           COUNT=0
         fi

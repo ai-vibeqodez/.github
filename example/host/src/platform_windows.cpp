@@ -1,11 +1,11 @@
 /**
  * @file platform_windows.cpp
- * @brief Windows-реализация кроссплатформенной абстракции для динамических библиотек.
+ * @brief Windows implementation of the cross-platform dynamic library abstraction.
  *
- * Использует Win32 API:
- * - LoadLibrary / FreeLibrary — загрузка/выгрузка
- * - GetProcAddress — резолвинг символов
- * - GetModuleFileName — поиск пути к executable
+ * Uses Win32 API:
+ * - LoadLibrary / FreeLibrary — load/unload
+ * - GetProcAddress — symbol resolution
+ * - GetModuleFileName — executable path lookup
  */
 
 #include "platform.h"
@@ -66,7 +66,7 @@ std::optional<std::string> find_plugin() {
         return buf;
     }
 
-    // 2. Рядом с executable
+    // 2. Next to executable
     char exe_path[MAX_PATH] = {0};
     if (GetModuleFileNameA(nullptr, exe_path, MAX_PATH)) {
         std::string dir = exe_path;
@@ -77,7 +77,7 @@ std::optional<std::string> find_plugin() {
         }
     }
 
-    // 3. Системный путь
+    // 3. System path
     return "";
 }
 

@@ -1,37 +1,37 @@
 # Test — C++20 Container Template
 #
-# Скопируй этот файл в свой проект как .github/workflows/test.yml
-# и замени заглушки на реальные команды для твоего проекта.
+# Copy this file into your project as .github/workflows/test.yml
+# and replace placeholders with real commands for your project.
 #
-# Linux-jobs работают в Docker-образе
-# `ghcr.io/ai-warevo/ci-cpp20` с дополнительными job для coverage,
-# badge и HTML-отчёта.
-# MSVC-jobs работают на нативном `windows-latest`.
+# Linux jobs run in the Docker image
+# `ghcr.io/ai-warevo/ci-cpp20` with additional jobs for coverage,
+# badge, and HTML reports.
+# MSVC jobs run on the native `windows-latest` runner.
 #
-# Запускается:
-#   - **Вручную** (`workflow_dispatch`) — по кнопке в GitHub UI
-#   - **По push** в main/master
-#   - **По расписанию** — каждый понедельник в 06:00 UTC
+# Triggered by:
+#   - **Manual** (`workflow_dispatch`) — button in GitHub UI
+#   - **Push** to main/master
+#   - **Scheduled** — every Monday at 06:00 UTC
 #
-# Job deploy (badge + HTML) работает на `ubuntu-latest` — не зависит
-# от toolchain, только git push.
+# The deploy job (badge + HTML) runs on `ubuntu-latest` — no
+# toolchain dependency, only git push.
 
 name: Test
 
 on:
   pull_request:
     branches: [main, master]
-  workflow_dispatch:  # запуск вручную по кнопке
+  workflow_dispatch:  # manual trigger via button
   push:
     branches: [main, master]
   schedule:
-    - cron: '0 6 * * 1'  # каждый понедельник 06:00 UTC
+    - cron: '0 6 * * 1'  # every Monday 06:00 UTC
 
 permissions:
   contents: write
   packages: write
 
-# Отменяем старые незавершённые запуски для того же PR / ветки
+# Cancel old incomplete runs for the same PR / branch
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true

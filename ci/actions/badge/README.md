@@ -1,33 +1,33 @@
 # SVG Badge Generator Action
 
-Кастомный экшен для быстрой генерации независимых SVG-бейджей (баджиков) без использования сторонних API и тяжелых зависимостей.
+A custom action for quickly generating independent SVG badges without using third-party APIs or heavy dependencies.
 
-## Входные параметры (`inputs`)
+## Input parameters (`inputs`)
 
-Вы можете настраивать внешний вид бейджа через блок `with`:
+You can customize the badge appearance through the `with` block:
 
 
-| Параметр | Описание | Обязательный | По умолчанию |
+| Parameter | Description | Required | Default |
 | :--- | :--- | :---: | :--- |
-| `width` | Общая ширина SVG в пикселях | Нет | `120` |
-| `height` | Высота SVG в пикселях | Нет | `20` |
-| `text_left` | Текст на левой (серой) половине | Нет | `coverage` |
-| `text_right` | Текст на правой (цветной) половине | Нет | `80%` |
-| `bg_color_left` | Цвет фона левой части (HEX/название) | Нет | `#555` |
-| `bg_color_right`| Цвет фона правой части (HEX/название)| Нет | `#44cc11` |
-| `text_color` | Цвет шрифта | Нет | `#fff` |
-| `filename` | Путь и имя для сохранения файла | Нет | `badge.svg` |
+| `width` | Total SVG width in pixels | No | `120` |
+| `height` | SVG height in pixels | No | `20` |
+| `text_left` | Text on the left (gray) half | No | `coverage` |
+| `text_right` | Text on the right (colored) half | No | `80%` |
+| `bg_color_left` | Background color of the left part (HEX/name) | No | `#555` |
+| `bg_color_right`| Background color of the right part (HEX/name)| No | `#44cc11` |
+| `text_color` | Text color | No | `#fff` |
+| `filename` | Path and filename to save the file | No | `badge.svg` |
 
-## Выходные параметры (`outputs`)
+## Output parameters (`outputs`)
 
 
-| Параметр | Описание | Пример значения |
+| Parameter | Description | Example Value |
 | :--- | :--- | :--- |
-| `badge_path` | Путь к созданному SVG файлу | `assets/coverage.svg` |
+| `badge_path` | Path to the created SVG file | `assets/coverage.svg` |
 
-## Полный пример использования в проекте
+## Complete usage example in a project
 
-Пример workflow, который генерирует бейдж и сразу сохраняет его в репозиторий вашего проекта:
+Example workflow that generates a badge and immediately saves it to your project repository:
 
 ```yaml
 name: Update Project Status Badge
@@ -60,14 +60,14 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add status-badge.svg
           if git diff --staged --quiet; then
-            echo "Бейдж не изменился."
+            echo "Badge did not change."
           else
             git commit -m "chore: update generated badge [skip ci]"
             git push
           fi
 ```
 
-После выполнения воркфлоу вы сможете вставить бейдж в свой `README.md` вот так:
+After the workflow runs, you can insert the badge into your `README.md` like this:
 ```markdown
 ![Status Badge](status-badge.svg)
 ```

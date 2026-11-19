@@ -1,11 +1,11 @@
 /**
  * @file platform_unix.cpp
- * @brief POSIX-реализация кроссплатформенной абстракции для динамических библиотек.
+ * @brief POSIX implementation of the cross-platform dynamic library abstraction.
  *
- * Использует dlopen/dlclose/dlsym и /proc/self/exe:
- * - dlopen / dlclose — загрузка/выгрузка
- * - dlsym — резолвинг символов
- * - readlink /proc/self/exe — поиск пути к executable
+ * Uses dlopen/dlclose/dlsym and /proc/self/exe:
+ * - dlopen / dlclose — load/unload
+ * - dlsym — symbol resolution
+ * - readlink /proc/self/exe — executable path lookup
  */
 
 #include "platform.h"
@@ -76,7 +76,7 @@ std::optional<std::string> find_plugin() {
         return env;
     }
 
-    // 2. Рядом с executable
+    // 2. Next to executable
 #if defined(__APPLE__)
     char exe_path[MAXPATHLEN] = {0};
     uint32_t size = sizeof(exe_path);
@@ -102,7 +102,7 @@ std::optional<std::string> find_plugin() {
     }
 #endif
 
-    // 3. Системный путь
+    // 3. System path
     return "";
 }
 

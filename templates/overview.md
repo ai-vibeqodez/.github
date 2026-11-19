@@ -1,29 +1,29 @@
-# <Название проекта> — OVERVIEW
+# <Project Name> — OVERVIEW
 
-## Цель
-Краткое описание проекта (2-3 предложения)
+## Goal
+Brief project description (2-3 sentences)
 
-## Статус
-- [ ] Сбор требований
-- [ ] Планирование
-- [ ] Разработка
-- [ ] Тестирование
-- [ ] Релиз
+## Status
+- [ ] Requirements gathering
+- [ ] Planning
+- [ ] Development
+- [ ] Testing
+- [ ] Release
 
-## План задач
-- [ ] **Задача 1**: <описание> (`task_01.md`)
-- [ ] **Задача 2**: <описание> (`task_02.md`)
-- [ ] **Задача 3**: <описание> (`task_03.md`)
+## Task Plan
+- [ ] **Task 1**: <description> (`task_01.md`)
+- [ ] **Task 2**: <description> (`task_02.md`)
+- [ ] **Task 3**: <description> (`task_03.md`)
 
-## Прогресс
-Всего задач: X
-Выполнено: Y
-Процент: Z%
+## Progress
+Total tasks: X
+Completed: Y
+Percentage: Z%
 
-## Зависимости
-- Задача 2 зависит от Задачи 1
-- Задача 3 зависит от Задачи 1
+## Dependencies
+- Task 2 depends on Task 1
+- Task 3 depends on Task 1
 
-## Риски
-- Риск 1: описание
-- Риск 2: описание
+## Risks
+- Risk 1: description
+- Risk 2: description

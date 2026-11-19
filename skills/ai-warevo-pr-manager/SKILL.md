@@ -93,7 +93,7 @@ Self-review: PASSED
 - Include `Closes #NNN` in the PR body
 - Use Conventional Commits in the PR title
 - Document what was tested in the PR body
-- **Never merge PRs** — merging is the user's (господин's) responsibility only. Agent's role: fix bugs, work on PRs, report status.
+- **Never merge PRs** — merging is the user's (repo owner's) responsibility only. Agent's role: fix bugs, work on PRs, report status.
 
 ## Git workflow rules
 Shared rules (never commit to `main`, SSH only, fork as `dshagent`, PAT auth) are defined in [`git-github-push/SKILL.md`](../git-github-push/SKILL.md).

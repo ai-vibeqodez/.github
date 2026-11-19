@@ -1,8 +1,8 @@
 /**
  * @file plugin_tests.cpp
- * @brief Unit-тесты для плагина через Catch2 v3.
+ * @brief Unit tests for the plugin via Catch2 v3.
  *
- * Проверяют все функции публичного API:
+ * Tests all public API functions:
  * - plugin_version()
  * - plugin_version_string()
  * - plugin_compute(a, b, op)
@@ -16,7 +16,7 @@
 
 /**
  * @namespace aw::example::tests
- * @brief Пространство имён тестов.
+ * @brief Test namespace.
  */
 namespace aw::example::tests {
 

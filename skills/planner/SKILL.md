@@ -1,129 +1,129 @@
 ---
 name: planner
-description: Создание плана проекта, OVERVIEW.md и task-файлов из документов требований
+description: Create a project plan, OVERVIEW.md, and task files from requirements documents
 ---
 
-# Skill: Планировщик
+# Skill: Planner
 
-## Назначение
-На основе документа требований создать план проекта: OVERVIEW.md с чекбоксами и task-файлы.
+## Purpose
+Based on a requirements document, create a project plan: OVERVIEW.md with checkboxes and task files.
 
-## Входные данные
-- Документ требований (от Skill 01_analyst)
-- Приоритеты и определение MVP
-- Сроки и ограничения
+## Input
+- Requirements document (from Skill 01_analyst)
+- Priorities and MVP definition
+- Deadlines and constraints
 
-## Сценарий работы
+## Workflow
 
-1. **Анализ требований → декомпозиция на задачи**
-   - Пройтись по всем функциональным требованиям
-   - Разбить каждое требование на атомарные задачи
-   - Учесть нефункциональные требования как отдельные задачи
-   - Выделить задачи на настройку инфраструктуры
+1. **Analyze requirements → decompose into tasks**
+   - Go through all functional requirements
+   - Break each requirement into atomic tasks
+   - Treat non-functional requirements as separate tasks
+   - Identify infrastructure setup tasks
 
-2. **Определение порядка выполнения (зависимости между задачами)**
-   - Выявить зависимости между задачами
-   - Определить критический путь
-   - Сгруппировать задачи по логическим этапам
-   - Учесть MVP — задачи для MVP должны идти первыми
+2. **Determine execution order (task dependencies)**
+   - Identify dependencies between tasks
+   - Determine the critical path
+   - Group tasks by logical phases
+   - Consider MVP — tasks for MVP must come first
 
-3. **Создание OVERVIEW.md**
-   - Заполнить шаблон из templates/overview.md
-   - Указать все задачи с номерами
-   - Описать зависимости
-   - Зафиксировать риски
+3. **Create OVERVIEW.md**
+   - Fill the template from templates/overview.md
+   - List all tasks with numbers
+   - Describe dependencies
+   - Document risks
 
-4. **Создание директории задачи и файлов**
-   - Для каждой задачи создать директорию `todo/<task_short_name>/` (если не существует)
-   - Создать файл `todo/<task_short_name>/OVERVIEW.md` — общий обзор задачи (цель, статус, план, прогресс, зависимости, риски)
-   - Создать файл(ы) `todo/<task_short_name>/task_XX.md` — детальные описания подзадач
-   - Заполнить OVERVIEW.md по шаблону
-   - Заполнить task_XX.md по шаблону (описание, контекст, критерии готовности, чек-лист, зависимости, результат)
-   - Указать зависимости от других задач
-   - Определить критерии готовности
+4. **Create task directories and files**
+   - For each task, create a directory `todo/<task_short_name>/` (if it doesn't exist)
+   - Create file `todo/<task_short_name>/OVERVIEW.md` — general task overview (goal, status, plan, progress, dependencies, risks)
+   - Create file(s) `todo/<task_short_name>/task_XX.md` — detailed subtask descriptions
+   - Fill OVERVIEW.md using the template
+   - Fill task_XX.md using the template (description, context, acceptance criteria, checklist, dependencies, deliverable)
+   - Specify dependencies on other tasks
+   - Define acceptance criteria
 
-5. **Валидация полноты покрытия**
-   - Проверить, что каждое требование покрыто хотя бы одной задачей
-   - Убедиться, что dependencies не образуют циклов
-   - Проверить, что MVP-задачи выделены и расположены первыми
-   - Пересчитать прогресс (выполнено/всего)
+5. **Validate coverage completeness**
+   - Verify that every requirement is covered by at least one task
+   - Ensure dependencies do not form cycles
+   - Verify that MVP tasks are identified and listed first
+   - Recalculate progress (completed/total)
 
-## Шаблон OVERVIEW.md
-
-```markdown
-# <Название проекта> — OVERVIEW
-
-## Цель
-Краткое описание проекта (2-3 предложения)
-
-## Статус
-- [ ] Сбор требований
-- [ ] Планирование
-- [ ] Разработка
-- [ ] Тестирование
-- [ ] Релиз
-
-## План задач
-- [ ] **Задача 1**: <описание> (`todo/<task_short_name>/task_01.md`)
-- [ ] **Задача 2**: <описание> (`todo/<task_short_name>/task_02.md`)
-- [ ] **Задача 3**: <описание> (`todo/<task_short_name>/task_03.md`)
-
-## Прогресс
-Всего задач: X
-Выполнено: Y
-Процент: Z%
-
-## Зависимости
-- Задача 2 зависит от Задачи 1
-- Задача 3 зависит от Задачи 1
-- Директория задачи: `todo/<task_short_name>/` (внутри OVERVIEW.md + task_XX.md)
-
-## Риски
-- Риск 1: описание
-- Риск 2: описание
-```
-
-## Шаблон task_XX.md
+## OVERVIEW.md Template
 
 ```markdown
-# Task <NN>: <Название задачи>
+# <Project Name> — OVERVIEW
 
-## Описание
-Краткое описание что нужно сделать
+## Goal
+Brief project description (2-3 sentences)
 
-## Контекст
-Почему это нужно, какие требования закрывает
+## Status
+- [ ] Requirements gathering
+- [ ] Planning
+- [ ] Development
+- [ ] Testing
+- [ ] Release
 
-## Критерии готовности
-- [ ] Критерий 1
-- [ ] Критерий 2
-- [ ] Критерий 3
+## Task Plan
+- [ ] **Task 1**: <description> (`todo/<task_short_name>/task_01.md`)
+- [ ] **Task 2**: <description> (`todo/<task_short_name>/task_02.md`)
+- [ ] **Task 3**: <description> (`todo/<task_short_name>/task_03.md`)
 
-## Чек-лист выполнения
-- [ ] Шаг 1
-- [ ] Шаг 2
-- [ ] Шаг 3
+## Progress
+Total tasks: X
+Completed: Y
+Percentage: Z%
 
-## Зависимости
-- Зависит от: <указать задачи, например: task_01>
-- Все файлы задачи в одной директории: `todo/<task_short_name>/`
+## Dependencies
+- Task 2 depends on Task 1
+- Task 3 depends on Task 1
+- Task directory: `todo/<task_short_name>/` (inside OVERVIEW.md + task_XX.md)
 
-## Результат
-Что было сделано (заполняется после выполнения)
+## Risks
+- Risk 1: description
+- Risk 2: description
 ```
 
-## Выходные файлы
-- `todo/<task_short_name>/OVERVIEW.md` — обзор задачи (цель, статус, план, прогресс, зависимости, риски)
-- `todo/<task_short_name>/task_XX.md` — файл(ы) детальных подзадач
-- (опционально) `todo/<task_short_name>/deps.md` — граф зависимостей в текстовом виде
+## task_XX.md Template
 
-## Правила
-- Каждая задача должна быть атомарной (нельзя разбить дальше без потери смысла)
-- Каждая задача должна быть проверяемой (чёткие критерии готовности)
-- Каждая задача должна иметь критерии готовности (не менее 2-3 пунктов)
-- Зависимости должны быть ацикличными
-- Задачи MVP должны идти первыми в списке
-- Нумерация задач — последовательная, без пропусков (task_01, task_02, ...)
-- Одна задача = одна директория `todo/<task_short_name>/`
-- Внутри директории: `OVERVIEW.md` + один или несколько `task_XX.md`
-- `<task_short_name>` — короткое имя задачи на английском, kebab-case (например `llamacpp-docker-setup`)
+```markdown
+# Task <NN>: <Task Name>
+
+## Description
+Brief description of what needs to be done
+
+## Context
+Why this is needed, which requirements it addresses
+
+## Acceptance Criteria
+- [ ] Criterion 1
+- [ ] Criterion 2
+- [ ] Criterion 3
+
+## Execution Checklist
+- [ ] Step 1
+- [ ] Step 2
+- [ ] Step 3
+
+## Dependencies
+- Depends on: <specify tasks, e.g.: task_01>
+- All task files in one directory: `todo/<task_short_name>/`
+
+## Deliverable
+What was done (filled in after completion)
+```
+
+## Output Files
+- `todo/<task_short_name>/OVERVIEW.md` — task overview (goal, status, plan, progress, dependencies, risks)
+- `todo/<task_short_name>/task_XX.md` — detailed subtask file(s)
+- (optional) `todo/<task_short_name>/deps.md` — dependency graph in text form
+
+## Rules
+- Each task must be atomic (cannot be split further without losing meaning)
+- Each task must be verifiable (clear acceptance criteria)
+- Each task must have acceptance criteria (at least 2-3 items)
+- Dependencies must be acyclic
+- MVP tasks must come first in the list
+- Task numbering is sequential, without gaps (task_01, task_02, ...)
+- One task = one directory `todo/<task_short_name>/`
+- Inside the directory: `OVERVIEW.md` + one or more `task_XX.md`
+- `<task_short_name>` is a short English name for the task, kebab-case (e.g., `llamacpp-docker-setup`)

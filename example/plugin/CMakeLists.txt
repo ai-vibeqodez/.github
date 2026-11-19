@@ -16,7 +16,7 @@ set_target_properties(plugin PROPERTIES
     VISIBILITY_INLINES_HIDDEN ON
 )
 
-# Windows: суффикс для distinguishing
+# Windows: suffix for distinguishing
 if(WIN32)
     set_target_properties(plugin PROPERTIES
         PREFIX ""

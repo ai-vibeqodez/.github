@@ -1,42 +1,42 @@
 name: 'SVG Badge Generator'
-description: 'Генерирует кастомные SVG бейджики'
+description: 'Generates custom SVG badges'
 inputs:
   width:
-    description: 'Общая ширина SVG'
+    description: 'Total SVG width'
     required: false
     default: '120'
   height:
-    description: 'Высота SVG'
+    description: 'SVG height'
     required: false
     default: '20'
   text_left:
-    description: 'Текст на левой половине'
+    description: 'Text on the left half'
     required: false
     default: 'coverage'
   text_right:
-    description: 'Текст на правой половине'
+    description: 'Text on the right half'
     required: false
     default: '80%'
   bg_color_left:
-    description: 'Цвет левой части'
+    description: 'Left part color'
     required: false
     default: '#555'
   bg_color_right:
-    description: 'Цвет правой части'
+    description: 'Right part color'
     required: false
     default: '#44cc11'
   text_color:
-    description: 'Цвет текста'
+    description: 'Text color'
     required: false
     default: '#fff'
   filename:
-    description: 'Имя выходного файла'
+    description: 'Output filename'
     required: false
     default: 'badge.svg'
 
 outputs:
   badge_path:
-    description: 'Путь к созданному файлу'
+    description: 'Path to the created file'
     value: ${{ steps.generate.outputs.filepath }}
 
 runs:

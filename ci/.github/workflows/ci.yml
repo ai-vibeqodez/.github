@@ -1,13 +1,13 @@
 # CI — Universal Template
 #
-# Скопируй этот файл в свой проект как .github/workflows/ci.yml
-# и замени заглушки на реальные команды для твоего стека.
+# Copy this file into your project as .github/workflows/ci.yml
+# and replace placeholders with real commands for your stack.
 #
-# Поддерживаемые стеки (выбери нужный и раскомментируй):
-#   Node.js / TypeScript, Python, C# (.NET), C++ (CMake), Go, Rust, Java, и др.
+# Supported stacks (pick the one you need and uncomment):
+#   Node.js / TypeScript, Python, C# (.NET), C++ (CMake), Go, Rust, Java, and more.
 #
-# Триггеры: pull_request к main/master, merge_group (при слиянии PR).
-# Обычный push в main/master НЕ запускает CI — экономит GitHub Actions лимиты.
+# Triggers: pull_request to main/master, merge_group (on PR merge).
+# Regular push to main/master does NOT trigger CI — saves GitHub Actions limits.
 
 name: CI
 
@@ -17,12 +17,12 @@ on:
   merge_group:
     branches: [main, master]
 
-# Права: contents read для checkout, packages write для GHCR (если нужен)
+# Permissions: contents read for checkout, packages write for GHCR (if needed)
 permissions:
   contents: read
   packages: write
 
-# Отменяем старые незавершённые запуски для того же PR / ветки
+# Cancel old incomplete runs for the same PR / branch
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true

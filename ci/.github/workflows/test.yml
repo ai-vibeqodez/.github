@@ -1,24 +1,24 @@
 # Test — Universal Template
 #
-# Скопируй этот файл в свой проект как .github/workflows/test.yml
-# и замени заглушки на реальные команды для твоего стека.
+# Copy this file into your project as .github/workflows/test.yml
+# and replace placeholders with real commands for your stack.
 #
-# Этот workflow запускается на pull_request к main/master, по расписанию
-# (weekly) или вручную. Обычный push в main/master НЕ запускает тесты —
-# экономит GitHub Actions лимиты.
+# This workflow runs on pull_request to main/master, on schedule
+# (weekly), or manually. Regular push to main/master does NOT run tests —
+# saves GitHub Actions limits.
 
 name: Test
 
 on:
   pull_request:
     branches: [main, master]
-  workflow_dispatch:  # запуск вручную по кнопке
+  workflow_dispatch:  # manual trigger via button
 
 permissions:
   contents: write
   packages: write
 
-# Отменяем старые незавершённые запуски для того же PR / ветки
+# Cancel old incomplete runs for the same PR / branch
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true

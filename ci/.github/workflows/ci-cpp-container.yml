@@ -1,16 +1,16 @@
 # CI — C++20 Container Template
 #
-# Скопируй этот файл в свой проект как .github/workflows/ci.yml
-# и замени заглушки на реальные команды для твоего проекта.
+# Copy this file into your project as .github/workflows/ci.yml
+# and replace placeholders with real commands for your project.
 #
-# Linux-jobs работают в Docker-образе
-# `ghcr.io/ai-warevo/ci-cpp20` — независимость от ОС GitHub Actions runner.
-# Все инструменты (gcc-15, clang-18, cmake, ninja, clang-tidy, clang-format,
-# gcovr) предустановлены в образе.
-# MSVC-jobs работают на нативном `windows-latest`.
+# Linux jobs run in the Docker image
+# `ghcr.io/ai-warevo/ci-cpp20` — OS-independent GitHub Actions runner.
+# All tools (gcc-15, clang-18, cmake, ninja, clang-tidy, clang-format,
+# gcovr) are preinstalled in the image.
+# MSVC jobs run on the native `windows-latest` runner.
 #
-# Триггеры: pull_request к main/master, merge_group (при слиянии PR).
-# Обычный push в main/master НЕ запускает CI — экономит GitHub Actions лимиты.
+# Triggers: pull_request to main/master, merge_group (on PR merge).
+# Regular push to main/master does NOT trigger CI — saves GitHub Actions limits.
 
 name: CI
 
@@ -20,12 +20,12 @@ on:
   merge_group:
     branches: [main, master]
 
-# Права: contents read для checkout, packages write для GHCR (если нужен)
+# Permissions: contents read for checkout, packages write for GHCR (if needed)
 permissions:
   contents: read
   packages: write
 
-# Отменяем старые незавершённые запуски для того же PR / ветки
+# Cancel old incomplete runs for the same PR / branch
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true

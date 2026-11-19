@@ -1,18 +1,18 @@
 name: 'Release Version Resolver'
-description: 'Резолвит релизную версию из тега, workflow_dispatch инпута или run_number'
+description: 'Resolves release version from tag, workflow_dispatch input, or run_number'
 
 inputs:
   version:
-    description: 'Ручная версия (например, 1.2.3). Оставить пустым для авто-резолва.'
+    description: 'Manual version (e.g., 1.2.3). Leave empty for auto-resolution.'
     required: false
     default: ''
 
 outputs:
   release_version:
-    description: 'Полная версия с префиксом v (например, v1.2.3)'
+    description: 'Full version with v prefix (e.g., v1.2.3)'
     value: ${{ steps.resolve.outputs.release_version }}
   release_version_stripped:
-    description: 'Версия без префикса v (например, 1.2.3)'
+    description: 'Version without v prefix (e.g., 1.2.3)'
     value: ${{ steps.resolve.outputs.release_version_stripped }}
 
 runs:

@@ -1,131 +1,131 @@
 ---
 name: analyst
-description: Сбор и формализация требований через интервью с заказчиком или стейкхолдерами
+description: Gathering and formalizing requirements through interviews with the customer or stakeholders
 ---
 
-# Skill: Аналитик
+# Skill: Analyst
 
-## Назначение
-Сбор и формализация требований через интервью с заказчиком/стейкхолдерами.
+## Purpose
+Gathering and formalizing requirements through interviews with the customer/stakeholders.
 
-## Входные данные
-- Название проекта
-- Контекст (краткое описание идеи)
-- Список стейкхолдеров (заказчик, пользователи, технические лиды и т.д.)
+## Input Data
+- Project name
+- Context (brief description of the idea)
+- List of stakeholders (customer, users, technical leads, etc.)
 
-## Сценарий работы
+## Workflow
 
-1. **Приветствие + объяснение цели**
-   - Представиться
-   - Объяснить, что цель — собрать полные и точные требования
-   - Уточнить формат взаимодействия (письменный опрос, интервью, встреча)
+1. **Greeting + explain the goal**
+   - Introduce yourself
+   - Explain that the goal is to collect complete and accurate requirements
+   - Clarify the interaction format (written survey, interview, meeting)
 
-2. **Выяснение сути проекта**
-   - Что именно разрабатывается?
-   - Зачем это нужно? Какую проблему решает?
-   - Для кого это предназначено? Кто целевая аудитория?
+2. **Understand the project essence**
+   - What exactly is being developed?
+   - Why is this needed? What problem does it solve?
+   - Who is this intended for? Who is the target audience?
 
-3. **Выяснение функциональных требований**
-   - Что система должна уметь делать?
-   - Какие основные функции/модули?
-   - Какие пользовательские сценарии (user stories)?
+3. **Gather functional requirements**
+   - What should the system be able to do?
+   - What are the main functions/modules?
+   - What are the user scenarios (user stories)?
 
-4. **Выявление нефункциональных требований**
-   - Производительность: сколько пользователей, отклик, нагрузка?
-   - Безопасность: аутентификация, авторизация, конфиденциальность?
-   - Стек технологий: предпочтения или ограничения?
-   - Совместимость: платформы, браузеры, ОС?
-   - Масштабируемость, надёжность, доступность?
+4. **Identify non-functional requirements**
+   - Performance: how many users, response time, load?
+   - Security: authentication, authorization, confidentiality?
+   - Technology stack: preferences or constraints?
+   - Compatibility: platforms, browsers, OS?
+   - Scalability, reliability, availability?
 
-5. **Выяснение приоритетов и MVP**
-   - Что обязательно в первой версии?
-   - Что можно отложить?
-   - Что является «must have» vs «nice to have»?
+5. **Determine priorities and MVP**
+   - What is mandatory in the first version?
+   - What can be deferred?
+   - What is a "must have" vs "nice to have"?
 
-6. **Выяснение сроков и бюджета**
-   - Желаемые сроки запуска?
-   - Есть ли жёсткие дедлайны?
-   - Ограничения по ресурсам?
+6. **Determine timelines and budget**
+   - Desired launch timeline?
+   - Are there hard deadlines?
+   - Resource constraints?
 
-7. **Формирование итогового документа**
-   - Систематизировать все ответы
-   - Выявить противоречия и неоднозначности
-   - Подготовить структурированный документ требований
-   - Запросить подтверждение у стейкхолдеров
+7. **Prepare the final document**
+   - Organize all responses
+   - Identify contradictions and ambiguities
+   - Prepare a structured requirements document
+   - Request confirmation from stakeholders
 
-## Шаблон вопросов
+## Question Template
 
-### Этап 1: Суть проекта
-- Как бы вы одним предложением описали свой проект?
-- Какую проблему он решает?
-- Кто ваши основные пользователи?
-- Есть ли аналоги/конкуренты? Чем вы отличаетесь?
+### Stage 1: Project Essence
+- How would you describe your project in one sentence?
+- What problem does it solve?
+- Who are your main users?
+- Are there similar products/competitors? How do you differ?
 
-### Этап 2: Функциональные требования
-- Опишите 3-5 основных действий, которые пользователь должен иметь возможность выполнять?
-- Какие модули/разделы должна иметь система?
-- Нужна ли интеграция с внешними сервисами/API?
-- Нужна ли административная панель?
+### Stage 2: Functional Requirements
+- Describe 3-5 main actions that a user should be able to perform?
+- What modules/sections should the system have?
+- Is integration with external services/APIs needed?
+- Is an admin panel needed?
 
-### Этап 3: Нефункциональные требования
-- Сколько пользователей ожидается одновременно?
-- Какие требования к скорости отклика?
-- Нужна ли поддержка мобильных устройств?
-- Есть ли требования к безопасности (GDPR, 152-ФЗ и т.д.)?
-- Предпочтения по стеку технологий?
-- Нужна ли документация?
+### Stage 3: Non-functional Requirements
+- How many users are expected concurrently?
+- What are the response time requirements?
+- Is mobile device support needed?
+- Are there security requirements (GDPR, 152-FZ, etc.)?
+- Technology stack preferences?
+- Is documentation needed?
 
-### Этап 4: Приоритеты и сроки
-- Что должно быть готово в первую очередь (MVP)?
-- Что можно реализовать позже?
-- Есть ли жёсткие дедлайны?
-- Какой бюджет/ресурсы доступны?
+### Stage 4: Priorities and Timelines
+- What should be ready first (MVP)?
+- What can be implemented later?
+- Are there hard deadlines?
+- What budget/resources are available?
 
-## Выходной формат
-Документ требований со следующей структурой:
+## Output Format
+A requirements document with the following structure:
 
 ```markdown
-# Требования к проекту: <Название>
+# Project Requirements: <Name>
 
-## Цель
-Краткое описание проекта (2-3 предложения)
+## Goal
+Brief description of the project (2-3 sentences)
 
-## Стейкхолдеры
-- Заказчик: <имя/роль>
-- Целевая аудитория: <описание>
+## Stakeholders
+- Customer: <name/role>
+- Target audience: <description>
 
-## Функциональные требования
-1. <Требование 1>
-2. <Требование 2>
+## Functional Requirements
+1. <Requirement 1>
+2. <Requirement 2>
 ...
 
-## Нефункциональные требования
-- Производительность: ...
-- Безопасность: ...
-- Стек: ...
-- Совместимость: ...
+## Non-functional Requirements
+- Performance: ...
+- Security: ...
+- Stack: ...
+- Compatibility: ...
 
-## Ограничения
-- <Ограничение 1>
-- <Ограничение 2>
+## Constraints
+- <Constraint 1>
+- <Constraint 2>
 
-## Приоритеты
+## Priorities
 - Must have: ...
 - Should have: ...
 - Nice to have: ...
 
 ## MVP
-Описание минимально жизнеспособного продукта
+Description of the minimum viable product
 
-## Риски
-- <Риск 1>: описание
-- <Риск 2>: описание
+## Risks
+- <Risk 1>: description
+- <Risk 2>: description
 ```
 
-## Правила
-- Не предполагать — всегда уточнять у заказчика
-- Фиксировать каждое принятое решение
-- Переформулировать ответы заказчика для подтверждения понимания
-- Выявлять противоречия и озвучивать их заказчику
-- Разделять факты и предположения
-- Не переходить к следующему этапу, пока текущий не закрыт полностью
+## Rules
+- Do not assume — always clarify with the customer
+- Record every decision made
+- Paraphrase the customer's answers to confirm understanding
+- Identify contradictions and voice them to the customer
+- Distinguish facts from assumptions
+- Do not move to the next stage until the current one is fully complete

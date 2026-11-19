@@ -14,7 +14,7 @@ target_link_libraries(plugin_tests
         plugin
 )
 
-# Копируем библиотеку рядом с тестами
+# Copy library next to tests
 add_custom_command(TARGET plugin_tests POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:plugin>
