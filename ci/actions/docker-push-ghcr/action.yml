@@ -1,9 +1,9 @@
 # docker-push-ghcr — Load and push Docker image to GitHub Container Registry
 #
-# Загружает Docker image из tar-артефакта и пушит в GHCR с тегами
-# :vX.Y.Z и :latest. Используется на этапе release.
+# Loads a Docker image from a tar artifact and pushes it to GHCR with
+# :vX.Y.Z and :latest tags. Used during the release phase.
 #
-# Паттерн из production workflow:
+# Pattern from production workflow:
 #   download-artifact (docker-image) → docker load → docker push
 #
 # Usage:

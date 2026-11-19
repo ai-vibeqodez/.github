@@ -1,26 +1,26 @@
 # Changelog Release Action
 
-Composite GitHub Action для извлечения release notes из `CHANGELOG.md` и генерации release body для GitHub Release.
+A composite GitHub Action for extracting release notes from `CHANGELOG.md` and generating a release body for GitHub Release.
 
-## Входные параметры (`inputs`)
+## Input parameters (`inputs`)
 
-| Параметр | Описание | Обязательный | По умолчанию |
+| Parameter | Description | Required | Default |
 | :--- | :--- | :---: | :--- |
-| `tag` | Релизный тег (например, `v1.2.3`) | Нет | `${{ github.ref_name }}` |
-| `changelog` | Путь к `CHANGELOG.md` | Нет | `CHANGELOG.md` |
-| `release-body` | Имя файла для release body | Нет | `release_body.md` |
-| `what-included` | Раздел "What's Included" | Нет | — |
-| `quick-start` | Раздел "Quick Start" | Нет | — |
+| `tag` | Release tag (e.g., `v1.2.3`) | No | `${{ github.ref_name }}` |
+| `changelog` | Path to `CHANGELOG.md` | No | `CHANGELOG.md` |
+| `release-body` | Filename for release body | No | `release_body.md` |
+| `what-included` | "What's Included" section | No | — |
+| `quick-start` | "Quick Start" section | No | — |
 
-## Выходные параметры (`outputs`)
+## Output parameters (`outputs`)
 
-| Параметр | Описание | Пример |
+| Parameter | Description | Example |
 | :--- | :--- | :--- |
-| `body_path` | Путь к файлу release body | `release_body.md` |
-| `version` | Версия без префикса `v` | `1.2.3` |
-| `notes` | Извлечённые release notes | (multiline) |
+| `body_path` | Path to the release body file | `release_body.md` |
+| `version` | Version without `v` prefix | `1.2.3` |
+| `notes` | Extracted release notes | (multiline) |
 
-## Пример использования
+## Usage example
 
 ```yaml
 name: Release
@@ -54,9 +54,9 @@ jobs:
           body_path: ${{ steps.changelog.outputs.body_path }}
 ```
 
-## Формат CHANGELOG.md
+## CHANGELOG.md format
 
-Action парсит [Keep a Changelog](https://keepachangelog.com/) формат:
+The action parses the [Keep a Changelog](https://keepachangelog.com/) format:
 
 ```markdown
 ## [1.2.3] - 2024-01-15
@@ -68,4 +68,4 @@ Action парсит [Keep a Changelog](https://keepachangelog.com/) формат
 [1.2.3]: https://github.com/...
 ```
 
-Notes извлекаются между `## [version]` и следующим `## [` или блоком ссылок.
+Notes are extracted between `## [version]` and the next `## [` heading or link reference block.

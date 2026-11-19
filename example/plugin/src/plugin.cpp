@@ -6,21 +6,21 @@
 
 /**
  * @namespace aw::example::plugin::detail
- * @brief Внутренние детали реализации плагина.
+ * @brief Internal plugin implementation details.
  *
- * Не экспортируется в публичный API.
+ * Not exported to the public API.
  */
 namespace aw::example::plugin::detail {
 
 /**
- * @brief Текущая версия API.
+ * @brief Current API version.
  */
 constexpr int kApiVersion = 1;
 
 /**
- * @brief Преобразует код операции в строковое представление.
- * @param op Код операции.
- * @return Строка: "add", "subtract", "multiply" или "unknown".
+ * @brief Converts operation code to string representation.
+ * @param op Operation code.
+ * @return String: "add", "subtract", "multiply" or "unknown".
  */
 inline std::string_view op_to_string(int op) noexcept {
     switch (op) {
@@ -32,13 +32,13 @@ inline std::string_view op_to_string(int op) noexcept {
 }
 
 /**
- * @brief Локальный информационный логгер с C++23 source_location.
+ * @brief Local info logger with C++23 source_location.
  *
- * В релизной сборке лог тихий — заглушка.
- * Может быть расширен до записи в файл или syslog.
+ * In release builds the log is quiet — a stub.
+ * Can be extended to file or syslog logging.
  *
- * @param msg Сообщение.
- * @param loc Источник информации (имя файла, строка по умолчанию).
+ * @param msg Message.
+ * @param loc Source location (file name, line number by default).
  */
 inline void log_info(std::string_view msg,
                      const std::source_location& loc = std::source_location::current()) {

@@ -1,25 +1,30 @@
 # Changelog
 
-Все изменения этого проекта документируются в этом файле.
+All changes to this project are documented in this file.
 
-Формат основан на [Keep a Changelog](https://keepachangelog.com/) и [SemVer](https://semver.org/).
+This format is based on [Keep a Changelog](https://keepachangelog.com/) and [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
 ### Added
 - 
 
+
 ### Changed
 - 
+
 
 ### Deprecated
 - 
 
+
 ### Removed
 - 
 
+
 ### Fixed
 - 
+
 
 ### Security
 - 

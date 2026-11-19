@@ -1,21 +1,21 @@
 # Checksum Generator
 
-Composite GitHub Action для генерации и верификации SHA256 checksums артефактов.
+A composite GitHub Action for generating and verifying SHA256 checksums of artifacts.
 
-## Входные параметры (`inputs`)
+## Input parameters (`inputs`)
 
-| Параметр | Описание | Обязательный | По умолчанию |
+| Parameter | Description | Required | Default |
 | :--- | :--- | :---: | :--- |
-| `artifacts_dir` | Директория с артефактами | Да | — |
-| `checksums_file` | Имя файла checksums | Нет | `SHA256SUMS.txt` |
+| `artifacts_dir` | Directory with artifacts | Yes | — |
+| `checksums_file` | Checksums filename | No | `SHA256SUMS.txt` |
 
-## Поведение
+## Behavior
 
-- Генерирует `SHA256SUMS.txt` для всех файлов в директории
-- Верифицирует checksums (`sha256sum --check`)
-- Если артефактов нет — создаёт пустой файл (не ошибка)
+- Generates `SHA256SUMS.txt` for all files in the directory
+- Verifies checksums (`sha256sum --check`)
+- If no artifacts exist — creates an empty file (not an error)
 
-## Пример использования
+## Usage example
 
 ```yaml
 - name: Generate and verify checksums

@@ -1,23 +1,23 @@
 # Contributing
 
-## Как внести вклад
+## How to contribute
 
-1. Fork репозитория
-2. Создайте feature-ветку (`git checkout -b feature/amazing-feature`)
-3. Зафиксируйте изменения (`git commit -m 'Add amazing feature'`)
-4. Push в ветку (`git push origin feature/amazing-feature`)
-5. Откройте Pull Request
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## Правила оформления
-- Соблюдайте код-стайл проекта
-- Пишите тесты
-- Документируйте изменения
-- Используйте conventional commits
+## Style guidelines
+- Follow the project's code style
+- Write tests
+- Document changes
+- Use conventional commits
 
-## Процесс code review
-1. Минимум один approving review
-2. Все CI-проверки должны пройти
-3. CHANGELOG обновлён
+## Code review process
+1. At least one approving review
+2. All CI checks must pass
+3. CHANGELOG updated
 
-## Вопросы?
-Откройте issue.
+## Questions?
+Open an issue.

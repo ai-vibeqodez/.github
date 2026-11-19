@@ -1,7 +1,7 @@
 # checksums-verify — Verify SHA256 checksums against a checksums file
 #
-# Проверяет целостность файлов по заранее сгенерированному SHA256SUMS.txt.
-# Полезно на этапе release для верификации артефактов перед публикацией.
+# Verifies file integrity against a pre-generated SHA256SUMS.txt.
+# Useful during the release phase for verifying artifacts before publishing.
 #
 # Usage:
 #   - name: Verify checksums
@@ -15,10 +15,10 @@ description: 'Verify SHA256 checksums of files against a checksums file'
 
 inputs:
   artifacts_dir:
-    description: 'Директория с файлами для верификации'
+    description: 'Directory with files to verify'
     required: true
   checksums_file:
-    description: 'Имя файла checksums'
+    description: 'Checksums filename'
     required: false
     default: 'SHA256SUMS.txt'
 

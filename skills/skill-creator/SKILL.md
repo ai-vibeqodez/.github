@@ -1,90 +1,90 @@
 ---
 name: skill-creator
-description: Создание новых skill'ов и актуализация репозитория skill'ов
+description: Creating new skills and updating the skills repository
 ---
 
-# Skill: Создатель скиллов
+# Skill: Skill Creator
 
-## Назначение
-Создание новых skill'ов и актуализация репозитория skill'ов.
+## Purpose
+Creating new skills and updating the skills repository.
 
-## Входные данные
-- Название нового skill'а
-- Назначение (краткое описание)
-- Входные данные (что нужно предоставить)
-- Выходные данные (что генерируется)
-- Дополнительные пожелания по структуре
+## Input
+- Name of the new skill
+- Purpose (brief description)
+- Input data (what needs to be provided)
+- Output data (what is generated)
+- Additional preferences for the structure
 
-## Сценарий работы
+## Workflow
 
-1. **Анализ запроса на новый skill**
-   - Определить роль нового skill'а в общем процессе
-   - Выявить входные и выходные данные
-   - Определить, на каком этапе работы он применяется
+1. **Analyze the request for a new skill**
+   - Determine the role of the new skill in the overall process
+   - Identify input and output data
+   - Determine at which stage of the workflow it is applied
 
-2. **Проверка что такого skill'а ещё нет**
-   - Отсканировать директорию `skills/` на наличие дубликатов
-   - Проверить названия и назначения существующих skill'ов
-   - Если аналогичный skill найден — предложить объединить или уточнить отличие
+2. **Check that no such skill already exists**
+   - Scan the `skills/` directory for duplicates
+   - Check the names and purposes of existing skills
+   - If an equivalent skill is found — suggest merging or clarifying the difference
 
-3. **Создание файла `skills/NN_name.md`**
-   - Определить следующий свободный номер (NN)
-   - Создать файл по шаблону (см. ниже)
-   - Заполнить все обязательные секции
+3. **Create the `skills/NN_name.md` file**
+   - Determine the next available number (NN)
+   - Create the file using the template (see below)
+   - Fill in all mandatory sections
 
-4. **Обновление `skills/README.md`**
-   - Добавить запись о новом skill'е в каталог
-   - Указать номер, название, назначение, вход/выход, сложность, зависимости
-   - Сохранить сортировку по номерам
+4. **Update `skills/README.md`**
+   - Add an entry for the new skill to the catalog
+   - Specify the number, name, purpose, input/output, complexity, and dependencies
+   - Preserve sorting by number
 
-5. **Обновление `README.md`**
-   - Добавить ссылку на новый skill в секцию «Skill'и»
-   - Сохранить форматирование и порядок
+5. **Update `README.md`**
+   - Add a link to the new skill in the "Skills" section
+   - Preserve formatting and order
 
-6. **Валидация согласованности**
-   - Проверить, что все ссылки рабочие (файлы существуют)
-   - Проверить, что нумерация последовательная (без пропусков)
-   - Проверить, что каталог в `skills/README.md` синхронизирован с файлами в `skills/`
-   - Проверить, что в каждом файле есть все обязательные секции
+6. **Validate consistency**
+   - Check that all links are valid (files exist)
+   - Check that numbering is sequential (no gaps)
+   - Check that the catalog in `skills/README.md` is synchronized with the files in `skills/`
+   - Check that every file contains all mandatory sections
 
-## Шаблон нового skill'а
+## New Skill Template
 
 ```markdown
-# Skill: <Название>
+# Skill: <Name>
 
-## Назначение
-Краткое описание назначения (1-2 предложения)
+## Purpose
+Brief description of the purpose (1-2 sentences)
 
-## Входные данные
-- <данные 1>
-- <данные 2>
+## Input
+- <data 1>
+- <data 2>
 
-## Сценарий работы
-1. <шаг 1>
-2. <шаг 2>
+## Workflow
+1. <step 1>
+2. <step 2>
 ...
 
-## Шаблон <имя шаблона> (если применимо)
-<шаблон>
+## <Template Name> Template (if applicable)
+<template>
 
-## Выходные файлы
-- <файл 1> — описание
-- <файл 2> — описание
+## Output Files
+- <file 1> — description
+- <file 2> — description
 
-## Правила
-- <правило 1>
-- <правило 2>
+## Rules
+- <rule 1>
+- <rule 2>
 ```
 
-## Выходные файлы
-- `skills/NN_name.md` — файл нового skill'а
-- `skills/README.md` — обновлённый каталог
-- `README.md` — обновлённая документация
+## Output Files
+- `skills/NN_name.md` — new skill file
+- `skills/README.md` — updated catalog
+- `README.md` — updated documentation
 
-## Правила валидации
-- Нумерация без пропусков (01, 02, 03, ...)
-- Каталог в `skills/README.md` совпадает с файлами в `skills/`
-- Все ссылки в README.md рабочие
-- Каждый файл содержит все обязательные секции
-- Новые skill'ы не дублируют существующие
-- Зависимости между skill'ами явно указаны в `skills/README.md`
+## Validation Rules
+- Sequential numbering without gaps (01, 02, 03, ...)
+- The catalog in `skills/README.md` matches the files in `skills/`
+- All links in README.md are valid
+- Every file contains all mandatory sections
+- New skills do not duplicate existing ones
+- Dependencies between skills are explicitly stated in `skills/README.md`

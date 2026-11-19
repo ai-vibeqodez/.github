@@ -1,10 +1,10 @@
 # collect-release-assets — Collect build artifacts for GitHub Release
 #
-# Объединяет артефакты из нескольких jobs в единую директорию
-# перед созданием GitHub Release.
+# Combines artifacts from multiple jobs into a single directory
+# before creating a GitHub Release.
 #
-# Паттерн из production workflow:
-#   параллельные билды → collect → checksum → release
+# Pattern from production workflow:
+#   parallel builds → collect → checksum → release
 #
 # Usage:
 #   - name: Collect release assets
@@ -67,10 +67,10 @@ runs:
         OUT="${{ inputs.output_dir }}"
         VERSION="${{ inputs.version }}"
 
-        # Создаём структурированную директорию
+        # Create a structured directory
         mkdir -p "$OUT/$VERSION"
 
-        # Перемещаем артефакты в версию
+        # Move artifacts into versioned directory
         for f in "$OUT"/*; do
           [ -f "$f" ] && mv "$f" "$OUT/$VERSION/"
         done

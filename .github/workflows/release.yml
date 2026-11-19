@@ -1,9 +1,9 @@
 # Release — Publish GitHub Release from CHANGELOG
 #
-# Триггеры:
-#   - push тега v* → релиз из CHANGELOG
-#   - workflow_dispatch → ручной релиз с версией (input) или snapshot (v0.0.<run_number>)
-# Использует composite actions: release-version, changelog-release, checksums, docker-build-push
+# Triggers:
+#   - tag push v* → release from CHANGELOG
+#   - workflow_dispatch → manual release with version (input) or snapshot (v0.0.<run_number>)
+# Uses composite actions: release-version, changelog-release, checksums, docker-build-push
 
 name: Release
 
@@ -23,7 +23,7 @@ permissions:
   packages: write
   actions: write
 
-# Не отменяем релиз-запуски — они должны завершиться
+# Don't cancel release runs — they must complete
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false

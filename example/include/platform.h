@@ -6,55 +6,55 @@
 
 /**
  * @namespace aw::example::platform
- * @brief Кроссплатформенная абстракция для работы с динамическими библиотеками.
+ * @brief Cross-platform abstraction for dynamic library operations.
  *
- * Инкапсулирует все platform-specific детали:
- * - загрузка / выгрузка библиотек (LoadLibrary / dlopen)
- * - резолвинг символов (GetProcAddress / dlsym)
- * - поиск пути к библиотеке (GetModuleFileName + backslash / readlink + slash)
+ * Encapsulates all platform-specific details:
+ * - library loading / unloading (LoadLibrary / dlopen)
+ * - symbol resolution (GetProcAddress / dlsym)
+ * - library path lookup (GetModuleFileName + backslash / readlink + slash)
  */
 namespace aw::example::platform {
 
 /**
- * @brief Дескриптор загруженной динамической библиотеки.
+ * @brief Handle for a loaded dynamic library.
  *
- * Унифицированный void* — HMODULE на Windows приводится к void*.
+ * Unified void* — HMODULE on Windows is cast to void*.
  */
 struct LibraryHandle {
     void* handle = nullptr;
 };
 
 /**
- * @brief Загружает библиотеку по пути.
+ * @brief Loads a library by path.
  *
- * @param path Путь к библиотеке (пустая строка = системный поиск).
- * @return Дескриптор при успехе, std::nullopt при ошибке.
+ * @param path Library path (empty string = system search).
+ * @return Handle on success, std::nullopt on error.
  */
 std::optional<LibraryHandle> load_library(const std::string& path);
 
 /**
- * @brief Выгружает загруженную библиотеку.
+ * @brief Unloads the loaded library.
  *
- * @param lib Дескриптор библиотеки (модифицируется, становится null).
+ * @param lib Library handle (modified, becomes null).
  */
 void unload_library(LibraryHandle& lib);
 
 /**
- * @brief Резолвит символ из загруженной библиотеки.
+ * @brief Resolves a symbol from the loaded library.
  *
- * @param lib Дескриптор библиотеки.
- * @param name Имя символа.
- * @return Указатель на символ при успехе, nullptr при ошибке.
+ * @param lib Library handle.
+ * @param name Symbol name.
+ * @return Pointer to symbol on success, nullptr on error.
  */
 void* resolve_symbol(LibraryHandle& lib, std::string_view name);
 
 /**
- * @brief Ищет библиотеку плагина.
+ * @brief Searches for the plugin library.
  *
- * Порядок: ENV PLUGIN_PATH → рядом с executable → системный путь.
+ * Order: ENV PLUGIN_PATH → next to executable → system path.
  *
- * @return Путь к библиотеке или std::nullopt если не найдена.
- *         Пустая строка = системный поиск (delegate to loader).
+ * @return Library path or std::nullopt if not found.
+ *         Empty string = system search (delegate to loader).
  */
 std::optional<std::string> find_plugin();
 

@@ -1,30 +1,30 @@
 # Coverage Parser Action
 
-Composite GitHub Action для извлечения процента покрытия из `coverage.xml` или `coverage.lcov`.
+A composite GitHub Action for extracting the coverage percentage from `coverage.xml` or `coverage.lcov`.
 
-## Входные параметры (`inputs`)
+## Input parameters (`inputs`)
 
-| Параметр | Описание | Обязательный | По умолчанию |
+| Parameter | Description | Required | Default |
 | :--- | :--- | :---: | :--- |
-| `xml_path` | Путь к `coverage.xml` | Нет | `coverage.xml` |
-| `lcov_path` | Путь к `coverage.lcov` | Нет | `coverage.lcov` |
+| `xml_path` | Path to `coverage.xml` | No | `coverage.xml` |
+| `lcov_path` | Path to `coverage.lcov` | No | `coverage.lcov` |
 
-## Выходные параметры (`outputs`)
+## Output parameters (`outputs`)
 
-| Параметр | Описание | Пример |
+| Parameter | Description | Example |
 | :--- | :--- | :--- |
-| `percent` | Процент покрытия | `87%` |
-| `color` | Цвет бейджа (HEX) | `#44cc11` |
+| `percent` | Coverage percentage | `87%` |
+| `color` | Badge color (HEX) | `#44cc11` |
 
-## Логика цветов
+## Color logic
 
-| Диапазон | Цвет |
+| Range | Color |
 | :--- | :--- |
-| `< 50%` | `#e05d44` (красный) |
-| `50–79%` | `#dfb317` (жёлтый) |
-| `≥ 80%` | `#44cc11` (зелёный) |
+| `< 50%` | `#e05d44` (red) |
+| `50–79%` | `#dfb317` (yellow) |
+| `≥ 80%` | `#44cc11` (green) |
 
-## Пример использования
+## Usage example
 
 ```yaml
 - name: Parse Coverage

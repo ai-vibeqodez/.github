@@ -1,23 +1,23 @@
-# Task <NN>: <Название задачи>
+# Task <NN>: <Task Title>
 
-## Описание
-Краткое описание что нужно сделать
+## Description
+Brief description of what needs to be done
 
-## Контекст
-Почему это нужно, какие требования закрывает
+## Context
+Why this is needed, what requirements it addresses
 
-## Критерии готовности
-- [ ] Критерий 1
-- [ ] Критерий 2
-- [ ] Критерий 3
+## Completion Criteria
+- [ ] Criterion 1
+- [ ] Criterion 2
+- [ ] Criterion 3
 
-## Чек-лист выполнения
-- [ ] Шаг 1
-- [ ] Шаг 2
-- [ ] Шаг 3
+## Implementation Checklist
+- [ ] Step 1
+- [ ] Step 2
+- [ ] Step 3
 
-## Зависимости
-- Зависит от: task_XX.md
+## Dependencies
+- Depends on: task_XX.md
 
-## Результат
-Что было сделано (заполняется после выполнения)
+## Result
+What was done (to be filled in after completion)

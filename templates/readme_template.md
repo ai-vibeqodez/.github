@@ -1,29 +1,29 @@
-# <Название проекта>
+# <Project Name>
 
-> <Краткое описание одной строкой>
+> <One-line brief description>
 
-## Описание
-Что это и зачем нужно (2-3 абзаца)
+## Description
+What it is and why it's needed (2-3 paragraphs)
 
-## Быстрый старт
-<3-5 команд для запуска>
+## Quick Start
+<3-5 commands to get started>
 
-## Структура
+## Structure
 ```
-<дерево проекта>
+<project tree>
 ```
 
-## Использование
-Основные сценарии использования
+## Usage
+Main usage scenarios
 
-## Тестирование
-Как запустить тесты
+## Testing
+How to run tests
 
-## Документация
-Ссылки на документацию
+## Documentation
+Documentation links
 
-## Вклад
-Ссылка на CONTRIBUTING.md
+## Contributing
+Link to CONTRIBUTING.md
 
-## Лицензия
+## License
 MIT / Apache 2.0 / ...

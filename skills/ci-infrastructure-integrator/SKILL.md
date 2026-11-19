@@ -1,56 +1,56 @@
 ---
 name: ci-infrastructure-integrator
-description: Умная интеграция готовой CI/CD-инфраструктуры из репозитория-каталога в существующий проект без дублирования и с сохранением существующего кода
+description: Smart integration of ready-made CI/CD infrastructure from a catalog repository into an existing project without duplication and with preservation of existing code
 ---
 
-# Skill: Интегратор CI/CD-инфраструктуры
+# Skill: CI/CD Infrastructure Integrator
 
-## Назначение
-Интеграция готовой CI/CD-инфраструктуры из репозитория-каталога в существующий проект с помощью smart merge — без перезаписи, без дублирования, с сохранением всего ценного, что уже есть.
+## Purpose
+Integration of ready-made CI/CD infrastructure from a catalog repository into an existing project using smart merge — no overwriting, no duplication, preserving everything valuable that already exists.
 
-## Входные данные
-- Путь к целевому проекту (где интегрируем)
-- Путь к репозиторию-каталогу с готовой инфраструктурой (например, `/workspace/.github`)
-- Тип проекта (язык, сборщик, тестовый фреймворк — определяется автоматически, если не указан)
+## Input Data
+- Path to the target project (where we integrate)
+- Path to the catalog repository with ready-made infrastructure (e.g., `/workspace/.github`)
+- Project type (language, build system, test framework — determined automatically if not specified)
 
-## Сценарий работы
+## Workflow
 
-### 1. Исследование репозитория-каталога
-- Обойти структуру репозитория-каталога и определить, что в нём есть:
-  - CI/CD workflow-файлы (`ci/.github/workflows/` или аналогично)
-  - Composite actions / reusable actions (`ci/actions/` или аналогично)
-  - Шаблоны документации (`templates/`)
-  - Примеры проектов (`example/` или аналогично)
-- Не полагаться на предположения — исследовать репозиторий-каталог как живой репозиторий, он может развиваться
-- Сформировать карту доступных артефактов
+### 1. Catalog Repository Exploration
+- Traverse the structure of the catalog repository and determine what it contains:
+  - CI/CD workflow files (`ci/.github/workflows/` or similar)
+  - Composite actions / reusable actions (`ci/actions/` or similar)
+  - Documentation templates (`templates/`)
+  - Example projects (`example/` or similar)
+- Do not rely on assumptions — explore the catalog repository as a living repository; it may evolve
+- Build a map of available artifacts
 
-### 2. Анализ целевого проекта
-- Определить структуру проекта: язык, сборщик, тестовый фреймворк, зависимости
-- Проверить что уже есть: `.github/workflows/`, `README.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, `CMakeLists.txt` (или аналог)
-- Определить gaps: чего не хватает, что нужно добавить
+### 2. Target Project Analysis
+- Determine the project structure: language, build system, test framework, dependencies
+- Check what already exists: `.github/workflows/`, `README.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, `CMakeLists.txt` (or equivalent)
+- Identify gaps: what is missing, what needs to be added
 
-### 3. Smart merge workflow-файлов
-**НЕ перезаписывать файлы целиком.** Для каждого workflow-файла:
+### 3. Smart Merge of Workflow Files
+**Do NOT overwrite files entirely.** For each workflow file:
 
-- **Если файла нет в проекте** — создать из шаблона репозитория-каталога, адаптировав под стек проекта
-- **Если файл уже есть** — выполнить diff-merge:
-  - Что из шаблона ещё не реализовано → добавить
-  - Что в проекте есть, но нет в шаблоне → сохранить (если разумно)
-  - Где семантика отличается → адаптировать шаблон под проект, а не наоборот
-  - Заглушки заменить на реальные команды проекта
-  - Composite actions заменить на `uses:` ссылаясь на репозиторий-каталог
+- **If the file does not exist in the project** — create it from the catalog repository template, adapting it to the project stack
+- **If the file already exists** — perform a diff-merge:
+  - What from the template is not yet implemented → add it
+  - What exists in the project but not in the template → preserve (if reasonable)
+  - Where semantics differ → adapt the template to the project, not the other way around
+  - Replace placeholders with real project commands
+  - Replace composite action stubs with `uses:` references to the catalog repository
 
-### 4. Настройка сборочной системы
-Сравнить текущую сборочную конфигурацию с примером из репозитория-каталога (`example/` или аналог):
-- Добавить опции для тестов, покрытия кода, санитайзеров (если есть в шаблоне)
-- Подключить тестовый фреймворк (через FetchContent, vcpkg, Conan или аналог)
-- Настроить санитайзеры для Debug-билда
-- Настроить покрытие кода для генерации coverage-отчётов
-- **Не удалять** существующие таргеты и логику — добавлять новое
+### 4. Build System Configuration
+Compare the current build configuration with the example from the catalog repository (`example/` or equivalent):
+- Add options for tests, code coverage, sanitizers (if present in the template)
+- Integrate the test framework (via FetchContent, vcpkg, Conan, or equivalent)
+- Configure sanitizers for Debug builds
+- Configure code coverage for generating coverage reports
+- **Do NOT remove** existing targets and logic — add new ones
 
-### 5. Интеграция composite actions
-- **НЕ КОПИРОВАТЬ** composite actions в проект
-- Composite actions живут в репозитории-каталоге и используются через `uses:`:
+### 5. Composite Actions Integration
+- **DO NOT COPY** composite actions into the project
+- Composite actions live in the catalog repository and are used via `uses:`:
   ```yaml
   - name: Configure & Build
     uses: <repo-path>/ci/actions/<name>@main
@@ -58,39 +58,39 @@ description: Умная интеграция готовой CI/CD-инфраст
       source_dir: .
       build_type: Release
   ```
-- В workflow-файлах заменить заглушки на реальные `uses:` ссылки
+- Replace stubs in workflow files with real `uses:` references
 
-### 6. Документация
-- **README.md**: если нет — создать из шаблона. Если есть — добавить недостающие секции (бейджи, CI status, использование), не удаляя существующее
-- **CHANGELOG.md**: если нет — создать из шаблона. Если есть — добавить секцию `## [Unreleased]` с текущими изменениями, сохранив историю
-- **CONTRIBUTING.md**: если нет — создать из шаблона. Если есть — добавить недостающее
+### 6. Documentation
+- **README.md**: if it does not exist — create from the template. If it exists — add missing sections (badges, CI status, usage) without removing existing content
+- **CHANGELOG.md**: if it does not exist — create from the template. If it exists — add a `## [Unreleased]` section with current changes, preserving the history
+- **CONTRIBUTING.md**: if it does not exist — create from the template. If it exists — add missing content
 
-### 7. Валидация
-- Проверить синтаксическую валидность всех workflow-файлов
-- Проверить, что сборочная конфигурация соответствует структуре проекта
-- Убедиться, что ни одна существующая логика не потерялась при merge
-- Проверить, что все `uses:` ссылки указывают на существующие composite actions в репозитории-каталоге
+### 7. Validation
+- Check syntactic validity of all workflow files
+- Verify that the build configuration matches the project structure
+- Ensure that no existing logic was lost during the merge
+- Verify that all `uses:` references point to existing composite actions in the catalog repository
 
-## Правила
-- **Smart merge, не dummy copy** — никогда не перезаписывать файлы целиком
-- **Uses, не copy** — composite actions использовать через `uses:`, не копировать `action.yml` в проект
-- **Preserve existing** — не удалять существующий код, таргеты, workflow-файлы
-- **Adapt template to project, не наоборот** — шаблон адаптируется под проект, а не проект под шаблон
-- **Исследуй репозиторий-каталог** — он живой и развивается, не полагайся на предположения
-- **Один шаг за раз** — сначала анализ, потом merge, потом валидация
-- **Фиксируй изменения** — коммить осмысленными коммитами с Conventional Commits
+## Rules
+- **Smart merge, not dummy copy** — never overwrite files entirely
+- **Uses, not copy** — use composite actions via `uses:`, do not copy `action.yml` into the project
+- **Preserve existing** — do not delete existing code, targets, or workflow files
+- **Adapt template to project, not the other way around** — the template adapts to the project, not the project to the template
+- **Explore the catalog repository** — it is alive and evolving; do not rely on assumptions
+- **One step at a time** — analysis first, then merge, then validation
+- **Document changes** — commit with meaningful Conventional Commits
 
-## Выходные файлы
-- `.github/workflows/*.yml` — интегрированные workflow-файлы (smart merge)
-- `CMakeLists.txt` (или аналог) — обновлённая сборочная конфигурация
-- `README.md` — обновлённая документация
-- `CHANGELOG.md` — обновлённый changelog
-- `CONTRIBUTING.md` — обновлённый contributing
+## Output Files
+- `.github/workflows/*.yml` — integrated workflow files (smart merge)
+- `CMakeLists.txt` (or equivalent) — updated build configuration
+- `README.md` — updated documentation
+- `CHANGELOG.md` — updated changelog
+- `CONTRIBUTING.md` — updated contributing guide
 
-## Чего НЕ делать
-- ❌ Не перезаписывать файлы целиком
-- ❌ Не удалять существующие workflow-файлы, таргеты, опции
-- ❌ Не писать workflow-файлы с нуля — брать шаблон и адаптировать
-- ❌ Не копировать composite actions как `action.yml` в проект
-- ❌ Не изобретать структуру CHANGELOG — следовать шаблону
-- ❌ Не полагаться на память о содержимом репозитория-каталога — исследовать его
+## What NOT to Do
+- ❌ Do not overwrite files entirely
+- ❌ Do not delete existing workflow files, targets, or options
+- ❌ Do not write workflow files from scratch — take the template and adapt it
+- ❌ Do not copy composite actions as `action.yml` into the project
+- ❌ Do not invent a CHANGELOG structure — follow the template
+- ❌ Do not rely on memory about the catalog repository contents — explore it

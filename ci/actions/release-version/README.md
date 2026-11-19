@@ -1,27 +1,27 @@
 # Release Version Resolver
 
-Composite GitHub Action для резолва версии релиза.
+A composite GitHub Action for resolving the release version.
 
-## Входные параметры (`inputs`)
+## Input parameters (`inputs`)
 
-| Параметр | Описание | Обязательный | По умолчанию |
+| Parameter | Description | Required | Default |
 | :--- | :--- | :---: | :--- |
-| `version` | Ручная версия (например, `1.2.3`) | Нет | `''` |
+| `version` | Manual version (e.g., `1.2.3`) | No | `''` |
 
-## Выходные параметры (`outputs`)
+## Output parameters (`outputs`)
 
-| Параметр | Описание | Пример |
+| Parameter | Description | Example |
 | :--- | :--- | :--- |
-| `release_version` | Версия с `v` | `v1.2.3` |
-| `release_version_stripped` | Версия без `v` | `1.2.3` |
+| `release_version` | Version with `v` prefix | `v1.2.3` |
+| `release_version_stripped` | Version without `v` prefix | `1.2.3` |
 
-## Логика резолва
+## Resolution logic
 
-1. **Тег** (`push: tags: v*`) → `github.ref_name`
-2. **Workflow dispatch** с `version` инпутом → input без `v`
+1. **Tag** (`push: tags: v*`) → `github.ref_name`
+2. **Workflow dispatch** with `version` input → input without `v`
 3. **Fallback** → `v0.0.<run_number>`
 
-## Пример использования
+## Usage example
 
 ```yaml
 steps:

@@ -1,10 +1,10 @@
 # download-artifacts — Download and merge multiple GitHub Actions artifacts
 #
-# Обёртка над actions/download-artifacts@v4 для удобной загрузки
-# нескольких артефактов по паттерну с объединением в одну директорию.
+# A wrapper around actions/download-artifact@v4 for conveniently downloading
+# multiple artifacts by pattern and merging them into a single directory.
 #
-# Паттерн из production workflow:
-#   download-artifact с pattern + merge-multiple
+# Pattern from production workflow:
+#   download-artifact with pattern + merge-multiple
 #
 # Usage:
 #   - name: Download all release artifacts

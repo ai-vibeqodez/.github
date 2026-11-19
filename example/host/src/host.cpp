@@ -1,11 +1,11 @@
 /**
  * @file host.cpp
- * @brief Хост-приложение для динамической загрузки плагина.
+ * @brief Host application for dynamic plugin loading.
  *
- * В рантайме загружает библиотеку plugin (.so / .dll) и вызывает
- * экспортированные функции публичного API.
+ * At runtime loads the plugin library (.so / .dll) and calls
+ * exported public API functions.
  *
- * Platform-specific детали инкапсулированы в aw::example::platform.
+ * Platform-specific details are encapsulated in aw::example::platform.
  */
 
 #include "plugin.h"
@@ -19,14 +19,14 @@
 
 /**
  * @namespace aw::example::host
- * @brief Пространство имён хост-приложения.
+ * @brief Host application namespace.
  *
- * Содержит логику загрузки плагина и вызова его функций.
+ * Contains plugin loading logic and function invocation.
  */
 namespace aw::example::host {
 
 /**
- * @brief Типы функций плагина.
+ * @brief Plugin function types.
  */
 using version_fn     = int(*)();
 using compute_fn     = int(*)(int, int, int);
@@ -34,9 +34,9 @@ using version_str_fn = const char*(*)();
 using op_name_fn     = const char*(*) (int);
 
 /**
- * @brief Загружает плагин и резолвит все требуемые символы.
+ * @brief Loads the plugin and resolves all required symbols.
  *
- * @return std::pair<handle, symbols> при успехе, std::nullopt при ошибке.
+ * @return std::pair<handle, symbols> on success, std::nullopt on error.
  */
 inline std::optional<std::pair<
     aw::example::platform::LibraryHandle,
@@ -87,9 +87,9 @@ inline std::optional<std::pair<
 }
 
 /**
- * @brief Выполняет все операции плагина и выводит результаты.
+ * @brief Executes all plugin operations and outputs results.
  *
- * @param lib Дескриптор библиотеки.
+ * @param lib Library handle.
  * @param symbols std::tuple<version_fn, compute_fn, version_str_fn, op_name_fn>.
  */
 inline void run_plugin(
@@ -119,11 +119,11 @@ inline void run_plugin(
 } // namespace aw::example::host
 
 /**
- * @brief Точка входа хост-приложения.
+ * @brief Host application entry point.
  *
- * @param argc Аргументы командной строки.
- * @param argv Аргументы командной строки.
- * @return 0 при успехе, код ошибки при неудаче.
+ * @param argc Command line arguments.
+ * @param argv Command line arguments.
+ * @return 0 on success, error code on failure.
  */
 int main(int argc, char* argv[]) {
     (void)argc;
