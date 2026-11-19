@@ -58,7 +58,7 @@ Closes #NNN
 - [ ] Commit message follows Conventional Commits"
 ```
 
-Example title: `feat(#42): add user authentication endpoint (#42)`
+Example title: `feat(#42): add user authentication endpoint`
 
 ### Step 3: Self-review
 1. Run `gh pr diff <PR_NUMBER>` to see the full diff
