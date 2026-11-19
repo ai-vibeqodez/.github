@@ -1,0 +1,88 @@
+# clang-format — Check that C++ files are properly formatted
+#
+# Runs clang-format --dry-run --Werror on all C++ source and header files.
+# Fails the step if any file is not properly formatted (CI breaks on format violations).
+#
+# In a container (e.g. ci-cpp20) clang-format-18 is pre-installed.
+#
+# Usage:
+#   - name: Check formatting
+#     uses: ai-warevo/<repo>/.github/actions/clang-format@6cae36f7fe728c23b1a6170d09d6dace55edea77
+#     with:
+#       source_dir: .
+#       extensions: cpp,hpp
+#       config_file: .clang-format
+#       exclude: _deps/*,build/*
+
+name: 'Clang-Format Check'
+description: 'Check C++ formatting with clang-format, fail if any file is misformatted'
+
+inputs:
+  source_dir:
+    description: 'Source directory to check (relative to workspace)'
+    required: false
+    default: '.'
+  extensions:
+    description: 'File extensions to check, comma-separated'
+    required: false
+    default: 'cpp,hpp'
+  config_file:
+    description: 'clang-format config file path'
+    required: false
+    default: '.clang-format'
+  exclude:
+    description: 'Exclude patterns (comma-separated, passed to find -prune)'
+    required: false
+    default: '_deps/*,build/*,CMakeFiles/*,cmake/*'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Check clang-format
+      shell: bash
+      env:
+        SOURCE_DIR: ${{ inputs.source_dir }}
+        EXTENSIONS: ${{ inputs.extensions }}
+        CONFIG_FILE: ${{ inputs.config_file }}
+        EXCLUDE: ${{ inputs.exclude }}
+      run: |
+        set -euo pipefail
+
+        if [ ! -f "$CONFIG_FILE" ]; then
+          echo "::error::clang-format config not found: $CONFIG_FILE"
+          exit 1
+        fi
+
+        # Build find expression for extensions
+        FIND_EXPRS=()
+        IFS=',' read -ra EXT_LIST <<< "$EXTENSIONS"
+        for ext in "${EXT_LIST[@]}"; do
+          FIND_EXPRS+=(-name "*.${ext}")
+        done
+
+        # Build find exclude prune expressions
+        EXCLUDE_PRUNES=()
+        IFS=',' read -ra EXCLUDE_LIST <<< "$EXCLUDE"
+        for exc in "${EXCLUDE_LIST[@]}"; do
+          exc=$(echo "$exc" | xargs)  # trim whitespace
+          if [ -n "$exc" ]; then
+            EXCLUDE_PRUNES+=(-name "$exc" -prune -o)
+          fi
+        done
+
+        ERRORS=0
+        VIOLATIONS=""
+        while IFS= read -r -d '' file; do
+          if ! clang-format --dry-run --Werror --style=file:"$CONFIG_FILE" "$file" 2>&1; then
+            ERRORS=$((ERRORS + 1))
+            VIOLATIONS="$VIOLATIONS  - $file\n"
+            echo "::error::Format violation in $file"
+          fi
+        done < <(find "$SOURCE_DIR" "${EXCLUDE_PRUNES[@]}" "${FIND_EXPRS[@]}" -print0 2>/dev/null)
+
+        if [ "$ERRORS" -gt 0 ]; then
+          echo -e "clang-format found violations in $ERRORS file(s):\n$VIOLATIONS"
+          exit 1
+        else
+          echo "clang-format passed: all files properly formatted"
+        fi

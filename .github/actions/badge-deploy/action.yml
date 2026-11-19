@@ -1,0 +1,99 @@
+# badge-deploy — Deploy an SVG badge to a branch
+#
+# Copies an SVG badge to a staging directory and deploys it by pushing
+# directly to the target branch (no external actions required).
+#
+# Usage:
+#   - name: Deploy Badge
+#     uses: ai-warevo/<repo>/.github/actions/badge-deploy@6cae36f7fe728c23b1a6170d09d6dace55edea77
+#     with:
+#       badge_path: coverage.svg
+#       branch: badges
+#       target_folder: .
+
+name: 'Badge Deploy'
+description: 'Deploy an SVG badge to a branch (self-contained, no external actions)'
+
+inputs:
+  badge_path:
+    description: 'Path to the SVG badge file (relative to workspace)'
+    required: true
+  badge_filename:
+    description: 'Filename to use in the deploy folder (default: basename of badge_path)'
+    required: false
+    default: ''
+  branch:
+    description: 'Target branch'
+    required: false
+    default: 'badges'
+  target_folder:
+    description: 'Target folder on the branch'
+    required: false
+    default: '.'
+  token:
+    description: 'GitHub token for authentication (leave empty to use the runner token)'
+    required: false
+    default: ''
+
+runs:
+  using: 'composite'
+  steps:
+    # ── Isolate badge for deploy ──
+    - name: Isolate Badge for Deploy
+      shell: bash
+      run: |
+        BADGE_FILE="${{ github.workspace }}/${{ inputs.badge_path }}"
+        FILENAME="${{ inputs.badge_filename }}"
+        if [ -z "$FILENAME" ]; then
+          FILENAME=$(basename "$BADGE_FILE")
+        fi
+        mkdir -p badge-upload
+        cp "$BADGE_FILE" "badge-upload/$FILENAME"
+        echo "Deploying: badge-upload/$FILENAME → ${{ inputs.branch }}/${{ inputs.target_folder }}/"
+
+    # ── Deploy (self-contained, no external actions) ──
+    - name: Deploy Badge to Branch
+      shell: bash
+      env:
+        BRANCH: ${{ inputs.branch }}
+        TARGET: ${{ inputs.target_folder }}
+        GITHUB_TOKEN: ${{ inputs.token || github.token }}
+      run: |
+        set -euo pipefail
+        BRANCH="$BRANCH"
+        TARGET="$TARGET"
+
+        # Configure git
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+        # Ensure we can push
+        if [ -z "$GITHUB_TOKEN" ]; then
+          echo "::error::GITHUB_TOKEN is not set"
+          exit 1
+        fi
+
+        # Create or checkout the target branch
+        if git rev-parse --verify "$BRANCH" >/dev/null 2>&1; then
+          git checkout "$BRANCH"
+        else
+          git checkout --orphan "$BRANCH"
+        fi
+
+        # Copy badge to target folder (must happen before cleanup removes badge-upload/)
+        mkdir -p "$TARGET"
+        cp -r badge-upload/* "$TARGET/"
+
+        # Clean the working tree while preserving .git
+        git rm -rf --cached . 2>/dev/null || true
+        # Remove all files/dirs except .git
+        find . -mindepth 1 -not -name '.git' -not -path './.git/*' -not -path './.git' -exec rm -rf {} + 2>/dev/null || true
+
+        # Commit and push
+        git add -A
+        if git diff --cached --quiet; then
+          echo "No changes to deploy"
+          exit 0
+        fi
+        git commit -m "Deploy badge: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+        git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$BRANCH" --force

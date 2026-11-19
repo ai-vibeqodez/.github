@@ -139,11 +139,11 @@ Closes #NNN
 
 ## Adding a Composite Action
 
-1. Create the action in `ci/actions/<name>/action.yml` with a `README.md`.
+1. Create the action in `.github/actions/<name>/action.yml` with a `README.md`.
 2. **Pin to a 40-char commit SHA** in all workflows that reference it — never use `@main`.
 3. Resolve the latest SHA:
    ```bash
-   curl -s "https://api.github.com/repos/ai-warevo/.github/commits?path=ci/actions/<name>&per_page=1" \
+   curl -s "https://api.github.com/repos/ai-warevo/.github/commits?path=.github/actions/<name>&per_page=1" \
      | jq -r '.[0].sha'
    ```
 4. Add a `README.md` explaining inputs, outputs, and usage.

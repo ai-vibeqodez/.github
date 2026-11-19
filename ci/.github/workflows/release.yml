@@ -56,14 +56,14 @@ jobs:
       # 1. Generate [Unreleased] section from git log
       - name: Generate changelog
         id: generate
-        uses: ai-warevo/.github/ci/actions/changelog-generate@72e62471355bf347d09c7e183af5fd33bf41fbaf
+        uses: ai-warevo/.github/.github/actions/changelog-generate@72e62471355bf347d09c7e183af5fd33bf41fbaf
         with:
           force: 'true'
 
       # 2. Derive version from [Unreleased] categories and promote
       - name: Derive version and promote changelog
         id: promote
-        uses: ai-warevo/.github/ci/actions/changelog-promote@72e62471355bf347d09c7e183af5fd33bf41fbaf
+        uses: ai-warevo/.github/.github/actions/changelog-promote@72e62471355bf347d09c7e183af5fd33bf41fbaf
 
       # 3. Commit and tag
       - name: Commit and tag
@@ -99,7 +99,7 @@ jobs:
 
       - name: Resolve version
         id: version
-        uses: ai-warevo/.github/ci/actions/release-version@72e62471355bf347d09c7e183af5fd33bf41fbaf
+        uses: ai-warevo/.github/.github/actions/release-version@72e62471355bf347d09c7e183af5fd33bf41fbaf
         with:
           version: ${{ github.event.inputs.version }}
 
@@ -143,7 +143,7 @@ jobs:
 
       # ── C++ (CMake) ──
       # - name: Configure & Build
-      #   uses: ai-warevo/.github/ci/actions/cmake-build@3166e731dcbbe7827136a9232c983fb0c22a5911
+      #   uses: ai-warevo/.github/.github/actions/cmake-build@3166e731dcbbe7827136a9232c983fb0c22a5911
       #   with:
       #     source_dir: .
       #     build_dir: build
@@ -212,7 +212,7 @@ jobs:
 
       - name: Generate Release Body
         id: changelog
-        uses: ai-warevo/.github/ci/actions/changelog-release@72e62471355bf347d09c7e183af5fd33bf41fbaf
+        uses: ai-warevo/.github/.github/actions/changelog-release@72e62471355bf347d09c7e183af5fd33bf41fbaf
         with:
           tag: ${{ needs.build-example.outputs.release_version }}
 
@@ -224,13 +224,13 @@ jobs:
 
       - name: Generate checksums
         id: checksums_generate
-        uses: ai-warevo/.github/ci/actions/checksums@72e62471355bf347d09c7e183af5fd33bf41fbaf
+        uses: ai-warevo/.github/.github/actions/checksums@72e62471355bf347d09c7e183af5fd33bf41fbaf
         with:
           artifacts_dir: 'artifacts'
           checksums_file: 'SHA256SUMS.txt'
 
       - name: Verify checksums
-        uses: ai-warevo/.github/ci/actions/checksums-verify@3166e731dcbbe7827136a9232c983fb0c22a5911
+        uses: ai-warevo/.github/.github/actions/checksums-verify@3166e731dcbbe7827136a9232c983fb0c22a5911
         with:
           artifacts_dir: 'artifacts'
           checksums_file: 'SHA256SUMS.txt'
@@ -256,7 +256,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       - name: Build and push Docker image
-        uses: ai-warevo/.github/ci/actions/docker-build-push@3166e731dcbbe7827136a9232c983fb0c22a5911
+        uses: ai-warevo/.github/.github/actions/docker-build-push@3166e731dcbbe7827136a9232c983fb0c22a5911
         with:
           context: .
           dockerfile: Dockerfile

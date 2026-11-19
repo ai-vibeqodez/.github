@@ -69,7 +69,7 @@ Release is fully handled by CI — no local scripts needed.
 gh workflow run release.yml --ref main --field version=1.2.3
 ```
 
-The composite actions (`ci/actions/changelog-generate/`, `changelog-promote/`, `release-version/`, etc.) implement all release logic. They are referenced by SHA in `ci/.github/workflows/release.yml`.
+The composite actions (`.github/actions/changelog-generate/`, `changelog-promote/`, `release-version/`, etc.) implement all release logic. They are referenced by SHA in `ci/.github/workflows/release.yml`.
 
 ## AI skills (how they work)
 
@@ -142,31 +142,42 @@ For details: [`ai-warevo-git-github-push/SKILL.md`](skills/ai-warevo-git-github-
 
 ```
 ci/
-├── .github/workflows/
-│   ├── pr-fast.yml       # PR tier: lint + build + test
-│   ├── weekly-deep.yml   # Scheduled tier: deep tests + coverage
-│   └── release.yml       # Release tier: build + release + publish
-└── actions/
-    ├── badge/              # SVG coverage badge generation
-    ├── changelog-generate/ # generate [Unreleased] from git log
-    ├── changelog-promote/  # promote [Unreleased] to version heading
-    ├── changelog-release/  # release body from CHANGELOG.md
-    ├── checksums/          # SHA256SUMS generation
-    ├── checksums-verify/   # SHA256SUMS verification
-    ├── collect-release-assets/  # download build artifacts
-    ├── coverage-parser/    # parse coverage XML/LCOV
-    ├── coverage-html-deploy/  # deploy HTML report to gh-pages
-    ├── docker-build-push/  # Docker Buildx + login + push
-    ├── docker-push-ghcr/   # push image to GHCR
-    ├── docker-save/        # save image to tarball
-    ├── download-artifacts/ # download artifacts from other jobs
-    ├── release-version/    # resolve version from tag/input/run_number
-    └── cmake-build/        # CMake configure + build wrapper
+└── .github/workflows/
+    ├── pr-fast.yml       # PR tier: lint + build + test
+    ├── weekly-deep.yml   # Scheduled tier: deep tests + coverage
+    └── release.yml       # Release tier: build + release + publish
+
+.github/
+├── actions/
+│   ├── badge/              # SVG coverage badge generation
+│   ├── changelog-generate/ # generate [Unreleased] from git log
+│   ├── changelog-promote/  # promote [Unreleased] to version heading
+│   ├── changelog-release/  # release body from CHANGELOG.md
+│   ├── checksums/          # SHA256SUMS generation
+│   ├── checksums-verify/   # SHA256SUMS verification
+│   ├── clang-format/       # run clang-format --dry-run --Werror
+│   ├── clang-tidy/         # run clang-tidy checks
+│   ├── cmake-build/        # CMake configure + build wrapper
+│   ├── collect-release-assets/  # download build artifacts
+│   ├── coverage-html-deploy/  # deploy HTML report to gh-pages
+│   ├── coverage-parser/    # parse coverage XML/LCOV
+│   ├── ctest-run/          # run ctest with options
+│   ├── docker-build-push/  # Docker Buildx + login + push
+│   ├── docker-push-ghcr/   # push image to GHCR
+│   ├── docker-save/        # save image to tarball
+│   ├── download-artifacts/ # download artifacts from other jobs
+│   ├── gcovr-report/       # generate coverage LCOV/XML report
+│   ├── release-version/    # resolve version from tag/input/run_number
+│   └── setup-toolchain/    # C++ toolchain setup with sanitizer args
+└── workflows/
+    ├── actions-test.yml    # Monorepo: test all composite actions
+    ├── example-ci.yml      # Monorepo: full C++ CI pipeline
+    └── release.yml         # Monorepo: release pipeline
 ```
 
 ### Composite action conventions
 
-- Each action lives in `ci/actions/<name>/action.yml` with a `README.md`.
+- Each action lives in `.github/actions/<name>/action.yml` with a `README.md`.
 - Actions accept inputs, produce outputs (via `$GITHUB_OUTPUT`).
 - Always pin to a **40-char commit SHA** (not `@main` or a branch tag) in workflows that reference them.
 - Actions should be **idempotent** and **self-healing** (retry on transient failures).
@@ -177,7 +188,7 @@ Pinning to `@main` is a supply-chain risk: a compromised branch can inject malic
 
 ```sh
 # Composite action: resolve SHA for a directory
-curl -s "https://api.github.com/repos/ai-warevo/<repo>/commits?path=ci/actions/<name>&per_page=1" \
+curl -s "https://api.github.com/repos/ai-warevo/<repo>/commits?path=.github/actions/<name>&per_page=1" \
   | jq -r '.[0].sha'
 
 # Third-party action: resolve SHA for a tagged ref
@@ -192,7 +203,7 @@ Update the SHA whenever the upstream action receives a meaningful update. Add a 
 - Use `concurrency` blocks to cancel stale runs on the same branch/PR.
 - Use `needs` to establish job dependencies; keep the graph shallow.
 - Matrix jobs for multi-platform/multi-version testing; single jobs for release.
-- All workflows reference shared composite actions from `ai-warevo/<repo>/ci/actions/<name>@<40-char-SHA>`.
+- All workflows reference shared composite actions from `ai-warevo/<repo>/.github/actions/<name>@<40-char-SHA>`.
 
 ## Documentation & comments
 

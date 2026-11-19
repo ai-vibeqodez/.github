@@ -1,0 +1,69 @@
+# docker-save — Save Docker image as tar artifact
+#
+# Exports a Docker image to a tar file and saves it as a GitHub Actions
+# artifact. Used in the production workflow to transfer images between
+# jobs (build → release).
+#
+# Pattern from production workflow:
+#   docker build → docker save → upload-artifact
+#
+# Usage:
+#   - name: Save Docker image
+#     uses: ai-warevo/<repo>/.github/actions/docker-save@72e62471355bf347d09c7e183af5fd33bf41fbaf
+#     with:
+#       image: myapp/backend
+#       tag: '1.2.3'
+#       output: backend-image.tar
+
+name: 'Docker Save Image'
+description: 'Save a Docker image as a tar file and upload as artifact'
+
+inputs:
+  image:
+    description: 'Docker image name (e.g. myapp/backend)'
+    required: true
+  tag:
+    description: 'Image tag (e.g. 1.2.3 or latest)'
+    required: false
+    default: 'latest'
+  output:
+    description: 'Output tar filename'
+    required: false
+    default: 'image.tar'
+  artifact_name:
+    description: 'GitHub Actions artifact name'
+    required: false
+    default: 'docker-image'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Export Docker image to tar
+      shell: bash
+      run: |
+        IMAGE="${{ inputs.image }}:${{ inputs.tag }}"
+        OUTPUT="${{ inputs.output }}"
+
+        echo "Saving Docker image: $IMAGE"
+        docker save "$IMAGE" -o "$OUTPUT"
+
+        SIZE=$(du -h "$OUTPUT" | cut -f1)
+        echo "Saved image to $OUTPUT ($SIZE)"
+        ls -lh "$OUTPUT"
+
+    - name: Upload Docker image artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.artifact_name }}
+        path: ${{ inputs.output }}
+        retention-days: 1
+        compression-level: 0
+
+    - name: Image metadata
+      id: metadata
+      shell: bash
+      run: |
+        IMAGE="${{ inputs.image }}:${{ inputs.tag }}"
+        echo "image=$IMAGE" >> $GITHUB_OUTPUT
+        echo "artifact_name=${{ inputs.artifact_name }}" >> $GITHUB_OUTPUT
+        echo "image saved: $IMAGE → ${{ inputs.artifact_name }}"

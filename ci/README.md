@@ -63,7 +63,7 @@ Reusable workflows default to `contents: read`. Only the release publication job
 
 ## Composite Actions
 
-All composite actions live in `ci/actions/` and are referenced by consumer workflows using `ai-warevo/.github/ci/actions/<name>@<40-char-SHA>`. Each action has its own `README.md` with inputs, outputs, and usage examples.
+All composite actions live in `.github/actions/` and are referenced by consumer workflows using `ai-warevo/.github/.github/actions/<name>@<40-char-SHA>`. Each action has its own `README.md` with inputs, outputs, and usage examples.
 
 | Action | Purpose |
 | --- | --- |

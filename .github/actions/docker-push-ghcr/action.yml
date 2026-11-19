@@ -1,0 +1,105 @@
+# docker-push-ghcr — Load and push Docker image to GitHub Container Registry
+#
+# Loads a Docker image from a tar artifact and pushes it to GHCR with
+# :vX.Y.Z and :latest tags. Used during the release phase.
+#
+# Pattern from production workflow:
+#   download-artifact (docker-image) → docker load → docker push
+#
+# Usage:
+#   - name: Push to GHCR
+#     uses: ai-warevo/<repo>/.github/actions/docker-push-ghcr@72e62471355bf347d09c7e183af5fd33bf41fbaf
+#     with:
+#       image: ghcr.io/myorg/myapp
+#       version: '1.2.3'
+#       token: ${{ secrets.GITHUB_TOKEN }}
+
+name: 'Docker Push to GHCR'
+description: 'Load Docker image from artifact and push to GitHub Container Registry'
+
+inputs:
+  image:
+    description: 'Full GHCR image name (e.g. ghcr.io/org/repo)'
+    required: true
+  version:
+    description: 'Release version for tagging (e.g. 1.2.3)'
+    required: true
+  artifact_name:
+    description: 'Name of the docker image artifact'
+    required: false
+    default: 'docker-image'
+  artifact_path:
+    description: 'Filename of the tar inside the artifact (default: image.tar)'
+    required: false
+    default: 'image.tar'
+  token:
+    description: 'GitHub token for GHCR authentication'
+    required: false
+    default: ${{ github.token }}
+  push_latest:
+    description: 'Also push :latest tag (default: true)'
+    required: false
+    default: 'true'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Download Docker image artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ inputs.artifact_name }}
+        path: .
+
+    - name: Load Docker image
+      shell: bash
+      run: |
+        IMAGE="${{ inputs.image }}"
+        VERSION="${{ inputs.version }}"
+
+        echo "Loading Docker image from artifact..."
+        docker load -i "${{ inputs.artifact_path }}"
+
+        # docker load may restore the image under a different name;
+        # find the most recently loaded image and tag it.
+        LOADED=$(docker images --format '{{.Repository}}:{{.Tag}}' --filter "reference=${{ inputs.artifact_path }}" 2>/dev/null | head -n1)
+        if [ -z "$LOADED" ]; then
+          # fallback: use the first non-sha256:<none> image
+          LOADED=$(docker images --format '{{.Repository}}:{{.Tag}}' --filter "dangling=false" | grep -v '<none>' | tail -n1)
+        fi
+        [ -n "$LOADED" ] || { echo "::error::Could not find loaded image"; exit 1; }
+
+        echo "Tagging image..."
+        docker tag "$LOADED" "$IMAGE:v$VERSION"
+
+        if [ "${{ inputs.push_latest }}" = "true" ]; then
+          docker tag "$LOADED" "$IMAGE:latest"
+          echo "Tagged as $IMAGE:latest"
+        fi
+
+        echo "Loaded images:"
+        docker images "$IMAGE"
+
+    - name: Login to GHCR
+      shell: bash
+      run: |
+        echo "${{ inputs.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+    - name: Push to GHCR
+      shell: bash
+      run: |
+        IMAGE="${{ inputs.image }}"
+        VERSION="${{ inputs.version }}"
+
+        echo "Pushing $IMAGE:v$VERSION..."
+        docker push "$IMAGE:v$VERSION"
+
+        if [ "${{ inputs.push_latest }}" = "true" ]; then
+          echo "Pushing $IMAGE:latest..."
+          docker push "$IMAGE:latest"
+        fi
+
+        echo "✅ Image pushed to GHCR:"
+        echo "   $IMAGE:v$VERSION"
+        if [ "${{ inputs.push_latest }}" = "true" ]; then
+          echo "   $IMAGE:latest"
+        fi

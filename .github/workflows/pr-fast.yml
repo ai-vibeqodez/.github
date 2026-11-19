@@ -1,0 +1,87 @@
+# pr-fast — lint + build + unit tests on PR
+#
+# Triggers: pull_request / merge_group to main/master
+# Jobs: clang-format, clang-tidy, cmake-build, ctest-run
+
+name: pr-fast
+
+on:
+  pull_request:
+    branches: [main, master]
+  merge_group:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  clang-format:
+    name: clang-format
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/ai-warevo/ci-cpp20
+      options: --user root
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Check formatting
+        uses: ai-warevo/.github/ci/actions/clang-format@7c51dfd5a5d167b1dc308362aa6626da659c952d
+        with:
+          source_dir: .
+          extensions: "cpp,hpp,c,h"
+
+  clang-tidy:
+    name: clang-tidy
+    runs-on: ubuntu-latest
+    needs: clang-format
+    container:
+      image: ghcr.io/ai-warevo/ci-cpp20
+      options: --user root
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Configure & Build
+        uses: ai-warevo/.github/ci/actions/cmake-build@6e7a9d80109fde4952825dcad6da7bb11033b8ad
+        with:
+          source_dir: example
+          build_dir: build
+          build_type: Debug
+          extra_args: -DAW_EXAMPLE_BUILD_TESTS=ON
+
+      - name: Run clang-tidy
+        uses: ai-warevo/.github/ci/actions/clang-tidy@2e4c879efbbe7317761ce3567486cffd49970ec3
+        with:
+          source_dir: example
+          build_dir: build
+
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/ai-warevo/ci-cpp20
+      options: --user root
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Configure & Build
+        uses: ai-warevo/.github/ci/actions/cmake-build@6e7a9d80109fde4952825dcad6da7bb11033b8ad
+        with:
+          source_dir: example
+          build_dir: build
+          build_type: Debug
+          extra_args: -DAW_EXAMPLE_BUILD_TESTS=ON
+
+      - name: Run Tests
+        uses: ai-warevo/.github/ci/actions/ctest-run@1f54d0c440088e71c26d5a9d68b2615b22c8ad3e
+        with:
+          source_dir: example
+          build_dir: build
+          config: Debug
+          output_on_failure: 'true'

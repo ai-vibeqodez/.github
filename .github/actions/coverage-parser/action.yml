@@ -1,0 +1,79 @@
+# coverage-parser — Extract coverage percentage from coverage.xml or coverage.lcov
+#
+# Reads line-rate from coverage.xml (preferred) or computes from coverage.lcov.
+# Returns the percentage and a badge color (HEX + GitHub color name).
+#
+# Usage:
+#   - name: Parse Coverage
+#     id: parser
+#     uses: ai-warevo/<repo>/.github/actions/coverage-parser@72e62471355bf347d09c7e183af5fd33bf41fbaf
+#     with:
+#       xml_path: coverage.xml
+#       lcov_path: coverage.lcov
+
+name: 'Coverage Parser'
+description: 'Extract coverage percentage and badge color from coverage.xml or coverage.lcov'
+
+inputs:
+  xml_path:
+    description: 'Path to coverage.xml'
+    required: false
+    default: 'coverage.xml'
+  lcov_path:
+    description: 'Path to coverage.lcov'
+    required: false
+    default: 'coverage.lcov'
+
+outputs:
+  percent:
+    description: 'Coverage percentage (integer, 0-100)'
+    value: ${{ steps.parse.outputs.percent }}
+  color:
+    description: 'Badge color (HEX)'
+    value: ${{ steps.parse.outputs.color }}
+  github_color:
+    description: 'Badge color (GitHub Actions color name: brightgreen, yellow, red)'
+    value: ${{ steps.parse.outputs.github_color }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Parse coverage metrics
+      id: parse
+      shell: bash
+      env:
+        XML_PATH: ${{ inputs.xml_path }}
+        LCOV_PATH: ${{ inputs.lcov_path }}
+      run: |
+        set -euo pipefail
+        PERCENTAGE=0
+
+        # Try XML first (preferred — more accurate)
+        if [ -f "$XML_PATH" ]; then
+          PERCENTAGE=$(grep -oP 'line-rate="\K[0-9.]+' "$XML_PATH" | head -1 | awk '{printf "%d", $1 * 100}')
+          echo "Parsed from coverage.xml: ${PERCENTAGE}%"
+        fi
+
+        # Fallback to lcov
+        if [ "$PERCENTAGE" = "0" ] && [ -f "$LCOV_PATH" ]; then
+          PERCENTAGE=$(grep '^DA:' "$LCOV_PATH" | awk -F'[:,]' '{total++; if($3>0) covered++} END {if(total>0) printf "%d", (covered/total)*100; else print 0}')
+          echo "Parsed from coverage.lcov: ${PERCENTAGE}%"
+        fi
+
+        : "${PERCENTAGE:=0}"
+
+        # Determine color
+        if [ "$PERCENTAGE" -ge 80 ]; then
+          COLOR="#44cc11"
+          GITHUB_COLOR="brightgreen"
+        elif [ "$PERCENTAGE" -ge 50 ]; then
+          COLOR="#dfb317"
+          GITHUB_COLOR="yellow"
+        else
+          COLOR="#e05d44"
+          GITHUB_COLOR="red"
+        fi
+
+        echo "percent=${PERCENTAGE}" >> "$GITHUB_OUTPUT"
+        echo "color=${COLOR}" >> "$GITHUB_OUTPUT"
+        echo "github_color=${GITHUB_COLOR}" >> "$GITHUB_OUTPUT"

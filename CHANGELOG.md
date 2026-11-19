@@ -352,7 +352,7 @@ Maintainer notes:
 ### Fixed
 
 - `release.yml`: download artifacts by exact name into shared dir, reference correct filenames (libplugin.so, host) instead of pattern-based download with mismatched names
-- `example-ci.yml`: correct coverage-parser path, use published `ai-warevo/.github/ci/actions/coverage-parser@main`
+- `example-ci.yml`: correct coverage-parser path, use published `ai-warevo/.github/.github/actions/coverage-parser@main`
 
 ## [1.0.1] - 2026-11-15
 

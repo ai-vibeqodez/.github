@@ -62,12 +62,12 @@ jobs:
 
       # ── C++ ──
       # - name: Configure & Build
-      #   uses: ai-warevo/.github/ci/actions/cmake-build@3166e731dcbbe7827136a9232c983fb0c22a5911
+      #   uses: ai-warevo/.github/.github/actions/cmake-build@3166e731dcbbe7827136a9232c983fb0c22a5911
       #   with:
       #     source_dir: .
       #     build_type: Debug
       # - name: Run Tests
-      #   uses: ai-warevo/.github/ci/actions/ctest-run@3166e731dcbbe7827136a9232c983fb0c22a5911
+      #   uses: ai-warevo/.github/.github/actions/ctest-run@3166e731dcbbe7827136a9232c983fb0c22a5911
       #   with:
       #     source_dir: .
       #     build_dir: build
@@ -113,7 +113,7 @@ jobs:
 
       # ── C++: generate coverage.xml ──
       # - name: Generate Coverage
-      #   uses: ai-warevo/.github/ci/actions/gcovr-report@3166e731dcbbe7827136a9232c983fb0c22a5911
+      #   uses: ai-warevo/.github/.github/actions/gcovr-report@3166e731dcbbe7827136a9232c983fb0c22a5911
       #   with:
       #     source_dir: .
       #     build_dir: build
@@ -137,11 +137,11 @@ jobs:
 
       - name: Parse Coverage Metrics
         id: coverage_parser
-        uses: ai-warevo/.github/ci/actions/coverage-parser@3166e731dcbbe7827136a9232c983fb0c22a5911
+        uses: ai-warevo/.github/.github/actions/coverage-parser@3166e731dcbbe7827136a9232c983fb0c22a5911
 
       - name: Generate Coverage Badge
         id: badge_generator
-        uses: ai-warevo/.github/ci/actions/badge@3166e731dcbbe7827136a9232c983fb0c22a5911
+        uses: ai-warevo/.github/.github/actions/badge@3166e731dcbbe7827136a9232c983fb0c22a5911
         with:
           width: '99'
           height: '20'
@@ -151,12 +151,12 @@ jobs:
           filename: 'coverage.svg'
 
       - name: Deploy Badge
-        uses: ai-warevo/.github/ci/actions/badge-deploy@3166e731dcbbe7827136a9232c983fb0c22a5911
+        uses: ai-warevo/.github/.github/actions/badge-deploy@3166e731dcbbe7827136a9232c983fb0c22a5911
         with:
           badge_path: coverage.svg
 
       - name: Deploy Coverage HTML
         if: hashFiles('htmlcov/index.html') != ''
-        uses: ai-warevo/.github/ci/actions/coverage-html-deploy@3166e731dcbbe7827136a9232c983fb0c22a5911
+        uses: ai-warevo/.github/.github/actions/coverage-html-deploy@3166e731dcbbe7827136a9232c983fb0c22a5911
         with:
           folder: htmlcov

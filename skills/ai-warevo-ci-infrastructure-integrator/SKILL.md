@@ -52,7 +52,7 @@ Integration of ready-made CI/CD infrastructure from a catalog repository into an
 ### 1. Catalog Repository Exploration
 - Traverse the structure of the catalog repository and determine what it contains:
   - CI/CD workflow files (`ci/.github/workflows/` or similar)
-  - Composite actions / reusable actions (`ci/actions/` or similar)
+  - Composite actions / reusable actions (`.github/actions/` or similar)
   - Documentation templates (`templates/`)
   - Example projects (`example/` or similar)
 - Do not rely on assumptions — explore the catalog repository as a living repository; it may evolve
@@ -87,7 +87,7 @@ Compare the current build configuration with the example from the catalog reposi
 - Composite actions live in the catalog repository and are used via `uses:`:
   ```yaml
   - name: Configure & Build
-    uses: <repo-path>/ci/actions/<name>@main
+    uses: <repo-path>/.github/actions/<name>@main
     with:
       source_dir: .
       build_type: Release

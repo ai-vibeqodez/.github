@@ -26,13 +26,11 @@ ai-warevo/.github/
 │   └── actions/                 # Composite actions (19 total)
 │
 ├── templates/                   # Reusable file skeletons
-│   ├── github/workflows/        # Workflow templates for consumers
 │   ├── readme_template.md
 │   ├── overview.md
 │   ├── contributing_template.md
 │   ├── task_template.md
-│   ├── changelog_template.md
-│   └── Makefile.ci
+│   └── changelog_template.md
 │
 ├── skills/                      # AI agent skills
 │   ├── ai-warevo-orchestrator/
@@ -150,7 +148,7 @@ The repository provides 19 composite actions organized by function:
 All action references in workflows are pinned to 40-char commit SHAs:
 
 ```yaml
-- uses: ai-warevo/.github/ci/actions/cmake-build@abc123def456...
+- uses: ai-warevo/.github/.github/actions/cmake-build@abc123def456...
 ```
 
 ## Workflow Hierarchy
@@ -275,7 +273,6 @@ templates/
 ├── contributing_template.md   # Contributing guide skeleton
 ├── task_template.md           # Task definition skeleton
 ├── changelog_template.md      # Changelog skeleton
-└── Makefile.ci                # Makefile contract scaffold
 ```
 
 ### Template Consumption
@@ -284,9 +281,9 @@ Consumer projects copy templates during setup:
 
 ```bash
 mkdir -p .github/workflows
-cp templates/github/workflows/pr.yml .github/workflows/pr.yml
-cp templates/github/workflows/scheduled.yml .github/workflows/scheduled.yml
-cp templates/github/workflows/release.yml .github/workflows/release.yml
+cp ci/.github/workflows/pr-fast.yml .github/workflows/pr-fast.yml
+cp ci/.github/workflows/weekly-deep.yml .github/workflows/weekly-deep.yml
+cp ci/.github/workflows/release.yml .github/workflows/release.yml
 ```
 
 ## Example Project

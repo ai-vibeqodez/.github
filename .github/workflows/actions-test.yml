@@ -1,4 +1,4 @@
-# actions-test — Test every composite action in ci/actions/
+# actions-test — Test every composite action in .github/actions/
 #
 # Manual dispatch only (workflow_dispatch). Copies to consumer repos and
 # references actions via ai-warevo/.github/ci/actions/<name>@<sha>.

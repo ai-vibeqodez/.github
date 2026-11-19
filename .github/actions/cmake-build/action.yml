@@ -1,0 +1,106 @@
+# cmake-build — Configure, build, and optionally install with CMake
+#
+# Wraps the standard CMake configure → build → install lifecycle into a single
+# reusable step. Supports multi-config generators (MSVC) via the `config` input
+# and optional `cmake --install`.
+#
+# In a container-based CI (e.g. ghcr.io/ai-warevo/ci-cpp20) all compilers and
+# tools are pre-installed. This action simply passes through the arguments.
+#
+# Usage:
+#   - name: Configure & Build
+#     uses: ai-warevo/<repo>/.github/actions/cmake-build@6cae36f7fe728c23b1a6170d09d6dace55edea77
+#     with:
+#       source_dir: .
+#       build_dir: build
+#       build_type: Debug
+#       extra_args: -DAW_TPL_BUILD_TESTS=ON
+#   # With toolchain args from setup-toolchain:
+#   - uses: ai-warevo/<repo>/.github/actions/cmake-build@6cae36f7fe728c23b1a6170d09d6dace55edea77
+#     with:
+#       extra_args: "${{ steps.tc.outputs.cmake_args }} -DAW_TPL_WARNINGS_AS_ERRORS=ON"
+
+name: 'CMake Build'
+description: 'Configure, build, and optionally install a CMake project'
+
+inputs:
+  source_dir:
+    description: 'Source directory (relative to workspace)'
+    required: false
+    default: '.'
+  build_dir:
+    description: 'Build directory (relative to source_dir)'
+    required: false
+    default: 'build'
+  build_type:
+    description: 'CMAKE_BUILD_TYPE (Debug, Release, RelWithDebInfo, MinSizeRel)'
+    required: false
+    default: 'Release'
+  extra_args:
+    description: 'Additional CMake configure arguments (space-separated)'
+    required: false
+    default: ''
+  parallel:
+    description: 'Use --parallel for build (default: true)'
+    required: false
+    default: 'true'
+  config:
+    description: 'Build config for multi-config generators (e.g. Release for MSVC). Empty = auto-detect from build_type.'
+    required: false
+    default: ''
+  install:
+    description: 'Run cmake --install after build (default: false)'
+    required: false
+    default: 'false'
+
+runs:
+  using: 'composite'
+  steps:
+    # ── Configure CMake ──
+    - name: Configure CMake
+      shell: bash
+      env:
+        SOURCE_DIR: ${{ inputs.source_dir }}
+        BUILD_DIR: ${{ inputs.build_dir }}
+        BUILD_TYPE: ${{ inputs.build_type }}
+        EXTRA_ARGS: ${{ inputs.extra_args }}
+      run: |
+        set -euo pipefail
+        echo "Configuring: cmake -S $SOURCE_DIR -B $SOURCE_DIR/$BUILD_DIR -DCMAKE_BUILD_TYPE=$BUILD_TYPE $EXTRA_ARGS"
+        cmake -S "$SOURCE_DIR" -B "$SOURCE_DIR/$BUILD_DIR" \
+          -DCMAKE_BUILD_TYPE="$BUILD_TYPE" $EXTRA_ARGS
+
+    # ── Build ──
+    - name: Build
+      shell: bash
+      env:
+        SOURCE_DIR: ${{ inputs.source_dir }}
+        BUILD_DIR: ${{ inputs.build_dir }}
+        CONFIG: ${{ inputs.config }}
+      run: |
+        set -euo pipefail
+        PARALLEL_FLAG="${{ inputs.parallel == 'true' && '--parallel' || '' }}"
+        if [ -n "${CONFIG}" ]; then
+          CONFIG_FLAG="--config $CONFIG"
+        else
+          CONFIG_FLAG=""
+        fi
+        echo "Building: cmake --build $SOURCE_DIR/$BUILD_DIR $PARALLEL_FLAG $CONFIG_FLAG"
+        cmake --build "$SOURCE_DIR/$BUILD_DIR" $PARALLEL_FLAG $CONFIG_FLAG
+
+    # ── Install (optional) ──
+    - name: Install CMake Package
+      if: inputs.install == 'true'
+      shell: bash
+      env:
+        SOURCE_DIR: ${{ inputs.source_dir }}
+        BUILD_DIR: ${{ inputs.build_dir }}
+        CONFIG: ${{ inputs.config }}
+      run: |
+        set -euo pipefail
+        if [ -n "${CONFIG}" ]; then
+          CONFIG_FLAG="--config $CONFIG"
+        else
+          CONFIG_FLAG=""
+        fi
+        cmake --install "$SOURCE_DIR/$BUILD_DIR" $CONFIG_FLAG
