@@ -2,7 +2,7 @@
 
 > <One-line brief description — what this project does and why it exists>
 
-[![CI](https://github.com/<owner>/<repo>/actions/workflows/ci.yml/badge.svg)](https://github.com/<owner>/<repo>/actions/workflows/ci.yml)
+[![CI](https://github.com/<owner>/<repo>/actions/workflows/pr-fast.yml/badge.svg)](https://github.com/<owner>/<repo>/actions/workflows/pr-fast.yml)
 [![Coverage](https://raw.githubusercontent.com/<owner>/<repo>/badges/coverage.svg)](https://raw.githubusercontent.com/<owner>/<repo>/badges/coverage.svg)
 [![Release](https://img.shields.io/github/v/release/<owner>/<repo)](https://github.com/<owner>/<repo>/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -44,8 +44,6 @@ For detailed setup instructions, see [CONTRIBUTING.md](CONTRIBUTING.md).
 ├── src/            # Source code
 ├── tests/          # Test files
 ├── docs/           # Documentation
-├── scripts/        # Utility scripts
-├── templates/      # Reusable templates (if applicable)
 ├── ci/             # CI/CD configuration (if applicable)
 ├── Makefile        # Build and test targets
 ├── README.md       # This file
@@ -85,7 +83,7 @@ make test-unit
 make test-integration
 
 # Run with coverage
-make ci-coverage
+make weekly-deep
 ```
 
 ## Documentation

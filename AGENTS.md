@@ -8,7 +8,7 @@ Guidance for working on an `ai-warevo/<repo>`. Read `README.md` for the user-fac
 
 - **AI skills** (`skills/`) — agent-facing tool definitions for ai-warevo-analyst, ai-warevo-planner, ai-warevo-executor, ai-warevo-skill-creator, ai-warevo-git-github-push.
 - **Templates** (`templates/`) — OVERVIEW, task, README, CHANGELOG, CONTRIBUTING markdown skeletons.
-- **CI/CD** (`ci/`) — GitHub Actions reusable workflows (`ci.yml`, `test.yml`, `release.yml`) and composite actions (`badge/`, `changelog-release/`, `checksums/`, `coverage-parser/`, `docker-build-push/`, etc.).
+- **CI/CD** (`ci/`) — GitHub Actions reusable workflows (`pr-fast.yml`, `weekly-deep.yml`, `release.yml`) and composite actions (`badge/`, `changelog-generate/`, `changelog-promote/`, `changelog-release/`, `checksums/`, `coverage-parser/`, `docker-build-push/`, etc.).
 - **LLM server** (`docker-compose.yml`) — llama.cpp Docker Compose for local GPU-accelerated inference (RTX 4080, Qwen3.6-35B-A3B).
 - **Example** (`example/`) — C++23 CMake project (Catch2 v3, sanitizers, coverage) used as smoke-test for CI templates and as a reference for projects adopting the CI workflow.
 
@@ -48,16 +48,28 @@ docker compose --profile llamacpp down     # stop
 - **Categories** (omit empty ones, spell exactly): `Breaking`, `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`.
 - **Version bump** is derived from the categories that have entries, highest wins: `Breaking`/`Removed` → major, `Added`/`Deprecated` → minor, `Fixed`/`Changed`/`Security` → patch.
 
-Release helpers (run from anywhere inside the repo):
+Release is fully handled by CI — no local scripts needed.
 
+**To release:**
+
+1. Ensure `[Unreleased]` has categorized entries under `### Breaking`, `### Added`, etc.
+   (Or run the release workflow — it auto-generates `[Unreleased]` from git log.)
+2. Trigger the release workflow:
+   ```sh
+   # Option A: GitHub UI — Actions → Release → Run workflow
+   # Option B: CLI
+   gh workflow run release.yml --ref main
+   ```
+   The workflow generates `[Unreleased]` from git log, derives the version from categories,
+   promotes `[Unreleased]` to `## [X.Y.Z] - date`, writes `VERSION`, commits, tags `vX.Y.Z`,
+   and pushes — which triggers the tag-push flow (build → release → docker).
+
+**For a manual version override** (skip changelog derivation):
 ```sh
-scripts/release.sh [--dry-run] [--push]          # Linux/macOS (bash >= 3.2)
-./scripts/release.ps1 [-DryRun] [-Push]          # Windows PowerShell 5.1+ / pwsh
-make release-dry-run                              # picks the right script per OS
-make release [PUSH=1]
+gh workflow run release.yml --ref main --field version=1.2.3
 ```
 
-They print the detected categories and next `vX.Y.Z`, then promote `[Unreleased]` to `## [X.Y.Z] - <today>`, write the bare `X.Y.Z` to the root `VERSION` file, commit **only** `CHANGELOG.md` + `VERSION` as `release vX.Y.Z`, and create the annotated tag `vX.Y.Z`. They refuse to run with an empty `[Unreleased]`, an existing tag, or uncommitted tracked files other than those two.
+The composite actions (`ci/actions/changelog-generate/`, `changelog-promote/`, `release-version/`, etc.) implement all release logic. They are referenced by SHA in `ci/.github/workflows/release.yml`.
 
 ## AI skills (how they work)
 
@@ -131,11 +143,13 @@ For details: [`ai-warevo-git-github-push/SKILL.md`](skills/ai-warevo-git-github-
 ```
 ci/
 ├── .github/workflows/
-│   ├── ci.yml          # build → lint → test (push/PR to main/develop)
-│   ├── test.yml        # extended test (manual, push to main)
-│   └── release.yml     # build → release → docker (tag push or workflow_dispatch)
+│   ├── pr-fast.yml       # PR tier: lint + build + test
+│   ├── weekly-deep.yml   # Scheduled tier: deep tests + coverage
+│   └── release.yml       # Release tier: build + release + publish
 └── actions/
     ├── badge/              # SVG coverage badge generation
+    ├── changelog-generate/ # generate [Unreleased] from git log
+    ├── changelog-promote/  # promote [Unreleased] to version heading
     ├── changelog-release/  # release body from CHANGELOG.md
     ├── checksums/          # SHA256SUMS generation
     ├── checksums-verify/   # SHA256SUMS verification

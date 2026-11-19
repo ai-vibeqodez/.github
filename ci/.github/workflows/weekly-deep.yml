@@ -1,18 +1,18 @@
-# Test — Universal Template
+# weekly-deep — e2e, integration, sanitizers (ASan, TSan, UBSan)
 #
-# Copy this file into your project as .github/workflows/test.yml
+# Copy this file into your project as .github/workflows/weekly-deep.yml
 # and replace placeholders with real commands for your stack.
 #
-# This workflow runs on pull_request to main/master, on schedule
-# (weekly), or manually. Regular push to main/master does NOT run tests —
-# saves GitHub Actions limits.
+# Triggers: pull_request to main/master, weekly schedule, manual dispatch.
 
-name: Test
+name: weekly-deep
 
 on:
   pull_request:
     branches: [main, master]
-  workflow_dispatch:  # manual trigger via button
+  schedule:
+    - cron: '0 0 * * 1'  # every Monday at 00:00 UTC
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -31,7 +31,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        # Добавь свои параметры для своего стека:
+        # Add your own matrix parameters for your stack:
         # node-version: ['18', '20', '22']
         # python-version: ['3.10', '3.11', '3.12']
 

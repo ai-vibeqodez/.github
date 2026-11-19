@@ -1,47 +1,48 @@
-# Detect POSIX shell: MSYS2/MinGW/Cygwin/WSL all have /usr/bin.
-# Only pure Windows (no /usr/bin) falls back to PowerShell.
-IS_POSIX := $(strip $(if $(wildcard /usr/bin),1,))
+# Language-agnostic Makefile contract for ai-warevo projects.
+# Consumer repos define these targets at their root.
+#
+# Release process (no local scripts needed):
+#   1. Add categorized entries under ## [Unreleased] in CHANGELOG.md
+#   2. Trigger the release workflow:
+#      make release          # GitHub Actions: workflow_dispatch, derives version
+#      make release VERSION=1.2.3  # GitHub Actions: workflow_dispatch with override
 
-.PHONY: test release release-dry-run changelog changelog-dry-run update
+.PHONY: pr-fast weekly-deep release release-dry-run
 
-# Cut a SemVer release from CHANGELOG.md.
-# to push:
-# make release PUSH=1
+# ═══════════════════════════════════════════════════════════
+#  SYSTEM — do not modify, this is infrastructure
+# ═══════════════════════════════════════════════════════════
+
+# Release via GitHub Actions workflow_dispatch (no local scripts).
 release:
-ifeq ($(IS_POSIX),1)
-	bash scripts/release.sh $(if $(PUSH),--push)
-else
-	powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1 $(if $(PUSH),-Push)
-endif
+	gh workflow run release.yml --ref main $(if $(VERSION),--field version=$(VERSION))
 
 release-dry-run:
-ifeq ($(IS_POSIX),1)
-	bash scripts/release.sh --dry-run
-else
-	powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1 -DryRun
-endif
+	@echo "Preview release: add categorized entries under ## [Unreleased] in CHANGELOG.md"
+	@echo "Then run: make release"
+	@echo ""
+	@echo "Version derivation from categories:"
+	@echo "  Breaking, Removed → major"
+	@echo "  Added, Deprecated → minor"
+	@echo "  Fixed, Changed, Security → patch"
 
-# Generate [Unreleased] section in CHANGELOG.md from git log (conventional commits).
-# `make changelog` updates in place;
-# `make changelog FORCE=1` overwrites existing [Unreleased].
-changelog:
-ifeq ($(IS_POSIX),1)
-	bash scripts/changelog-update.sh $(if $(FORCE),--force)
-else
-	powershell -NoProfile -ExecutionPolicy Bypass -File scripts/changelog-update.ps1 $(if $(FORCE),-Force)
-endif
+pr-fast:
+	gh workflow run pr-fast.yml --ref main
 
-changelog-dry-run:
-ifeq ($(IS_POSIX),1)
-	bash scripts/changelog-update.sh --dry-run
-else
-	powershell -NoProfile -ExecutionPolicy Bypass -File scripts/changelog-update.ps1 -DryRun
-endif
+weekly-deep:
+	gh workflow run weekly-deep.yml --ref main
 
-# Update all scripts from ai-warevo/.github.
-update:
-ifeq ($(IS_POSIX),1)
-	bash scripts/updater.sh
-else
-	powershell -NoProfile -ExecutionPolicy Bypass -File scripts/updater.ps1
-endif
+# ═══════════════════════════════════════════════════════════
+#  YOURS — add your custom targets here
+# ═══════════════════════════════════════════════════════════
+
+# Example:
+# dev:
+# 	cmake -B build/dev -G Ninja -DCMAKE_BUILD_TYPE=Debug
+# 	cmake --build build/dev --parallel
+#
+# lint:
+# 	@echo "run your linter"
+#
+# test:
+# 	@echo "run your tests"

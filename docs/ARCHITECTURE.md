@@ -44,7 +44,7 @@ ai-warevo/.github/
 │
 ├── example/                     # Reference C++23 CMake project
 ├── workflows/                   # Root-level workflow definitions
-├── scripts/                     # Release and utility scripts
+
 ├── docker-compose.yml           # LLM server configuration
 └── AGENTS.md                    # Developer guide
 ```
@@ -57,7 +57,6 @@ ai-warevo/.github/
 | `templates/` | File skeletons copied into consumer repos | All ai-warevo projects |
 | `skills/` | AI agent instruction sets | ai-warevo-analyst, planner, executor |
 | `example/` | Reference C++23 project with CI | CI template validation |
-| `scripts/` | Release automation scripts | Maintainers |
 | `workflows/` | Root-level workflow definitions | Internal use |
 
 ## CI/CD Architecture
@@ -72,27 +71,26 @@ The CI system operates on three tiers, each with distinct triggers and purposes:
 ├──────────┬──────────────┬──────────────────┬────────────────────┤
 │ Tier     │ Trigger      │ Purpose          │ Contract           │
 ├──────────┼──────────────┼──────────────────┼────────────────────┤
-│ PR       │ Pull request │ Fast feedback    │ make ci-fast       │
+│ PR       │ Pull request │ Fast feedback    │ make pr-fast       │
 │          │              │ Commit validation│                    │
 ├──────────┼──────────────┼──────────────────┼────────────────────┤
-│ Scheduled│ Cron/Manual  │ Deep tests       │ make ci-deep       │
-│          │              │ Coverage         │ make ci-coverage   │
+│ Deep     │ Cron/Manual  │ E2E, integration │ make weekly-deep   │
+│          │              │ Sanitizers       │                    │
 ├──────────┼──────────────┼──────────────────┼────────────────────┤
-│ Release  │ v* tag push  │ Build + publish  │ make build-release │
+│ Release  │ v* tag push  │ Build + publish  │ make release       │
 │          │              │ Release notes    │                    │
 └──────────┴──────────────┴──────────────────┴────────────────────┘
 ```
 
 ### Makefile Contract
 
-Each consumer repository defines four targets at its root:
+Each consumer repository defines three targets at its root:
 
 | Target | Purpose | Example Commands |
 |--------|---------|-----------------|
-| `ci-fast` | Quick lint, build, unit tests | `cmake --build`, `ctest` |
-| `ci-deep` | Stress, integration, security tests | `TSan`, `UBSan` |
-| `ci-coverage` | Coverage report generation | `gcovr` → `coverage.svg` |
-| `build-release` | Production artifacts | `cmake --build --config Release` |
+| `pr-fast` | Quick lint, build, unit tests | `cmake --build`, `ctest` |
+| `weekly-deep` | Stress, integration, sanitizers (ASan, TSan, UBSan) | `ctest`, coverage |
+| `release` | Trigger release workflow (changelog → version → tag → release) | `gh workflow run` |
 
 ## Composite Actions
 
@@ -160,30 +158,31 @@ All action references in workflows are pinned to 40-char commit SHAs:
 ```
 Reusable Workflows (ci/.github/workflows/)
 │
-├── ci.yml              # PR tier: lint + build + test
-├── test.yml            # Scheduled tier: deep tests + coverage
-└── release.yml         # Release tier: build + release + publish
+├── pr-fast.yml           # PR tier: lint + build + test
+├── weekly-deep.yml       # Scheduled tier: deep tests + coverage
+└── release.yml           # Release tier: build + release + publish
 │
-Consumer Workflows (templates/github/workflows/)
+Consumer Workflows (.github/workflows/)
 │
-├── pr.yml              # Called by consumer: runs make ci-fast
-├── scheduled.yml       # Called by consumer: runs make ci-deep
-└── release.yml         # Called by consumer: runs make build-release
+└── (copy the reusable workflows into your project)
 ```
 
 ### Consumer Integration
 
-Consumer repos copy template workflows and configure:
+Consumer repos copy the reusable workflows and configure:
 
 ```yaml
-# .github/workflows/pr.yml
-name: PR
+# .github/workflows/pr-fast.yml
+name: PR Fast
 on: pull_request
 jobs:
-  pr:
-    uses: ai-warevo/.github/ci/.github/workflows/ci.yml@<sha>
-    with:
-      setup-command: "sudo apt-get update && sudo apt-get install -y g++"
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Configure your stack:
+      # - run: cmake --build
+      # - run: ctest
 ```
 
 ## Release Pipeline
@@ -191,7 +190,7 @@ jobs:
 ```
 ┌─────────────┐     ┌──────────────┐     ┌─────────────────┐
 │  Tag Push   │────▶│  CI Release  │────▶│  Build Artifacts│
-│  vX.Y.Z     │     │  (ci.yml)    │     │  (dist/)        │
+│  vX.Y.Z     │     │  (release.yml)│    │  (dist/)        │
 └─────────────┘     └──────────────┘     └────────┬────────┘
                                                   │
                                           ┌───────▼────────┐
@@ -208,16 +207,16 @@ jobs:
 
 ### Release Process
 
-1. **Local release** (maintainer):
+1. **CI release** (workflow dispatch):
    ```bash
-   make release-dry-run   # Preview changes
-   make release           # Create release commit + tag
-   make release PUSH=1    # Push tag (triggers CI)
+   gh workflow run release.yml --ref main
    ```
+   Workflow auto-generates `[Unreleased]` from git log, derives version, promotes heading,
+   writes `VERSION`, commits, tags `vX.Y.Z`, and pushes — triggering the tag-push flow.
 
 2. **CI release** (automatic on tag push):
-   - Run `ci-fast` and `ci-deep` in parallel
-   - Build release artifacts with `build-release`
+   - Run `pr-fast` and `weekly-deep` checks
+   - Trigger release workflow with `make release`
    - Extract changelog section matching the tag
    - Create GitHub Release with exact notes
    - Publish Docker image (if applicable)
@@ -342,9 +341,9 @@ Developer Push
      ▼
 GitHub Actions Runner
      │
-     ├── PR Tier ──▶ ci.yml ──▶ lint ──▶ build ──▶ test ──▶ Pass/Fail
+     ├── PR Tier ──▶ pr-fast.yml ──▶ lint ──▶ build ──▶ test ──▶ Pass/Fail
      │
-     ├── Scheduled ──▶ test.yml ──▶ deep test ──▶ coverage ──▶ badge deploy
+     ├── Scheduled ──▶ weekly-deep.yml ──▶ deep test ──▶ coverage ──▶ badge deploy
      │
      └── Release ──▶ release.yml ──▶ gate ──▶ build ──▶ changelog ──▶ publish
 ```

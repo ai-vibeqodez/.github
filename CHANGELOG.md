@@ -14,6 +14,11 @@ Maintainer notes:
 
 ## [Unreleased]
 
+### Breaking
+
+- Remove `scripts/` directory — all release logic (changelog generation, version derivation, promotion, tagging) moved to reusable CI composite actions (`changelog-generate`, `changelog-promote`) and the `bump` job in `ci/release.yml`. Consumers call `gh workflow run release.yml` instead of `make release` or `scripts/release.sh`
+- Replace script-based `Makefile` targets (`release`, `changelog`, `update`) with GitHub Actions workflow dispatch. `make release` now triggers `workflow_dispatch`; `make release-dry-run` shows version derivation rules
+
 ### Fixed
 
 - Add missing `ci/.github/workflows/release.yml` universal release template referenced in AGENTS.md, ci/README.md, and CONTRIBUTING.md (#27)
