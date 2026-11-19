@@ -1,0 +1,69 @@
+# changelog-promote — Unit tests
+#
+# Tests: promotes [Unreleased] to version heading, writes VERSION, outputs
+
+name: changelog-promote — Unit Tests
+
+on:
+  workflow_call:
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    name: changelog-promote
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+
+      # Prepare [Unreleased] section first
+      - name: Prepare [Unreleased]
+        run: |
+          set -euo pipefail
+          cat >> CHANGELOG.md <<'SECTION'
+
+## [Unreleased]
+
+### Fixed
+
+- Fix test issue
+
+### Added
+
+- New feature added
+
+SECTION
+          echo "Prepared [Unreleased]"
+
+      # ─── promote to version ───
+      - name: changelog-promote — promote v1.0.0
+        id: cp
+        uses: ./.github/actions/changelog-promote@e3e1284e7d6c31163b76acaeea879fd5de03bd04
+        with:
+          version: '1.0.0'
+
+      - name: changelog-promote — validate heading
+        run: |
+          set -euo pipefail
+          grep -q '## \[1.0.0\] - ' CHANGELOG.md || { echo "::error::Version heading not found"; exit 1; }
+          grep -q '### Fixed' CHANGELOG.md || { echo "::error::Fixed section missing"; exit 1; }
+          grep -q '### Added' CHANGELOG.md || { echo "::error::Added section missing"; exit 1; }
+          echo "✓ changelog-promote — heading promoted"
+
+      - name: changelog-promote — validate VERSION
+        run: |
+          set -euo pipefail
+          [ -f VERSION ] || { echo "::error::VERSION file not created"; exit 1; }
+          [ "$(cat VERSION)" = "1.0.0" ] || { echo "::error::VERSION content mismatch"; exit 1; }
+          echo "✓ changelog-promote — VERSION correct"
+
+      - name: changelog-promote — validate outputs
+        run: |
+          set -euo pipefail
+          [ "${{ steps.cp.outputs.tag }}" = "v1.0.0" ] || \
+            { echo "::error::tag mismatch: ${{ steps.cp.outputs.tag }}"; exit 1; }
+          echo "✓ changelog-promote — outputs correct"

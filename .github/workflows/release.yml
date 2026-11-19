@@ -1,9 +1,9 @@
-# Release — Publish GitHub Release from CHANGELOG
+# Release — Publish GitHub Release from CHANGELOG (monorepo)
 #
 # Triggers:
 #   - tag push v* → release from CHANGELOG
 #   - workflow_dispatch → manual release with version (input) or snapshot (v0.0.<run_number>)
-# Uses composite actions: release-version, changelog-release, checksums, docker-build-push
+# Calls: reusable-release.yml
 
 name: Release
 
@@ -23,124 +23,13 @@ permissions:
   packages: write
   actions: write
 
-# Don't cancel release runs — they must complete
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
-
 jobs:
-  # ── Build example (C++23 plugin + host) ─────────────────────────────────
-  build-example:
-    name: Build example
-    runs-on: ubuntu-latest
-    outputs:
-      release_version: ${{ steps.version.outputs.release_version }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-        with:
-          fetch-depth: 0
-
-      - name: Resolve version
-        id: version
-        uses: ai-warevo/.github/ci/actions/release-version@4b417da2a7ff8570a032237b1437cf677c88fc86
-        with:
-          version: ${{ github.event.inputs.version }}
-
-      - name: Build
-        uses: ai-warevo/.github/ci/actions/cmake-build@e9b20ed3a4f8a49bf774a1f1c28c4fb39e27bad5
-        with:
-          source_dir: example
-          build_dir: build
-          build_type: Release
-          extra_args: -DAW_EXAMPLE_BUILD_TESTS=OFF
-
-      - name: Upload libplugin.so
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: libplugin-${{ steps.version.outputs.release_version }}
-          path: example/build/plugin/libplugin.so
-
-      - name: Upload host
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: host-${{ steps.version.outputs.release_version }}
-          path: example/build/host
-
-  # ── Release job ──────────────────────────────────────────────────────────
   release:
-    name: Publish GitHub Release
-    runs-on: ubuntu-latest
-    needs: build-example
-    outputs:
-      release_version: ${{ needs.build-example.outputs.release_version }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-        with:
-          fetch-depth: 0
-
-      - name: Generate Release Body
-        id: changelog
-        uses: ai-warevo/.github/ci/actions/changelog-release@d82701c539be4ee85ebed40d2417d48977628f4b
-        with:
-          tag: ${{ needs.build-example.outputs.release_version }}
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
-        with:
-          name: libplugin-${{ needs.build-example.outputs.release_version }}
-          path: artifacts
-
-      - name: Download host artifact
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
-        with:
-          name: host-${{ needs.build-example.outputs.release_version }}
-          path: artifacts
-
-      - name: Generate checksums
-        id: checksums_generate
-        uses: ai-warevo/.github/ci/actions/checksums@5a26e989b5fba8076bbf7f4800ec19a94e5096b1
-        with:
-          artifacts_dir: 'artifacts'
-          checksums_file: 'SHA256SUMS.txt'
-
-      - name: Verify checksums
-        uses: ai-warevo/.github/ci/actions/checksums-verify@b6fea8cbedfa146c2de4e0180f19c4d11d90325d
-        with:
-          artifacts_dir: 'artifacts'
-          checksums_file: 'SHA256SUMS.txt'
-
-      - name: Create Release
-        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65
-        with:
-          tag_name: ${{ needs.build-example.outputs.release_version }}
-          name: ${{ needs.build-example.outputs.release_version }}
-          body_path: ${{ steps.changelog.outputs.body_path }}
-          files: |
-            artifacts/SHA256SUMS.txt
-            artifacts/libplugin.so
-            artifacts/host
-          generate_release_notes: false
-
-  # ── Docker image build + GHCR push ──────────────────────────────────────
-  docker:
-    name: Build and push Docker image
-    runs-on: ubuntu-latest
-    needs: release
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-
-      - name: Build and push Docker image
-        uses: ai-warevo/.github/ci/actions/docker-build-push@d63404d832482c378b790598a99bf53baf10ca8e
-        with:
-          context: ./example
-          dockerfile: example/Dockerfile
-          image_name: ai-warevo/example
-          tags: |
-            ghcr.io/ai-warevo/example:${{ needs.release.outputs.release_version }}
-            ghcr.io/ai-warevo/example:latest
+    uses: ./.github/workflows/reusable-release.yml
+    with:
+      source_dir: example
+      build_dir: build
+      docker_context: ./example
+      dockerfile: example/Dockerfile
+      image_name: example
+      version: ${{ github.event.inputs.version }}

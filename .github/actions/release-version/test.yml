@@ -1,0 +1,63 @@
+# release-version — Unit tests
+#
+# Tests: explicit version, v-prefix, empty (fallback to run_number)
+
+name: release-version — Unit Tests
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: release-version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      # ─── explicit version ───
+      - name: release-version — explicit version
+        id: rv_explicit
+        uses: ./.github/actions/release-version@4b417da2a7ff8570a032237b1437cf677c88fc86
+        with:
+          version: 'v1.2.3'
+
+      - name: release-version — validate explicit
+        run: |
+          set -euo pipefail
+          [ "${{ steps.rv_explicit.outputs.release_version }}" = "v1.2.3" ] || \
+            { echo "::error::release_version mismatch: ${{ steps.rv_explicit.outputs.release_version }}"; exit 1; }
+          [ "${{ steps.rv_explicit.outputs.release_version_stripped }}" = "1.2.3" ] || \
+            { echo "::error::stripped mismatch: ${{ steps.rv_explicit.outputs.release_version_stripped }}"; exit 1; }
+          echo "✓ release-version explicit version"
+
+      # ─── v-prefix stripping ───
+      - name: release-version — v-prefix
+        id: rv_v
+        uses: ./.github/actions/release-version@4b417da2a7ff8570a032237b1437cf677c88fc86
+        with:
+          version: 'v2.0.0'
+
+      - name: release-version — validate v-prefix
+        run: |
+          set -euo pipefail
+          [ "${{ steps.rv_v.outputs.release_version }}" = "v2.0.0" ] || \
+            { echo "::error::Expected v2.0.0, got ${{ steps.rv_v.outputs.release_version }}"; exit 1; }
+          echo "✓ release-version v-prefix"
+
+      # ─── empty input → fallback ───
+      - name: release-version — empty (fallback)
+        id: rv_empty
+        uses: ./.github/actions/release-version@4b417da2a7ff8570a032237b1437cf677c88fc86
+        with:
+          version: ''
+
+      - name: release-version — validate fallback
+        run: |
+          set -euo pipefail
+          [ -n "${{ steps.rv_empty.outputs.release_version }}" ] || \
+            { echo "::error::Fallback version empty"; exit 1; }
+          echo "✓ release-version fallback: ${{ steps.rv_empty.outputs.release_version }}"

@@ -1,0 +1,47 @@
+# docker-build-push — Unit tests
+#
+# Tests: build-only (push=false, load=true)
+
+name: docker-build-push — Unit Tests
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: docker-build-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Prepare minimal Docker context
+        run: |
+          mkdir -p /tmp/docker-test
+          cat > /tmp/docker-test/Dockerfile <<'EOF'
+          FROM alpine:3.19
+          CMD ["echo", "ok"]
+          EOF
+
+      - name: docker-build-push — build only (no push)
+        id: docker_build
+        uses: ./.github/actions/docker-build-push@d63404d832482c378b790598a99bf53baf10ca8e
+        with:
+          context: /tmp/docker-test
+          dockerfile: /tmp/docker-test/Dockerfile
+          registry: ghcr.io
+          image_name: ghcr.io/${{ github.repository_owner }}/actions-test
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/actions-test:test
+          push: 'false'
+          load: 'true'
+
+      - name: docker-build-push — validate build
+        run: |
+          set -euo pipefail
+          docker image inspect ghcr.io/${{ github.repository_owner }}/actions-test:test >/dev/null || \
+            { echo "::error::Image not built"; exit 1; }
+          echo "✓ docker-build-push — build OK (push=false)"

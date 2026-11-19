@@ -1,0 +1,67 @@
+# gcovr-report — Unit tests
+#
+# Tests: generate coverage XML + HTML from the example project
+
+name: gcovr-report — Unit Tests
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/ai-warevo/ci-cpp20
+      options: --user root
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Configure & Build
+        uses: ./.github/actions/cmake-build@e9b20ed3a4f8a49bf774a1f1c28c4fb39e27bad5
+        with:
+          source_dir: example
+          build_dir: build
+          build_type: Debug
+          extra_args: -DAW_EXAMPLE_BUILD_TESTS=ON -DAW_EXAMPLE_ENABLE_COVERAGE=ON
+
+      - name: Run tests (required for gcov data)
+        uses: ./.github/actions/ctest-run@f9d6360ab55c7c8ec283dd036f96f0a20f0672fe
+        with:
+          source_dir: example
+          build_dir: build
+          config: Debug
+          output_on_failure: 'true'
+
+  test:
+    name: gcovr-report
+    runs-on: ubuntu-latest
+    needs: build
+    container:
+      image: ghcr.io/ai-warevo/ci-cpp20
+      options: --user root
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Generate coverage
+        id: coverage
+        uses: ./.github/actions/gcovr-report@6754a01eb25624e84b8c3186ca48e2812462f63c
+        with:
+          source_dir: example
+          build_dir: build
+          source_filter: host/src/ plugin/src/ include/
+          exclude: _deps/*
+          output_dir: htmlcov
+          xml_path: coverage.xml
+
+      - name: gcovr-report — validate
+        run: |
+          set -euo pipefail
+          [ -f "coverage.xml" ] || { echo "::error::coverage.xml missing"; exit 1; }
+          [ -f "htmlcov/index.html" ] || { echo "::error::HTML report missing"; exit 1; }
+          echo "✓ gcovr-report — XML + HTML generated"

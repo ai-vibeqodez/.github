@@ -1,0 +1,46 @@
+# checksums — Unit tests
+#
+# Tests: single file, custom filename
+
+name: checksums — Unit Tests
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: checksums
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      # ─── single file ───
+      - name: checksums — single file
+        id: cs_single
+        uses: ./.github/actions/checksums@5a26e989b5fba8076bbf7f4800ec19a94e5096b1
+        with:
+          artifacts_dir: .
+
+      - name: checksums — validate single
+        run: |
+          set -euo pipefail
+          [ -f SHA256SUMS.txt ] || { echo "::error::SHA256SUMS.txt not created"; exit 1; }
+          echo "✓ checksums single file"
+
+      # ─── custom filename ───
+      - name: checksums — custom filename
+        id: cs_custom
+        uses: ./.github/actions/checksums@5a26e989b5fba8076bbf7f4800ec19a94e5096b1
+        with:
+          artifacts_dir: .
+          checksums_file: custom_sums.txt
+
+      - name: checksums — validate custom
+        run: |
+          set -euo pipefail
+          [ -f custom_sums.txt ] || { echo "::error::Custom sums not created"; exit 1; }
+          echo "✓ checksums custom filename"

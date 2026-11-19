@@ -8,7 +8,7 @@ Guidance for working on an `ai-warevo/<repo>`. Read `README.md` for the user-fac
 
 - **AI skills** (`skills/`) — agent-facing tool definitions for ai-warevo-analyst, ai-warevo-planner, ai-warevo-executor, ai-warevo-skill-creator, ai-warevo-git-github-push.
 - **Templates** (`templates/`) — OVERVIEW, task, README, CHANGELOG, CONTRIBUTING markdown skeletons.
-- **CI/CD** (`ci/`) — GitHub Actions reusable workflows (`pr-fast.yml`, `weekly-deep.yml`, `release.yml`) and composite actions (`badge/`, `changelog-generate/`, `changelog-promote/`, `changelog-release/`, `checksums/`, `coverage-parser/`, `docker-build-push/`, etc.).
+- **CI/CD** (`ci/`) — documentation for reusable workflows and composite actions (`badge/`, `changelog-generate/`, `changelog-promote/`, `changelog-release/`, `checksums/`, `coverage-parser/`, `docker-build-push/`, etc.).
 - **LLM server** (`docker-compose.yml`) — llama.cpp Docker Compose for local GPU-accelerated inference (RTX 4080, Qwen3.6-35B-A3B).
 - **Example** (`example/`) — C++23 CMake project (Catch2 v3, sanitizers, coverage) used as smoke-test for CI templates and as a reference for projects adopting the CI workflow.
 
@@ -38,7 +38,7 @@ docker compose --profile llamacpp down     # stop
 ```
 
 - **Leave to CI:** multi-platform builds (Linux/Windows/macOS), sanitizer runs (ASan/UBSan/TSan), coverage badge deploy, gh-pages HTML deploy, Docker build-push to GHCR. Don't run them locally unless debugging.
-- Adding a composite action? Register it in `ci/README.md` table. Adding a workflow? Add it to `ci/.github/workflows/` and update `ci/README.md`.
+- Adding a composite action? Register it in `ci/README.md` table. Adding a workflow? Add it to `.github/workflows/reusable-<name>.yml` and update `ci/README.md`.
 
 ## Changelog & releases
 
@@ -69,7 +69,7 @@ Release is fully handled by CI — no local scripts needed.
 gh workflow run release.yml --ref main --field version=1.2.3
 ```
 
-The composite actions (`.github/actions/changelog-generate/`, `changelog-promote/`, `release-version/`, etc.) implement all release logic. They are referenced by SHA in `ci/.github/workflows/release.yml`.
+The composite actions (`.github/actions/changelog-generate/`, `changelog-promote/`, `release-version/`, etc.) implement all release logic. They are referenced by SHA in `.github/workflows/release.yml`.
 
 ## AI skills (how they work)
 
@@ -140,40 +140,50 @@ For details: [`ai-warevo-git-github-push/SKILL.md`](skills/ai-warevo-git-github-
 
 ### Workflow hierarchy
 
-```
-ci/
-└── .github/workflows/
-    ├── pr-fast.yml       # PR tier: lint + build + test
-    ├── weekly-deep.yml   # Scheduled tier: deep tests + coverage
-    └── release.yml       # Release tier: build + release + publish
+Three-tier architecture:
 
-.github/
-├── actions/
-│   ├── badge/              # SVG coverage badge generation
-│   ├── changelog-generate/ # generate [Unreleased] from git log
-│   ├── changelog-promote/  # promote [Unreleased] to version heading
-│   ├── changelog-release/  # release body from CHANGELOG.md
-│   ├── checksums/          # SHA256SUMS generation
-│   ├── checksums-verify/   # SHA256SUMS verification
-│   ├── clang-format/       # run clang-format --dry-run --Werror
-│   ├── clang-tidy/         # run clang-tidy checks
-│   ├── cmake-build/        # CMake configure + build wrapper
-│   ├── collect-release-assets/  # download build artifacts
-│   ├── coverage-html-deploy/  # deploy HTML report to gh-pages
-│   ├── coverage-parser/    # parse coverage XML/LCOV
-│   ├── ctest-run/          # run ctest with options
-│   ├── docker-build-push/  # Docker Buildx + login + push
-│   ├── docker-push-ghcr/   # push image to GHCR
-│   ├── docker-save/        # save image to tarball
-│   ├── download-artifacts/ # download artifacts from other jobs
-│   ├── gcovr-report/       # generate coverage LCOV/XML report
-│   ├── release-version/    # resolve version from tag/input/run_number
-│   └── setup-toolchain/    # C++ toolchain setup with sanitizer args
-└── workflows/
-    ├── actions-test.yml    # Monorepo: test all composite actions
-    ├── example-ci.yml      # Monorepo: full C++ CI pipeline
-    └── release.yml         # Monorepo: release pipeline
 ```
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │  Consumer repos                                                    │
+  │  .github/workflows/*.yml  (copy from templates/, customize on:/with)│
+  │        uses: ai-warevo/.github/.github/workflows/reusable-*.yml@sha │
+  └─────────────────────────────────────────────────────────────────────┘
+                                  │
+                                  ▼ uses:
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │  Reusable workflows (source of truth)                              │
+  │  .github/workflows/reusable-pr-fast.yml         — lint + build + test│
+  │  .github/workflows/reusable-release.yml         — build + release   │
+  │  .github/workflows/reusable-weekly-deep.yml     — sanitizers+coverage│
+  └─────────────────────────────────────────────────────────────────────┘
+                                  │
+                                  │ calls
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │  Monorepo workflows (internal use only)                              │
+  │  .github/workflows/pr-fast.yml           — monorepo PR checks       │
+  │  .github/workflows/release.yml           — monorepo release         │
+  │  .github/workflows/weekly-deep.yml       — monorepo weekly deep     │
+  │  .github/workflows/example-ci.yml        — example project CI       │
+  │  .github/workflows/actions-test.yml      — action test dispatcher   │
+  └─────────────────────────────────────────────────────────────────────┘
+                                  │
+                                  │ uses SHA-pinned actions
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │  Composite actions (21 total)                                        │
+  │  .github/actions/{badge,clang-format,cmake-build,ctest-run,...}/    │
+  └─────────────────────────────────────────────────────────────────────┘
+```
+
+**How it works:**
+
+1. **Reusable workflow** — contains the full CI logic with `workflow_call` trigger and parameterized inputs. This is the *source of truth*.
+2. **Template** — thin wrapper in `templates/workflows/`. Consumer copies it, changes `name`, `on:`, and `with:`. Never edit the reusable workflow.
+3. **Monorepo workflow** — runs the monorepo's own CI. Uses reusable workflows internally or defines jobs directly.
+
+**Adding a new CI template:**
+1. Create `.github/workflows/reusable-<name>.yml` with full logic.
+2. Create `templates/workflows/<name>.yml` as a thin wrapper.
+3. Register in `ci/README.md` table.
 
 ### Composite action conventions
 

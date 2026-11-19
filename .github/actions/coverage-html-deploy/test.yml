@@ -1,0 +1,51 @@
+# coverage-html-deploy — Unit tests
+#
+# Tests: deploy HTML coverage report to a test branch
+
+name: coverage-html-deploy — Unit Tests
+
+on:
+  workflow_call:
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    name: coverage-html-deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      # ── prepare coverage data ──
+      - name: Generate coverage.xml for deploy
+        id: cov
+        run: |
+          mkdir -p /tmp/cov-test
+          cat > /tmp/cov-test/coverage.xml <<'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <coverage line-rate="0.85" branch-rate="0.70" version="1.9">
+            <lines>
+              <line hits="1" number="1"/>
+              <line hits="1" number="2"/>
+              <line hits="0" number="3"/>
+            </lines>
+          </coverage>
+          EOF
+          cp /tmp/cov-test/coverage.xml coverage.xml
+          mkdir -p htmlcov
+          cat > htmlcov/index.html <<'EOF'
+          <html><body>Coverage Report</body></html>
+          EOF
+
+      - name: coverage-html-deploy — to test branch
+        id: html_deploy
+        uses: ./.github/actions/coverage-html-deploy@37ba6d2f53694f58c8bee3318ce80a7dce8022fe
+        with:
+          folder: htmlcov
+          branch: actions-test/coverage
+          target_folder: test-coverage
+
+      - name: coverage-html-deploy — validate
+        run: echo "✓ coverage-html-deploy → actions-test:test-coverage/"

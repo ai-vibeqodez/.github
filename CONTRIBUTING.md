@@ -132,7 +132,7 @@ Closes #NNN
 
 ## Adding a New CI Template
 
-1. Create the workflow file in `ci/.github/workflows/`.
+1. Create the reusable workflow in `.github/workflows/reusable-<name>.yml` and a thin wrapper template in `templates/workflows/<name>.yml`.
 2. Add a `ci/README.md` table entry documenting the workflow.
 3. If it exercises a new capability, add an example in `example/`.
 4. Update `CHANGELOG.md` under `## [Unreleased]`.

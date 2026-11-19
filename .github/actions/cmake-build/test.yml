@@ -1,0 +1,37 @@
+# cmake-build — Unit tests
+#
+# Tests: configure + build the example C++ project
+
+name: cmake-build — Unit Tests
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: cmake-build
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/ai-warevo/ci-cpp20
+      options: --user root
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Configure & Build
+        id: build
+        uses: ./.github/actions/cmake-build@e9b20ed3a4f8a49bf774a1f1c28c4fb39e27bad5
+        with:
+          source_dir: example
+          build_dir: build
+          build_type: Debug
+          extra_args: -DAW_EXAMPLE_BUILD_TESTS=ON -DAW_EXAMPLE_ENABLE_COVERAGE=ON
+
+      - name: cmake-build — validate
+        run: |
+          set -euo pipefail
+          [ -d "example/build" ] || { echo "::error::Build dir missing"; exit 1; }
+          echo "✓ cmake-build — configured and built"

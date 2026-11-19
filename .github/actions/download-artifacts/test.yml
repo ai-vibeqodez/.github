@@ -1,0 +1,65 @@
+# download-artifacts — Unit tests
+#
+# Tests: download multiple artifacts by pattern, merge into single directory
+
+name: download-artifacts — Unit Tests
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  producer:
+    name: Producer
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Create artifact 1
+        run: echo "hello" > file1.txt
+
+      - name: Upload artifact 1
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: test-file1
+          path: file1.txt
+          retention-days: 1
+
+      - name: Create artifact 2
+        run: echo "world" > file2.txt
+
+      - name: Upload artifact 2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: test-file2
+          path: file2.txt
+          retention-days: 1
+
+  consumer:
+    name: Consumer
+    runs-on: ubuntu-latest
+    needs: producer
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: download-artifacts — pattern *
+        id: download_all
+        uses: ./.github/actions/download-artifacts@3d1ba5f551da42765fe85d15bb97b5bef5519ba2
+        with:
+          pattern: 'test-*'
+          merge-multiple: 'true'
+          path: downloaded
+
+      - name: download-artifacts — validate
+        run: |
+          set -euo pipefail
+          [ -f downloaded/file1.txt ] || { echo "::error::file1.txt missing"; exit 1; }
+          [ -f downloaded/file2.txt ] || { echo "::error::file2.txt missing"; exit 1; }
+          grep -q 'hello' downloaded/file1.txt || { echo "::error::file1 content wrong"; exit 1; }
+          grep -q 'world' downloaded/file2.txt || { echo "::error::file2 content wrong"; exit 1; }
+          echo "✓ download-artifacts — merged correctly"

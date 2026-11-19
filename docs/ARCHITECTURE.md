@@ -21,11 +21,39 @@ This document describes the architecture of the `ai-warevo/.github` repository �
 ```
 ai-warevo/.github/
 │
-├── ci/                          # CI/CD templates and composite actions
-│   ├── .github/workflows/       # Reusable workflow definitions
-│   └── actions/                 # Composite actions (19 total)
+├── .github/
+│   ├── workflows/               # Monorepo + reusable workflows
+│   │   ├── pr-fast.yml          # Monorepo PR checks
+│   │   ├── release.yml          # Monorepo release
+│   │   ├── weekly-deep.yml      # Monorepo weekly deep
+│   │   ├── example-ci.yml       # Example project CI
+│   │   ├── actions-test.yml     # Action test dispatcher
+│   │   ├── reusable-pr-fast.yml # Reusable: lint + build + test
+│   │   ├── reusable-release.yml # Reusable: build + release
+│   │   └── reusable-weekly-deep.yml # Reusable: sanitizers + coverage
+│   │
+│   └── actions/                 # Composite actions (21 total)
+│       ├── badge/
+│       ├── changelog-generate/
+│       ├── changelog-promote/
+│       ├── changelog-release/
+│       ├── checksums/
+│       ├── clang-format/
+│       ├── cmake-build/
+│       ├── coverage-parser/
+│       ├── docker-build-push/
+│       └── ...
 │
-├── templates/                   # Reusable file skeletons
+├── ci/                          # CI/CD documentation
+│   └── README.md                # Action & workflow reference
+│
+├── templates/
+│   └── workflows/               # Consumer workflow wrappers
+│       ├── pr-fast.yml
+│       ├── release.yml
+│       └── weekly-deep.yml
+│
+├── templates/                   # File skeletons
 │   ├── readme_template.md
 │   ├── overview.md
 │   ├── contributing_template.md
@@ -41,9 +69,9 @@ ai-warevo/.github/
 │   └── ...
 │
 ├── example/                     # Reference C++23 CMake project
-├── workflows/                   # Root-level workflow definitions
-
 ├── docker-compose.yml           # LLM server configuration
+├── docs/                        # Architecture & design docs
+│   └── ARCHITECTURE.md
 └── AGENTS.md                    # Developer guide
 ```
 
@@ -51,17 +79,21 @@ ai-warevo/.github/
 
 | Directory | Purpose | Consumers |
 |-----------|---------|-----------|
-| `ci/` | CI/CD workflows and composite actions | All ai-warevo projects |
+| `.github/workflows/` | Monorepo + reusable workflows | Internal + consumers (via `uses:`) |
+| `.github/actions/` | Composite actions (21 total) | All ai-warevo projects |
+| `ci/` | CI/CD documentation | All ai-warevo projects |
+| `templates/workflows/` | Consumer workflow wrappers | Consumer repos |
 | `templates/` | File skeletons copied into consumer repos | All ai-warevo projects |
 | `skills/` | AI agent instruction sets | ai-warevo-analyst, planner, executor |
 | `example/` | Reference C++23 project with CI | CI template validation |
-| `workflows/` | Root-level workflow definitions | Internal use |
 
 ## CI/CD Architecture
 
 ### Three-Tier CI Model
 
-The CI system operates on three tiers, each with distinct triggers and purposes:
+The CI system operates on two architectural levels:
+
+**CI Tiers** (triggers and purposes):
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -80,6 +112,34 @@ The CI system operates on three tiers, each with distinct triggers and purposes:
 └──────────┴──────────────┴──────────────────┴────────────────────┘
 ```
 
+**Workflow Hierarchy** (three-tier architecture):
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Consumer repos                                                │
+│  .github/workflows/*.yml  (copy from templates/, customize)   │
+│        uses: ai-warevo/.github/.github/workflows/reusable-*.yml│
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼ uses:
+┌─────────────────────────────────────────────────────────────────┐
+│  Reusable workflows (source of truth)                           │
+│  .github/workflows/reusable-pr-fast.yml         — lint+build+test│
+│  .github/workflows/reusable-release.yml         — build+release │
+│  .github/workflows/reusable-weekly-deep.yml     — sanitizers+cov│
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              │ calls
+┌─────────────────────────────────────────────────────────────────┐
+│  Monorepo workflows (internal use only)                          │
+│  .github/workflows/pr-fast.yml           — monorepo PR checks   │
+│  .github/workflows/release.yml           — monorepo release     │
+│  .github/workflows/weekly-deep.yml       — monorepo weekly deep │
+│  .github/workflows/example-ci.yml        — example project CI   │
+│  .github/workflows/actions-test.yml      — action test dispatcher│
+└─────────────────────────────────────────────────────────────────┘
+```
+
 ### Makefile Contract
 
 Each consumer repository defines three targets at its root:
@@ -92,7 +152,7 @@ Each consumer repository defines three targets at its root:
 
 ## Composite Actions
 
-The repository provides 19 composite actions organized by function:
+The repository provides 21 composite actions organized by function:
 
 ### Build Actions
 
@@ -153,34 +213,64 @@ All action references in workflows are pinned to 40-char commit SHAs:
 
 ## Workflow Hierarchy
 
-```
-Reusable Workflows (ci/.github/workflows/)
-│
-├── pr-fast.yml           # PR tier: lint + build + test
-├── weekly-deep.yml       # Scheduled tier: deep tests + coverage
-└── release.yml           # Release tier: build + release + publish
-│
-Consumer Workflows (.github/workflows/)
-│
-└── (copy the reusable workflows into your project)
+### Reusable Workflows
+
+Reusable workflows are the **source of truth** for CI logic. Each lives in `.github/workflows/reusable-<name>.yml` with a `workflow_call` trigger:
+
+| Workflow | Purpose | Key Jobs |
+|----------|---------|----------|
+| `reusable-pr-fast.yml` | PR tier: lint + build + test | `setup`, `lint`, `build`, `test` |
+| `reusable-weekly-deep.yml` | Scheduled tier: sanitizers + coverage | `sanitize`, `coverage`, `badge-deploy` |
+| `reusable-release.yml` | Release tier: build + release + publish | `gate`, `build`, `release`, `docker` |
+
+### Template Wrappers
+
+Thin wrappers in `templates/workflows/` let consumers bootstrap their CI with one copy-paste:
+
+```yaml
+# templates/workflows/pr-fast.yml
+name: PR Fast
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    uses: ai-warevo/.github/.github/workflows/reusable-pr-fast.yml@<sha>
+    with:
+      cmake-args: "-DCMAKE_BUILD_TYPE=Release"
+      test-command: "ctest --output-on-failure"
 ```
 
 ### Consumer Integration
 
-Consumer repos copy the reusable workflows and configure:
+Consumer repos copy a template, customize `name`, `on:`, and `with:`, then pin the reusable workflow SHA:
 
 ```yaml
-# .github/workflows/pr-fast.yml
+# .github/workflows/pr-fast.yml (consumer)
 name: PR Fast
 on: pull_request
+
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      # Configure your stack:
-      # - run: cmake --build
-      # - run: ctest
+  ci:
+    uses: ai-warevo/.github/.github/workflows/reusable-pr-fast.yml@<40-char-sha>
+    with:
+      cmake-args: "-DCMAKE_BUILD_TYPE=Release"
+      test-command: "ctest --output-on-failure"
+```
+
+### Monorepo Workflows
+
+The `.github` monorepo uses its own workflows (`.github/workflows/*.yml`) which call reusable workflows internally:
+
+```yaml
+# .github/workflows/pr-fast.yml (monorepo)
+jobs:
+  lint:
+    uses: ai-warevo/.github/.github/workflows/reusable-pr-fast.yml@<sha>
+    with:
+      cmake-args: "-DCMAKE_BUILD_TYPE=Debug"
+      test-command: "ctest --test-dir build/dev"
 ```
 
 ## Release Pipeline
@@ -263,28 +353,30 @@ Templates are self-contained files copied into consumer repositories:
 ```
 templates/
 │
-├── github/workflows/          # Workflow skeletons
-│   ├── pr.yml                 # PR CI workflow
-│   ├── scheduled.yml          # Scheduled CI workflow
-│   └── release.yml            # Release CI workflow
+├── workflows/             # CI workflow wrappers
+│   ├── pr-fast.yml        # PR CI workflow
+│   ├── weekly-deep.yml    # Scheduled deep CI workflow
+│   └── release.yml        # Release CI workflow
 │
-├── readme_template.md         # README skeleton
-├── overview.md                # Project overview skeleton
-├── contributing_template.md   # Contributing guide skeleton
-├── task_template.md           # Task definition skeleton
-├── changelog_template.md      # Changelog skeleton
+├── readme_template.md     # README skeleton
+├── overview.md            # Project overview skeleton
+├── contributing_template.md # Contributing guide skeleton
+├── task_template.md       # Task definition skeleton
+└── changelog_template.md  # Changelog skeleton
 ```
 
 ### Template Consumption
 
-Consumer projects copy templates during setup:
+Consumer projects copy templates from `templates/workflows/` during setup:
 
 ```bash
 mkdir -p .github/workflows
-cp ci/.github/workflows/pr-fast.yml .github/workflows/pr-fast.yml
-cp ci/.github/workflows/weekly-deep.yml .github/workflows/weekly-deep.yml
-cp ci/.github/workflows/release.yml .github/workflows/release.yml
+cp templates/workflows/pr-fast.yml .github/workflows/pr-fast.yml
+cp templates/workflows/weekly-deep.yml .github/workflows/weekly-deep.yml
+cp templates/workflows/release.yml .github/workflows/release.yml
 ```
+
+Then customize `name`, `on:`, and `with:` in each copied file.
 
 ## Example Project
 

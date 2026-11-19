@@ -51,7 +51,7 @@ Integration of ready-made CI/CD infrastructure from a catalog repository into an
 
 ### 1. Catalog Repository Exploration
 - Traverse the structure of the catalog repository and determine what it contains:
-  - CI/CD workflow files (`ci/.github/workflows/` or similar)
+  - CI/CD reusable workflows (`.github/workflows/reusable-*.yml`) and templates (`templates/workflows/`)
   - Composite actions / reusable actions (`.github/actions/` or similar)
   - Documentation templates (`templates/`)
   - Example projects (`example/` or similar)

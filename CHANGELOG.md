@@ -16,12 +16,11 @@ Maintainer notes:
 
 ### Breaking
 
-- Remove `scripts/` directory — all release logic (changelog generation, version derivation, promotion, tagging) moved to reusable CI composite actions (`changelog-generate`, `changelog-promote`) and the `bump` job in `ci/release.yml`. Consumers call `gh workflow run release.yml` instead of `make release` or `scripts/release.sh`
+- Remove `scripts/` directory — all release logic (changelog generation, version derivation, promotion, tagging) moved to reusable CI composite actions (`changelog-generate`, `changelog-promote`) and the `bump` job in `.github/workflows/release.yml`. Consumers call `gh workflow run release.yml` instead of `make release` or `scripts/release.sh`
 - Replace script-based `Makefile` targets (`release`, `changelog`, `update`) with GitHub Actions workflow dispatch. `make release` now triggers `workflow_dispatch`; `make release-dry-run` shows version derivation rules
 
 ### Fixed
 
-- Add missing `ci/.github/workflows/release.yml` universal release template referenced in AGENTS.md, ci/README.md, and CONTRIBUTING.md (#27)
 
 ## [1.6.0] - 2026-11-19
 
@@ -379,10 +378,6 @@ Maintainer notes:
 - `release.yml`: simplified from 156 to 148 lines using `docker-build-push`
 - `test.yml`: simplified using `badge-deploy` and `coverage-html-deploy`, added C++ stubs
 - `ci.yml`: C++ stubs updated to reference `cmake-build` and `ctest-run`
-
-### Removed
-
-- `ci/.github/workflows/release.yml`: deleted (exact duplicate of production release.yml)
 
 ## [0.7.10] - 2026-11-15
 

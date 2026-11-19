@@ -1,0 +1,26 @@
+# weekly-deep — sanitizers + coverage + deploy
+#
+# Template: copy this file into your project's .github/workflows/ and
+# customize the `on:` trigger and `with:` inputs.
+#
+# The actual CI logic lives in the reusable workflow:
+#   ai-warevo/.github/.github/workflows/reusable-weekly-deep.yml
+#
+# To customize, change only this file — never the reusable workflow.
+
+name: weekly-deep
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'  # every Monday at 00:00 UTC
+  workflow_dispatch:
+
+jobs:
+  weekly-deep:
+    uses: ai-warevo/.github/.github/workflows/reusable-weekly-deep.yml@2ea4e63f69c0d83ef3e1197ed11948c5d36a28aa
+    with:
+      source_dir: example
+      build_dir: build
+      container_image: ghcr.io/ai-warevo/ci-cpp20
+      source_filter: host/src/ plugin/src/ include/
+      exclude: _deps/*
