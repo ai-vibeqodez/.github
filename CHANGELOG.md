@@ -14,6 +14,11 @@ Maintainer notes:
 
 ## [Unreleased]
 
+### Security
+
+- Replace all `@main` action pinning with 40-char commit SHA hashes across all workflow and action files; resolves supply-chain risk from compromised branch refs (#1)
+- Guard placeholder steps in universal CI templates (`ci.yml`, `test.yml`) with `if: false` to prevent accidental execution when no language stack is configured
+
 ## [1.5.0] - 2026-11-18
 
 ### Added

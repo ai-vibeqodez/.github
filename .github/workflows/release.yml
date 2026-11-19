@@ -38,18 +38,18 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
 
       - name: Resolve version
         id: version
-        uses: ai-warevo/.github/ci/actions/release-version@main
+        uses: ai-warevo/.github/ci/actions/release-version@71c1b8b7b12bd6670511df5dedc285060a98a2b6
         with:
           version: ${{ github.event.inputs.version }}
 
       - name: Build
-        uses: ai-warevo/.github/ci/actions/cmake-build@main
+        uses: ai-warevo/.github/ci/actions/cmake-build@fbcaa81f2162ab5dfaa44e306865f5fce2dd519a
         with:
           source_dir: example
           build_dir: build
@@ -57,13 +57,13 @@ jobs:
           extra_args: -DAW_EXAMPLE_BUILD_TESTS=OFF
 
       - name: Upload libplugin.so
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: libplugin-${{ steps.version.outputs.release_version }}
           path: example/build/plugin/libplugin.so
 
       - name: Upload host
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: host-${{ steps.version.outputs.release_version }}
           path: example/build/host
@@ -78,43 +78,43 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
 
       - name: Generate Release Body
         id: changelog
-        uses: ai-warevo/.github/ci/actions/changelog-release@main
+        uses: ai-warevo/.github/ci/actions/changelog-release@a9ef74611405423b41898e60c5c589cc3b1a34dc
         with:
           tag: ${{ needs.build-example.outputs.release_version }}
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
           name: libplugin-${{ needs.build-example.outputs.release_version }}
           path: artifacts
 
       - name: Download host artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
           name: host-${{ needs.build-example.outputs.release_version }}
           path: artifacts
 
       - name: Generate checksums
         id: checksums_generate
-        uses: ai-warevo/.github/ci/actions/checksums@main
+        uses: ai-warevo/.github/ci/actions/checksums@6b9089e502cdca7e5f585b82d81d187c101347a0
         with:
           artifacts_dir: 'artifacts'
           checksums_file: 'SHA256SUMS.txt'
 
       - name: Verify checksums
-        uses: ai-warevo/.github/ci/actions/checksums-verify@main
+        uses: ai-warevo/.github/ci/actions/checksums-verify@02c1d2908f8e67123d3b5a3acbe0f17367bcbbed
         with:
           artifacts_dir: 'artifacts'
           checksums_file: 'SHA256SUMS.txt'
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65
         with:
           tag_name: ${{ needs.build-example.outputs.release_version }}
           name: ${{ needs.build-example.outputs.release_version }}
@@ -133,10 +133,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       - name: Build and push Docker image
-        uses: ai-warevo/.github/ci/actions/docker-build-push@main
+        uses: ai-warevo/.github/ci/actions/docker-build-push@39158df7af5f2086370ed740f78126cfdabc6ec4
         with:
           context: ./example
           dockerfile: example/Dockerfile

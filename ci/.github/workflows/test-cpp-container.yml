@@ -77,14 +77,14 @@ jobs:
 
       - name: Setup toolchain
         id: tc
-        uses: ai-warevo/.github/ci/actions/setup-toolchain@main
+        uses: ai-warevo/.github/ci/actions/setup-toolchain@f217dca9d19e0bb62278981043e73b944b0c5526
         with:
           toolchain: ${{ matrix.toolchain }}
           container_mode: true
           sanitizer: ${{ matrix.sanitizer || '' }}
 
       - name: Configure & Build
-        uses: ai-warevo/.github/ci/actions/cmake-build@main
+        uses: ai-warevo/.github/ci/actions/cmake-build@fbcaa81f2162ab5dfaa44e306865f5fce2dd519a
         with:
           source_dir: .
           build_dir: build
@@ -92,7 +92,7 @@ jobs:
           extra_args: "${{ steps.tc.outputs.cmake_args }} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
 
       - name: Run Tests
-        uses: ai-warevo/.github/ci/actions/ctest-run@main
+        uses: ai-warevo/.github/ci/actions/ctest-run@02c1d2908f8e67123d3b5a3acbe0f17367bcbbed
         with:
           source_dir: .
           build_dir: build
@@ -118,12 +118,12 @@ jobs:
 
       - name: Setup toolchain
         id: tc
-        uses: ai-warevo/.github/ci/actions/setup-toolchain@main
+        uses: ai-warevo/.github/ci/actions/setup-toolchain@f217dca9d19e0bb62278981043e73b944b0c5526
         with:
           toolchain: msvc
 
       - name: Configure & Build
-        uses: ai-warevo/.github/ci/actions/cmake-build@main
+        uses: ai-warevo/.github/ci/actions/cmake-build@fbcaa81f2162ab5dfaa44e306865f5fce2dd519a
         with:
           source_dir: .
           build_dir: build
@@ -131,7 +131,7 @@ jobs:
           extra_args: "${{ steps.tc.outputs.cmake_args }}"
 
       - name: Run Tests
-        uses: ai-warevo/.github/ci/actions/ctest-run@main
+        uses: ai-warevo/.github/ci/actions/ctest-run@02c1d2908f8e67123d3b5a3acbe0f17367bcbbed
         with:
           source_dir: .
           build_dir: build
@@ -155,14 +155,14 @@ jobs:
 
       - name: Setup toolchain
         id: tc
-        uses: ai-warevo/.github/ci/actions/setup-toolchain@main
+        uses: ai-warevo/.github/ci/actions/setup-toolchain@f217dca9d19e0bb62278981043e73b944b0c5526
         with:
           toolchain: gcc15
           container_mode: true
 
       # Build with coverage flags
       - name: Configure with coverage
-        uses: ai-warevo/.github/ci/actions/cmake-build@main
+        uses: ai-warevo/.github/ci/actions/cmake-build@fbcaa81f2162ab5dfaa44e306865f5fce2dd519a
         with:
           source_dir: .
           build_dir: build
@@ -170,7 +170,7 @@ jobs:
           extra_args: "${{ steps.tc.outputs.cmake_args }} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_CXX_FLAGS=-fprofile-arcs -ftest-coverage -DCMAKE_EXE_LINKER_FLAGS=-lgcov"
 
       - name: Run Tests (coverage)
-        uses: ai-warevo/.github/ci/actions/ctest-run@main
+        uses: ai-warevo/.github/ci/actions/ctest-run@02c1d2908f8e67123d3b5a3acbe0f17367bcbbed
         with:
           source_dir: .
           build_dir: build
@@ -178,7 +178,7 @@ jobs:
           output_on_failure: true
 
       - name: Generate Coverage Report
-        uses: ai-warevo/.github/ci/actions/gcovr-report@main
+        uses: ai-warevo/.github/ci/actions/gcovr-report@b9b4ea51339d9f5113da5247b6b80020e29eff38
         id: gcovr
         with:
           source_dir: .
@@ -221,11 +221,11 @@ jobs:
 
       - name: Parse Coverage Metrics
         id: coverage_parser
-        uses: ai-warevo/.github/ci/actions/coverage-parser@main
+        uses: ai-warevo/.github/ci/actions/coverage-parser@b9b4ea51339d9f5113da5247b6b80020e29eff38
 
       - name: Generate Coverage Badge
         id: badge_generator
-        uses: ai-warevo/.github/ci/actions/badge@main
+        uses: ai-warevo/.github/ci/actions/badge@c3d7d4dcbe7188bf39fb5f21a78f2233ec3cc565
         with:
           width: '99'
           height: '20'
@@ -235,12 +235,12 @@ jobs:
           filename: 'coverage.svg'
 
       - name: Deploy Badge
-        uses: ai-warevo/.github/ci/actions/badge-deploy@main
+        uses: ai-warevo/.github/ci/actions/badge-deploy@02c1d2908f8e67123d3b5a3acbe0f17367bcbbed
         with:
           badge_path: coverage.svg
 
       - name: Deploy Coverage HTML
         if: hashFiles('htmlcov/index.html') != ''
-        uses: ai-warevo/.github/ci/actions/coverage-html-deploy@main
+        uses: ai-warevo/.github/ci/actions/coverage-html-deploy@71de6287301964338e41245fc4a3087a77a64475
         with:
           folder: htmlcov
