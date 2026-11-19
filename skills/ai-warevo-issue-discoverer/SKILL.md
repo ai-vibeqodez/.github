@@ -1,9 +1,32 @@
 ---
 name: ai-warevo-issue-discoverer
 description: Find, filter, and select the highest-priority open issue from an organization repository
+inputs:
+  repo:
+    type: string
+    required: true
+    description: "Target repository in owner/name format (e.g. ai-warevo/.github)"
+    pattern: "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"
+outputs:
+  issue:
+    type: object
+    format: JSON
+    properties:
+      issue_number: integer
+      title: string
+      body: string
+      author: string
+      labels: string[]
+      classification: bug|feature|task|docs|ci
+      priority_score: integer
 ---
 
 # Skill: ai-warevo-issue-discoverer
+
+## Input Validation
+1. Check that `repo` matches `owner/name` format
+2. Verify `gh` CLI is available and authenticated (`gh auth status`)
+3. If validation fails, report error and stop
 
 ## Purpose
 Automatically discover and select the best issue to work on from an organization repository. Filters by author, status, and priority.

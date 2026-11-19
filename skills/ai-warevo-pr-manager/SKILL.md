@@ -1,9 +1,49 @@
 ---
 name: ai-warevo-pr-manager
 description: Push branch to fork, create PR targeting the organization repo, self-review, and monitor CI
+inputs:
+  branch_name:
+    type: string
+    required: true
+    description: "Branch to push"
+    pattern: "^(feat|fix)/issue-\\d+$"
+  issue_number:
+    type: integer
+    required: true
+    description: "GitHub issue number"
+    min: 1
+  commit_hash:
+    type: string
+    required: true
+    description: "Git commit SHA"
+    pattern: "^[a-f0-9]{40}$"
+  working_dir:
+    type: string
+    required: true
+    description: "Repository workspace path"
+  changes_summary:
+    type: string
+    required: false
+    description: "Summary of changes from code-impl"
+outputs:
+  pr_url:
+    type: string
+    description: "Pull request URL"
+  ci_status:
+    type: string
+    enum: [passed, failed, pending]
+  review_notes:
+    type: string
+    description: "Self-review notes"
 ---
 
 # Skill: ai-warevo-pr-manager
+
+## Input Validation
+1. Verify `branch_name` matches `^(feat|fix)/issue-\\d+$`
+2. Check that `commit_hash` is a 40-char hex string
+3. Verify `working_dir` is a valid git repository root
+4. If validation fails, report error and stop
 
 ## Purpose
 Push the implementation branch to the agent's fork, create a Pull Request targeting the organization repo's `main` branch, self-review the diff, and monitor CI checks.

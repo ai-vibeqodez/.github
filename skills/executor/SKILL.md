@@ -1,12 +1,30 @@
 ---
 name: executor
 description: Execute tasks — pass a path to todo/<name>/ or a specific task_XX.md
+inputs:
+  task_path:
+    type: string
+    required: true
+    description: "Path to task directory (todo/<name>/) or task file (todo/<name>/task_XX.md)"
+    pattern: "^todo/[^/]+/(task_\\d+\\.md)?$"
+outputs:
+  result:
+    type: markdown
+    description: "Task execution result with completed acceptance criteria"
+  updated_files:
+    type: string[]
+    description: "List of modified files"
 ---
 
 # Skill: Executor
 
 ## Purpose
 Execute tasks from `todo/<task_short_name>/`. Accepts a path to the task directory or a specific task file.
+
+## Input Validation
+1. Verify `task_path` matches `todo/<name>/` or `todo/<name>/task_XX.md` format
+2. Check that the referenced file or directory exists
+3. If validation fails, report error and stop
 
 ## How to Run
 Write:

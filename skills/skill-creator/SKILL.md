@@ -1,9 +1,44 @@
 ---
 name: skill-creator
 description: Creating new skills and updating the skills repository
+inputs:
+  name:
+    type: string
+    required: true
+    description: "Name of the new skill"
+    pattern: "^[a-z][a-z0-9_-]*$"
+  purpose:
+    type: string
+    required: true
+    description: "Brief description of the skill purpose"
+    min_length: 10
+  inputs:
+    type: string
+    required: false
+    description: "Input data specification"
+  outputs:
+    type: string
+    required: false
+    description: "Output data specification"
+outputs:
+  skill_file:
+    type: file
+    path: "skills/<name>/SKILL.md"
+    format: markdown
+  updated_catalog:
+    type: file
+    path: "skills/README.md"
+  updated_readme:
+    type: file
+    path: "README.md"
 ---
 
 # Skill: Skill Creator
+
+## Input Validation
+1. Check that `name` matches `^[a-z][a-z0-9_-]*$` (lowercase, kebab-case)
+2. Verify `purpose` has at least 10 characters
+3. If validation fails, report error and stop
 
 ## Purpose
 Creating new skills and updating the skills repository.

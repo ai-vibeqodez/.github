@@ -1,9 +1,41 @@
 ---
 name: ai-warevo-workspace-prepper
 description: Prepare the working environment — fork, clone, and create a branch for the selected issue
+inputs:
+  repo:
+    type: string
+    required: true
+    description: "Target repository in owner/name format"
+    pattern: "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"
+  issue_number:
+    type: integer
+    required: true
+    description: "GitHub issue number"
+    min: 1
+  classification:
+    type: string
+    required: true
+    description: "Issue classification"
+    enum: [bug, feature, task, docs, ci]
+outputs:
+  working_dir:
+    type: string
+    description: "Local workspace path"
+  branch_name:
+    type: string
+    description: "Branch name (fix/issue-NNN or feat/issue-NNN)"
+  status:
+    type: string
+    enum: [ready, failed]
 ---
 
 # Skill: ai-warevo-workspace-prepper
+
+## Input Validation
+1. Check that `repo` matches `owner/name` format
+2. Verify `issue_number` is a positive integer
+3. Verify `classification` is one of: `bug`, `feature`, `task`, `docs`, `ci`
+4. If validation fails, report error and stop
 
 ## Purpose
 Set up the local working environment: ensure the fork exists, clone it, sync `main`, and create a properly named branch.

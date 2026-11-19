@@ -1,9 +1,39 @@
 ---
 name: planner
 description: Create a project plan, OVERVIEW.md, and task files from requirements documents
+inputs:
+  requirements_doc:
+    type: markdown
+    required: true
+    description: "Requirements document from analyst skill"
+  priorities:
+    type: string
+    required: false
+    description: "MVP and priority definitions"
+  constraints:
+    type: string
+    required: false
+    description: "Timeline, budget, and other constraints"
+outputs:
+  overview_file:
+    type: file
+    path: "todo/<task_short_name>/OVERVIEW.md"
+    format: markdown
+  task_files:
+    type: file[]
+    path_pattern: "todo/<task_short_name>/task_XX.md"
+    format: markdown
+  dependency_graph:
+    type: object
+    description: "Task dependencies (acyclic)"
 ---
 
 # Skill: Planner
+
+## Input Validation
+1. Verify `requirements_doc` is non-empty markdown content
+2. If `constraints` is provided, verify it has at least 10 characters
+3. If validation fails, report error and stop
 
 ## Purpose
 Based on a requirements document, create a project plan: OVERVIEW.md with checkboxes and task files.
