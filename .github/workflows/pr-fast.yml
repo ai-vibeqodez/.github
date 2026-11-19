@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       - name: Check formatting
-        uses: ai-warevo/.github/ci/actions/clang-format@7c51dfd5a5d167b1dc308362aa6626da659c952d
+        uses: ai-warevo/.github/ci/actions/clang-format@66a569af12cee8bcbc8a0a7746b65a0b3e11bfb3
         with:
           source_dir: .
           extensions: "cpp,hpp,c,h"
@@ -47,7 +47,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       - name: Configure & Build
-        uses: ai-warevo/.github/ci/actions/cmake-build@6e7a9d80109fde4952825dcad6da7bb11033b8ad
+        uses: ai-warevo/.github/ci/actions/cmake-build@e9b20ed3a4f8a49bf774a1f1c28c4fb39e27bad5
         with:
           source_dir: example
           build_dir: build
@@ -55,7 +55,7 @@ jobs:
           extra_args: -DAW_EXAMPLE_BUILD_TESTS=ON
 
       - name: Run clang-tidy
-        uses: ai-warevo/.github/ci/actions/clang-tidy@2e4c879efbbe7317761ce3567486cffd49970ec3
+        uses: ai-warevo/.github/ci/actions/clang-tidy@8a8099f57b65eb8282e8df7fc38fbb6b106676c6
         with:
           source_dir: example
           build_dir: build
@@ -71,7 +71,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       - name: Configure & Build
-        uses: ai-warevo/.github/ci/actions/cmake-build@6e7a9d80109fde4952825dcad6da7bb11033b8ad
+        uses: ai-warevo/.github/ci/actions/cmake-build@e9b20ed3a4f8a49bf774a1f1c28c4fb39e27bad5
         with:
           source_dir: example
           build_dir: build
@@ -79,7 +79,7 @@ jobs:
           extra_args: -DAW_EXAMPLE_BUILD_TESTS=ON
 
       - name: Run Tests
-        uses: ai-warevo/.github/ci/actions/ctest-run@1f54d0c440088e71c26d5a9d68b2615b22c8ad3e
+        uses: ai-warevo/.github/ci/actions/ctest-run@f9d6360ab55c7c8ec283dd036f96f0a20f0672fe
         with:
           source_dir: example
           build_dir: build

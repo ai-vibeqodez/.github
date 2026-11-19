@@ -44,12 +44,12 @@ jobs:
 
       - name: Resolve version
         id: version
-        uses: ai-warevo/.github/ci/actions/release-version@5807efe9e139b93f2f5b5c3ab9bfcb1651ca91dd
+        uses: ai-warevo/.github/ci/actions/release-version@4b417da2a7ff8570a032237b1437cf677c88fc86
         with:
           version: ${{ github.event.inputs.version }}
 
       - name: Build
-        uses: ai-warevo/.github/ci/actions/cmake-build@6e7a9d80109fde4952825dcad6da7bb11033b8ad
+        uses: ai-warevo/.github/ci/actions/cmake-build@e9b20ed3a4f8a49bf774a1f1c28c4fb39e27bad5
         with:
           source_dir: example
           build_dir: build
@@ -84,7 +84,7 @@ jobs:
 
       - name: Generate Release Body
         id: changelog
-        uses: ai-warevo/.github/ci/actions/changelog-release@4701fafd31150db8639f225f170ee06ec8169af8
+        uses: ai-warevo/.github/ci/actions/changelog-release@d82701c539be4ee85ebed40d2417d48977628f4b
         with:
           tag: ${{ needs.build-example.outputs.release_version }}
 
@@ -102,13 +102,13 @@ jobs:
 
       - name: Generate checksums
         id: checksums_generate
-        uses: ai-warevo/.github/ci/actions/checksums@b461e70e6a8a020642a2e2e8edf82b8128c66ab5
+        uses: ai-warevo/.github/ci/actions/checksums@5a26e989b5fba8076bbf7f4800ec19a94e5096b1
         with:
           artifacts_dir: 'artifacts'
           checksums_file: 'SHA256SUMS.txt'
 
       - name: Verify checksums
-        uses: ai-warevo/.github/ci/actions/checksums-verify@9f948a16ba73730078b4ebefb9b73b34b6d4962d
+        uses: ai-warevo/.github/ci/actions/checksums-verify@b6fea8cbedfa146c2de4e0180f19c4d11d90325d
         with:
           artifacts_dir: 'artifacts'
           checksums_file: 'SHA256SUMS.txt'
@@ -136,7 +136,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       - name: Build and push Docker image
-        uses: ai-warevo/.github/ci/actions/docker-build-push@0e000058dd4e68635e9da52a86f57168bd4d71f0
+        uses: ai-warevo/.github/ci/actions/docker-build-push@d63404d832482c378b790598a99bf53baf10ca8e
         with:
           context: ./example
           dockerfile: example/Dockerfile
