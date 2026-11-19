@@ -66,12 +66,12 @@ jobs:
 
       - name: Resolve version
         id: version
-        uses: ./.github/actions/release-version@4b417da2a7ff8570a032237b1437cf677c88fc86
+        uses: ai-warevo/.github/.github/actions/release-version@22b49f0fafc78abf31f547b39b0e4f7cbe3e6c0c
         with:
           version: ${{ inputs.version }}
 
       - name: Build
-        uses: ./.github/actions/cmake-build@e9b20ed3a4f8a49bf774a1f1c28c4fb39e27bad5
+        uses: ai-warevo/.github/.github/actions/cmake-build@eff474262b7f63a057fa4720ab23d345faa3ef86
         with:
           source_dir: ${{ inputs.source_dir }}
           build_dir: ${{ inputs.build_dir }}
@@ -105,7 +105,7 @@ jobs:
 
       - name: Generate Release Body
         id: changelog
-        uses: ./.github/actions/changelog-release@d82701c539be4ee85ebed40d2417d48977628f4b
+        uses: ai-warevo/.github/.github/actions/changelog-release@52b7f9f2bf82b0a631994fe114c9953cd1f957f4
         with:
           tag: ${{ needs.build-example.outputs.release_version }}
 
@@ -123,13 +123,13 @@ jobs:
 
       - name: Generate checksums
         id: checksums_generate
-        uses: ./.github/actions/checksums@5a26e989b5fba8076bbf7f4800ec19a94e5096b1
+        uses: ai-warevo/.github/.github/actions/checksums@922739984c57a0d568743c7e5d786de934113efd
         with:
           artifacts_dir: 'artifacts'
           checksums_file: 'SHA256SUMS.txt'
 
       - name: Verify checksums
-        uses: ./.github/actions/checksums-verify@b6fea8cbedfa146c2de4e0180f19c4d11d90325d
+        uses: ai-warevo/.github/.github/actions/checksums-verify@9e2830e0e329247e6ab4520292ae4439dc71ff69
         with:
           artifacts_dir: 'artifacts'
           checksums_file: 'SHA256SUMS.txt'
@@ -156,7 +156,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       - name: Build and push Docker image
-        uses: ./.github/actions/docker-build-push@d63404d832482c378b790598a99bf53baf10ca8e
+        uses: ai-warevo/.github/.github/actions/docker-build-push@611b0274ac9566c37adcbb9d55993dfacb8190a4
         with:
           context: ${{ inputs.docker_context }}
           dockerfile: ${{ inputs.dockerfile }}

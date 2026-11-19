@@ -61,7 +61,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       - name: Check formatting
-        uses: ./.github/actions/clang-format@66a569af12cee8bcbc8a0a7746b65a0b3e11bfb3
+        uses: ai-warevo/.github/.github/actions/clang-format@5b7f3680c4a5e871a23124ea1101eea8706b4dab
         with:
           source_dir: .
           extensions: ${{ inputs.extensions }}
@@ -78,7 +78,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       - name: Configure & Build
-        uses: ./.github/actions/cmake-build@e9b20ed3a4f8a49bf774a1f1c28c4fb39e27bad5
+        uses: ai-warevo/.github/.github/actions/cmake-build@eff474262b7f63a057fa4720ab23d345faa3ef86
         with:
           source_dir: ${{ inputs.source_dir }}
           build_dir: ${{ inputs.build_dir }}
@@ -86,7 +86,7 @@ jobs:
           extra_args: ${{ inputs.extra_args }}
 
       - name: Run clang-tidy
-        uses: ./.github/actions/clang-tidy@8a8099f57b65eb8282e8df7fc38fbb6b106676c6
+        uses: ai-warevo/.github/.github/actions/clang-tidy@ca6f26344ef59c715b43c2090c8723bfee093555
         with:
           source_dir: ${{ inputs.source_dir }}
           build_dir: ${{ inputs.build_dir }}
@@ -103,7 +103,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       - name: Configure & Build
-        uses: ./.github/actions/cmake-build@e9b20ed3a4f8a49bf774a1f1c28c4fb39e27bad5
+        uses: ai-warevo/.github/.github/actions/cmake-build@eff474262b7f63a057fa4720ab23d345faa3ef86
         with:
           source_dir: ${{ inputs.source_dir }}
           build_dir: ${{ inputs.build_dir }}
@@ -111,7 +111,7 @@ jobs:
           extra_args: ${{ inputs.extra_args }}
 
       - name: Run Tests
-        uses: ./.github/actions/ctest-run@f9d6360ab55c7c8ec283dd036f96f0a20f0672fe
+        uses: ai-warevo/.github/.github/actions/ctest-run@dc686d24e725dc221b76f16515f2927f52487816
         with:
           source_dir: ${{ inputs.source_dir }}
           build_dir: ${{ inputs.build_dir }}
