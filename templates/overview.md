@@ -1,9 +1,13 @@
 # <Project Name> — OVERVIEW
 
 ## Goal
-Brief project description (2-3 sentences)
+
+Brief project description (2–3 sentences). What problem does this project solve? Who is it for? What makes it unique?
+
+**Example**: _"This project provides a reusable CI/CD template for ai-warevo projects, enabling consistent build, test, and release workflows across C++, C#, Python, and other stacks."_
 
 ## Status
+
 - [ ] Requirements gathering
 - [ ] Planning
 - [ ] Development
@@ -11,19 +15,46 @@ Brief project description (2-3 sentences)
 - [ ] Release
 
 ## Task Plan
-- [ ] **Task 1**: <description> (`task_01.md`)
-- [ ] **Task 2**: <description> (`task_02.md`)
-- [ ] **Task 3**: <description> (`task_03.md`)
+
+| # | Task | File | Status | Dependencies |
+|---|------|------|--------|--------------|
+| 1 | Set up repository structure | `task_01.md` | ⬜ | — |
+| 2 | Implement core functionality | `task_02.md` | ⬜ | Task 1 |
+| 3 | Add tests and documentation | `task_03.md` | ⬜ | Task 2 |
+| 4 | Prepare release | `task_04.md` | ⬜ | Task 3 |
+
+**Legend**: ⬜ pending | 🔄 in progress | ✅ completed
 
 ## Progress
-Total tasks: X
-Completed: Y
-Percentage: Z%
+
+| Metric | Value |
+|--------|-------|
+| Total tasks | 4 |
+| Completed | 0 |
+| In progress | 0 |
+| Percentage | 0% |
 
 ## Dependencies
-- Task 2 depends on Task 1
-- Task 3 depends on Task 1
+
+- **Task 2** depends on Task 1 — repository structure must be in place before implementation.
+- **Task 3** depends on Task 2 — tests require implemented functionality.
+- **Task 4** depends on Task 3 — release requires tested code.
 
 ## Risks
-- Risk 1: description
-- Risk 2: description
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Scope creep | Delayed release | Define clear acceptance criteria per task |
+| External dependency changes | Build failures | Pin versions, add fallback |
+| Knowledge concentration | Bus factor | Document decisions, pair on complex tasks |
+
+## Decisions
+
+| Date | Decision | Rationale |
+|------|----------|-----------|
+| YYYY-MM-DD | Choose CMake over Make | Cross-platform support, better dependency tracking |
+| YYYY-MM-DD | Use Ninja as generator | Faster builds, parallel execution |
+
+## Notes
+
+Additional context, references, or links that don't fit elsewhere.
