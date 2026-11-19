@@ -1,5 +1,5 @@
 ---
-name: executor
+name: ai-warevo-executor
 description: Execute tasks — pass a path to todo/<name>/ or a specific task_XX.md
 inputs:
   task_path:

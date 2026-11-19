@@ -6,7 +6,7 @@ Guidance for working on an `ai-warevo/<repo>`. Read `README.md` for the user-fac
 
 `ai-warevo/<repo>` is a **shared infrastructure monorepo** for the ai-warevo organisation. It contains reusable artefacts that any project consumes regardless of stack (C#, Python, JS, C++, Go, Rust, Java):
 
-- **AI skills** (`skills/`) — agent-facing tool definitions for analyst, planner, executor, skill-creator, git-github-push.
+- **AI skills** (`skills/`) — agent-facing tool definitions for ai-warevo-analyst, ai-warevo-planner, ai-warevo-executor, ai-warevo-skill-creator, ai-warevo-git-github-push.
 - **Templates** (`templates/`) — OVERVIEW, task, README, CHANGELOG, CONTRIBUTING markdown skeletons.
 - **CI/CD** (`ci/`) — GitHub Actions reusable workflows (`ci.yml`, `test.yml`, `release.yml`) and composite actions (`badge/`, `changelog-release/`, `checksums/`, `coverage-parser/`, `docker-build-push/`, etc.).
 - **LLM server** (`docker-compose.yml`) — llama.cpp Docker Compose for local GPU-accelerated inference (RTX 4080, Qwen3.6-35B-A3B).
@@ -70,11 +70,11 @@ Each skill lives in `skills/<name>/SKILL.md`. A skill is a self-contained instru
 | `ai-warevo-workspace-prepper/` | Fork, clone, create branch |
 | `ai-warevo-code-impl/` | Implement changes, run tests |
 | `ai-warevo-pr-manager/` | Push to fork, create PR, monitor CI |
-| `git-github-push/` | Low-level git push via SSH |
-| `analyst/` | Requirements gathering |
-| `planner/` | Plan creation |
-| `executor/` | Task execution |
-| `skill-creator/` | Create new skills |
+| `ai-warevo-git-github-push/` | Low-level git push via SSH |
+| `ai-warevo-analyst/` | Requirements gathering |
+| `ai-warevo-planner/` | Plan creation |
+| `ai-warevo-executor/` | Task execution |
+| `ai-warevo-skill-creator/` | Create new skills |
 
 Skills are loaded via the `skill` tool. When editing a skill, keep it concise — agent context window is precious.
 
@@ -114,7 +114,7 @@ outputs:
 
 ### Git workflow (shared rules)
 
-All skills share these rules — see `git-github-push/` for the full reference:
+All skills share these rules — see `ai-warevo-git-github-push/` for the full reference:
 
 - **Never commit to `main`** — always use a feature/fix branch.
 - **Never push to `origin`** (`ai-warevo/...`) — read-only. Push only to `dshagent` (your fork).
@@ -122,7 +122,7 @@ All skills share these rules — see `git-github-push/` for the full reference:
 - **Always use SSH** — never HTTPS (rate limits).
 - **Merging is the user's responsibility** — agent creates PR, monitors CI, never merges.
 
-For details: [`git-github-push/SKILL.md`](skills/git-github-push/SKILL.md)
+For details: [`ai-warevo-git-github-push/SKILL.md`](skills/ai-warevo-git-github-push/SKILL.md)
 
 ## CI/CD architecture
 
