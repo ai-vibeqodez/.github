@@ -78,6 +78,40 @@ Each skill lives in `skills/<name>/SKILL.md`. A skill is a self-contained instru
 
 Skills are loaded via the `skill` tool. When editing a skill, keep it concise — agent context window is precious.
 
+### SKILL.md metadata schema
+
+Every `SKILL.md` starts with a YAML frontmatter block followed by an `## Input Validation` section:
+
+```yaml
+---
+name: <skill-name>
+description: <one-line purpose>
+inputs:
+  <input_name>:
+    type: string|integer|boolean|array|object|file|file[]|markdown
+    required: true|false
+    description: "<what this input is>"
+    # optional constraints (type-dependent):
+    min_length: 1
+    max_length: 100
+    min: 1
+    pattern: "^[a-z]+$"
+    enum: [bug, feature, task]
+    default: false
+outputs:
+  <output_name>:
+    type: string|markdown|file|file[]|object
+    format: <output_format>
+    description: "<what this output is>"
+---
+```
+
+**Rules:**
+- `name` and `description` are always required. `version` is **not** used — skills share the repo version from `./VERSION`.
+- `inputs` and `outputs` should cover all contract points — types, required status, constraints.
+- Each skill must include an `## Input Validation` section listing concrete checks (format, existence, value ranges) and stopping on failure.
+- If the skill produces structured output, document it in `outputs` with `format` and `properties`.
+
 ### Git workflow (shared rules)
 
 All skills share these rules — see `git-github-push/` for the full reference:

@@ -1,9 +1,45 @@
 ---
 name: ai-warevo-code-impl
 description: Classify the task, implement changes, and run all tests — full implementation cycle
+inputs:
+  working_dir:
+    type: string
+    required: true
+    description: "Repository workspace path"
+  issue:
+    type: object
+    required: true
+    description: "Issue details (title, body, labels, classification)"
+    properties:
+      number: integer
+      title: string
+      body: string
+      labels: string[]
+      classification: bug|feature|task|docs|ci
+  branch_name:
+    type: string
+    required: true
+    description: "Current branch name"
+    pattern: "^(feat|fix)/issue-\\d+$"
+outputs:
+  commit_hash:
+    type: string
+    description: "Git commit SHA"
+  tests_passed:
+    type: boolean
+    description: "Whether all tests passed"
+  changes_summary:
+    type: string
+    description: "Summary of implemented changes"
 ---
 
 # Skill: ai-warevo-code-impl
+
+## Input Validation
+1. Verify `working_dir` is a valid git repository root
+2. Check that `issue.classification` is one of: `bug`, `feature`, `task`, `docs`, `ci`
+3. Verify `branch_name` matches `^(feat|fix)/issue-\\d+$`
+4. If validation fails, report error and stop
 
 ## Purpose
 Classify the task type, implement the required changes following repo conventions, and run all tests/linters/build checks.

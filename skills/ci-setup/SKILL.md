@@ -1,9 +1,44 @@
 ---
 name: ci-setup
 description: Bootstrap the shared language-agnostic Makefile CI contract and reusable GitHub Actions workflows in a project repository.
+inputs:
+  repo_path:
+    type: string
+    required: true
+    description: "Path to the repository root"
+  stack:
+    type: object
+    required: false
+    description: "Language, build system, test framework"
+    properties:
+      language: string
+      build_system: string
+      test_framework: string
+outputs:
+  makefile_targets:
+    type: object
+    properties:
+      ci_fast: boolean
+      ci_deep: boolean
+      ci_coverage: boolean
+      build_release: boolean
+  workflow_files:
+    type: file[]
+    path_pattern: ".github/workflows/*.yml"
+  coverage_svg:
+    type: file
+    path: "coverage.svg"
+  dist_artifacts:
+    type: file[]
+    path_pattern: "dist/*"
 ---
 
 # CI Setup
+
+## Input Validation
+1. Verify `repo_path` exists and is a git repository root
+2. If `stack` is provided, verify at least `language` is specified
+3. If validation fails, report error and stop
 
 Use this skill when a repository needs PR checks, scheduled verification, and a gated release workflow based on `ai-warevo/.github`.
 

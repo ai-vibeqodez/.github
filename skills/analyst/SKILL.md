@@ -1,9 +1,36 @@
 ---
 name: analyst
 description: Gathering and formalizing requirements through interviews with the customer or stakeholders
+inputs:
+  project_name:
+    type: string
+    required: true
+    description: "Name of the project"
+    min_length: 1
+    max_length: 100
+  context:
+    type: string
+    required: false
+    description: "Brief description of the idea"
+    min_length: 10
+  stakeholders:
+    type: array
+    required: false
+    description: "List of stakeholders"
+    items:
+      type: string
+outputs:
+  requirements_doc:
+    type: markdown
+    format: sections [goal, stakeholders, functional_requirements, non_functional_requirements, constraints, priorities, mvp, risks]
 ---
 
 # Skill: Analyst
+
+## Input Validation
+1. Check that `project_name` is non-empty and ≤ 100 characters
+2. If `context` is provided, verify it has at least 10 characters
+3. If validation fails, report error and stop
 
 ## Purpose
 Gathering and formalizing requirements through interviews with the customer/stakeholders.

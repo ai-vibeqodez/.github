@@ -1,9 +1,38 @@
 ---
 name: ai-warevo-orchestrator
 description: Orchestrator skill — coordinates the full pipeline by delegating to specialized sub-skills (ai-warevo-issue-discoverer, ai-warevo-workspace-prepper, ai-warevo-code-impl, ai-warevo-pr-manager)
+inputs:
+  issue_number:
+    type: integer
+    required: false
+    description: "GitHub issue number to work on"
+    min: 1
+  task_description:
+    type: string
+    required: false
+    description: "Free-text task description (used when issue_number is not provided)"
+    min_length: 10
+  repo:
+    type: string
+    required: true
+    description: "Target repository in owner/name format"
+    pattern: "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"
+outputs:
+  pr_url:
+    type: string
+    description: "Final PR URL"
+  actions_summary:
+    type: string
+    description: "Summary of all actions taken through the pipeline"
 ---
 
 # Skill: ai-warevo-orchestrator
+
+## Input Validation
+1. Check that `repo` matches `owner/name` format
+2. Verify that at least one of `issue_number` or `task_description` is provided
+3. If `task_description` is provided, verify it has at least 10 characters
+4. If validation fails, report error and stop
 
 ## Purpose
 Orchestrates the complete autonomous workflow for working on tasks in organization repositories. This skill **does not implement steps directly** — it delegates to specialized sub-skills and verifies each step's completion.

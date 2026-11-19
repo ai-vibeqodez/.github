@@ -1,9 +1,43 @@
 ---
 name: ci-infrastructure-integrator
 description: Smart integration of ready-made CI/CD infrastructure from a catalog repository into an existing project without duplication and with preservation of existing code
+inputs:
+  target_project_path:
+    type: string
+    required: true
+    description: "Path to the target project directory"
+  catalog_repo_path:
+    type: string
+    required: true
+    description: "Path to the catalog repository"
+  project_type:
+    type: string
+    required: false
+    description: "Language, build system, test framework (auto-detected if not specified)"
+outputs:
+  workflow_files:
+    type: file[]
+    path_pattern: ".github/workflows/*.yml"
+  build_config:
+    type: file
+    path: "CMakeLists.txt or equivalent"
+  documentation:
+    type: file[]
+    path_pattern: "README.md|CHANGELOG.md|CONTRIBUTING.md"
+  validation_result:
+    type: object
+    properties:
+      yaml_valid: boolean
+      uses_references_valid: boolean
+      no_existing_logic_lost: boolean
 ---
 
 # Skill: CI/CD Infrastructure Integrator
+
+## Input Validation
+1. Verify `target_project_path` exists and is a directory
+2. Verify `catalog_repo_path` exists and is a directory
+3. If validation fails, report error and stop
 
 ## Purpose
 Integration of ready-made CI/CD infrastructure from a catalog repository into an existing project using smart merge — no overwriting, no duplication, preserving everything valuable that already exists.

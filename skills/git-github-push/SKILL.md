@@ -1,9 +1,41 @@
 ---
 name: git-github-push
 description: Central reference for git workflow rules and low-level SSH push operations.
+inputs:
+  repo:
+    type: string
+    required: true
+    description: "Repository in owner/name format"
+    pattern: "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"
+  branch:
+    type: string
+    required: true
+    description: "Branch to push"
+    pattern: "^[a-zA-Z0-9_/-]+$"
+  force:
+    type: boolean
+    required: false
+    description: "Force push (use with caution)"
+    default: false
+outputs:
+  push_url:
+    type: string
+    description: "Remote push URL"
+  status:
+    type: string
+    enum: [success, failed]
+  error:
+    type: string
+    description: "Error message if status is failed"
 ---
 
 # Git GitHub Push — Central Git Workflow Reference
+
+## Input Validation
+1. Check that `repo` matches `owner/name` format
+2. Verify `branch` contains only valid git ref characters
+3. If `force` is true, require explicit confirmation from user
+4. If validation fails, report error and stop
 
 > **This is the canonical source for all git workflow rules.** Other skills reference this one — do not duplicate its rules elsewhere.
 
