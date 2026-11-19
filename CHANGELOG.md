@@ -14,6 +14,10 @@ Maintainer notes:
 
 ## [Unreleased]
 
+### Security
+
+- Add SHA256 checksum verification to `scripts/updater.sh`: all downloaded scripts are verified against known checksums before being written to disk, preventing silent replacement by compromised content; embedded fallback checksums in updater.sh; `--ignore-verify` emergency flag with warning (#29)
+
 ### Fixed
 
 - Add missing `ci/.github/workflows/release.yml` universal release template referenced in AGENTS.md, ci/README.md, and CONTRIBUTING.md (#27)
