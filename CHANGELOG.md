@@ -14,6 +14,10 @@ Maintainer notes:
 
 ## [Unreleased]
 
+### Fixed
+
+- Add missing `ci/.github/workflows/release.yml` universal release template referenced in AGENTS.md, ci/README.md, and CONTRIBUTING.md (#27)
+
 ## [1.6.0] - 2026-11-19
 
 ### Added

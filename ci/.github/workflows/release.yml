@@ -1,0 +1,215 @@
+# Release — Universal Template
+#
+# Copy this file into your project as .github/workflows/release.yml
+# and replace placeholders with real commands for your stack.
+#
+# Supported stacks (pick the one you need and uncomment):
+#   Node.js / TypeScript, Python, C# (.NET), C++ (CMake), Go, Rust, Java, and more.
+#
+# Triggers: tag push v*, or manual workflow_dispatch with optional version input.
+# Uses composite actions: release-version, changelog-release, checksums, docker-build-push
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Semantic version without v prefix (e.g. 1.2.3). Leave empty for snapshot.'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+  packages: write
+  actions: write
+
+# Don't cancel release runs — they must complete
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  # ── Build example (language-specific) ──────────────────────────────────
+  build-example:
+    name: Build example
+    runs-on: ubuntu-latest
+    outputs:
+      release_version: ${{ steps.version.outputs.release_version }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+
+      - name: Resolve version
+        id: version
+        uses: ai-warevo/.github/ci/actions/release-version@72e62471355bf347d09c7e183af5fd33bf41fbaf
+        with:
+          version: ${{ github.event.inputs.version }}
+
+      # ── Node.js / TypeScript ──
+      # - name: Setup Node.js
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: '20'
+      # - run: npm ci
+      # - run: npm run build
+      # - name: Upload artifact
+      #   uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      #   with:
+      #     name: dist-${{ steps.version.outputs.release_version }}
+      #     path: dist/
+
+      # ── Python ──
+      # - name: Setup Python
+      #   uses: actions/setup-python@v5
+      #   with:
+      #     python-version: '3.12'
+      # - run: pip install build
+      # - run: python -m build
+      # - name: Upload artifact
+      #   uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      #   with:
+      #     name: dist-${{ steps.version.outputs.release_version }}
+      #     path: dist/
+
+      # ── C# (.NET) ──
+      # - name: Setup .NET
+      #   uses: actions/setup-dotnet@v4
+      #   with:
+      #     dotnet-version: '8.0.x'
+      # - run: dotnet publish -c Release -o publish
+      # - name: Upload artifact
+      #   uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      #   with:
+      #     name: publish-${{ steps.version.outputs.release_version }}
+      #     path: publish/
+
+      # ── C++ (CMake) ──
+      # - name: Configure & Build
+      #   uses: ai-warevo/.github/ci/actions/cmake-build@3166e731dcbbe7827136a9232c983fb0c22a5911
+      #   with:
+      #     source_dir: .
+      #     build_dir: build
+      #     build_type: Release
+      # - name: Upload artifact
+      #   uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      #   with:
+      #     name: build-${{ steps.version.outputs.release_version }}
+      #     path: build/
+
+      # ── Go ──
+      # - name: Setup Go
+      #   uses: actions/setup-go@v5
+      #   with:
+      #     go-version: '1.22'
+      # - run: go build -o dist/ ./...
+      # - name: Upload artifact
+      #   uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      #   with:
+      #     name: dist-${{ steps.version.outputs.release_version }}
+      #     path: dist/
+
+      # ── Rust ──
+      # - name: Setup Rust
+      #   uses: actions/setup-rust@v1
+      #   with:
+      #     rust-version: '1.75'
+      # - run: cargo build --release
+      # - name: Upload artifact
+      #   uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      #   with:
+      #     name: dist-${{ steps.version.outputs.release_version }}
+      #     path: target/release/
+
+      # ── Java (Maven) ──
+      # - name: Setup Java
+      #   uses: actions/setup-java@v4
+      #   with:
+      #     distribution: 'temurin'
+      #     java-version: '21'
+      # - run: mvn package -DskipTests
+      # - name: Upload artifact
+      #   uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      #   with:
+      #     name: dist-${{ steps.version.outputs.release_version }}
+      #     path: target/*.jar
+
+      # TODO: Uncomment one of the language stack blocks above and remove this placeholder.
+      - name: Build (placeholder)
+        if: false
+        run: echo "call real command to build"
+
+  # ── Release job ────────────────────────────────────────────────────────
+  release:
+    name: Publish GitHub Release
+    runs-on: ubuntu-latest
+    needs: build-example
+    outputs:
+      release_version: ${{ needs.build-example.outputs.release_version }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+
+      - name: Generate Release Body
+        id: changelog
+        uses: ai-warevo/.github/ci/actions/changelog-release@72e62471355bf347d09c7e183af5fd33bf41fbaf
+        with:
+          tag: ${{ needs.build-example.outputs.release_version }}
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: build-${{ needs.build-example.outputs.release_version }}
+          path: artifacts
+
+      - name: Generate checksums
+        id: checksums_generate
+        uses: ai-warevo/.github/ci/actions/checksums@72e62471355bf347d09c7e183af5fd33bf41fbaf
+        with:
+          artifacts_dir: 'artifacts'
+          checksums_file: 'SHA256SUMS.txt'
+
+      - name: Verify checksums
+        uses: ai-warevo/.github/ci/actions/checksums-verify@3166e731dcbbe7827136a9232c983fb0c22a5911
+        with:
+          artifacts_dir: 'artifacts'
+          checksums_file: 'SHA256SUMS.txt'
+
+      - name: Create Release
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65
+        with:
+          tag_name: ${{ needs.build-example.outputs.release_version }}
+          name: ${{ needs.build-example.outputs.release_version }}
+          body_path: ${{ steps.changelog.outputs.body_path }}
+          files: |
+            artifacts/SHA256SUMS.txt
+          generate_release_notes: false
+
+  # ── Docker image build + GHCR push ─────────────────────────────────────
+  docker:
+    name: Build and push Docker image
+    runs-on: ubuntu-latest
+    needs: release
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Build and push Docker image
+        uses: ai-warevo/.github/ci/actions/docker-build-push@3166e731dcbbe7827136a9232c983fb0c22a5911
+        with:
+          context: .
+          dockerfile: Dockerfile
+          image_name: ghcr.io/${{ github.repository }}
+          tags: |
+            ghcr.io/${{ github.repository }}:${{ needs.release.outputs.release_version }}
+            ghcr.io/${{ github.repository }}:latest
