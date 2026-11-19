@@ -6,8 +6,13 @@
 # Supported stacks (pick the one you need and uncomment):
 #   Node.js / TypeScript, Python, C# (.NET), C++ (CMake), Go, Rust, Java, and more.
 #
-# Triggers: tag push v*, or manual workflow_dispatch with optional version input.
-# Uses composite actions: release-version, changelog-release, checksums, docker-build-push
+# Two modes:
+#   1. **Tag push** (v*) — build → release → docker (automatic)
+#   2. **workflow_dispatch** — generate changelog → derive version → promote → tag → push
+#      (which triggers mode 1). No local scripts needed.
+#
+# Composite actions: release-version, changelog-generate, changelog-promote,
+#                   changelog-release, checksums, checksums-verify, docker-build-push
 
 name: Release
 
@@ -18,7 +23,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Semantic version without v prefix (e.g. 1.2.3). Leave empty for snapshot.'
+        description: 'Version without v prefix. Leave empty to derive from CHANGELOG.md.'
         required: false
         default: ''
 
@@ -27,16 +32,62 @@ permissions:
   packages: write
   actions: write
 
-# Don't cancel release runs — they must complete
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
+# ── Bump job: changelog generation + version derivation + tag creation ──
+# Runs only on workflow_dispatch. Pushes the tag, which triggers the tag-push flow.
 jobs:
-  # ── Build example (language-specific) ──────────────────────────────────
+  bump:
+    name: Bump version and tag
+    if: github.event_name == 'workflow_dispatch' && (github.event.inputs.version == '' || github.event.inputs.version == null)
+    runs-on: ubuntu-latest
+    outputs:
+      release_version: ${{ steps.promote.outputs.tag }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          ssh-key: ${{ secrets.DEPLOY_KEY || github.token }}
+
+      # 1. Generate [Unreleased] section from git log
+      - name: Generate changelog
+        id: generate
+        uses: ai-warevo/.github/ci/actions/changelog-generate@72e62471355bf347d09c7e183af5fd33bf41fbaf
+        with:
+          force: 'true'
+
+      # 2. Derive version from [Unreleased] categories and promote
+      - name: Derive version and promote changelog
+        id: promote
+        uses: ai-warevo/.github/ci/actions/changelog-promote@72e62471355bf347d09c7e183af5fd33bf41fbaf
+
+      # 3. Commit and tag
+      - name: Commit and tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md VERSION
+          git commit -m "chore(release): ${{ steps.promote.outputs.tag }}" || echo "Nothing to commit"
+          git tag -a "${{ steps.promote.outputs.tag }}" -m "release ${{ steps.promote.outputs.tag }}"
+          echo "Tagged ${{ steps.promote.outputs.tag }}"
+
+      # 4. Push (triggers tag-push flow)
+      - name: Push tag
+        run: |
+          git push origin HEAD
+          git push origin "${{ steps.promote.outputs.tag }}"
+          echo "Pushed — release workflow triggered by tag"
+
+  # ── Build job (language-specific) ──────────────────────────────────────
   build-example:
     name: Build example
     runs-on: ubuntu-latest
+    needs: bump
+    if: needs.bump.result == 'skipped'
     outputs:
       release_version: ${{ steps.version.outputs.release_version }}
 

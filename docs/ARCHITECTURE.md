@@ -44,7 +44,7 @@ ai-warevo/.github/
 │
 ├── example/                     # Reference C++23 CMake project
 ├── workflows/                   # Root-level workflow definitions
-├── scripts/                     # Release and utility scripts
+
 ├── docker-compose.yml           # LLM server configuration
 └── AGENTS.md                    # Developer guide
 ```
@@ -57,7 +57,6 @@ ai-warevo/.github/
 | `templates/` | File skeletons copied into consumer repos | All ai-warevo projects |
 | `skills/` | AI agent instruction sets | ai-warevo-analyst, planner, executor |
 | `example/` | Reference C++23 project with CI | CI template validation |
-| `scripts/` | Release automation scripts | Maintainers |
 | `workflows/` | Root-level workflow definitions | Internal use |
 
 ## CI/CD Architecture
@@ -208,12 +207,12 @@ jobs:
 
 ### Release Process
 
-1. **Local release** (maintainer):
+1. **CI release** (workflow dispatch):
    ```bash
-   make release-dry-run   # Preview changes
-   make release           # Create release commit + tag
-   make release PUSH=1    # Push tag (triggers CI)
+   gh workflow run release.yml --ref main
    ```
+   Workflow auto-generates `[Unreleased]` from git log, derives version, promotes heading,
+   writes `VERSION`, commits, tags `vX.Y.Z`, and pushes — triggering the tag-push flow.
 
 2. **CI release** (automatic on tag push):
    - Run `ci-fast` and `ci-deep` in parallel

@@ -44,8 +44,6 @@ For detailed setup instructions, see [CONTRIBUTING.md](CONTRIBUTING.md).
 ├── src/            # Source code
 ├── tests/          # Test files
 ├── docs/           # Documentation
-├── scripts/        # Utility scripts
-├── templates/      # Reusable templates (if applicable)
 ├── ci/             # CI/CD configuration (if applicable)
 ├── Makefile        # Build and test targets
 ├── README.md       # This file

@@ -73,7 +73,7 @@ runs:
           }')"
 
         if [ -z "$notes" ]; then
-          echo "::error::CHANGELOG.md has no entries for [$version]. Run scripts/release.sh (or release.ps1) to cut releases."
+          echo "::error::CHANGELOG.md has no entries for [$version]. Trigger the release workflow (gh workflow run release.yml) to cut releases."
           exit 1
         fi
 

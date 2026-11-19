@@ -1,0 +1,114 @@
+name: 'Changelog Promoter'
+description: 'Promotes [Unreleased] to a version heading and writes VERSION file'
+
+inputs:
+  version:
+    description: 'Version without v prefix (e.g., 1.2.3)'
+    required: true
+  changelog:
+    description: 'Path to CHANGELOG.md (default: CHANGELOG.md)'
+    required: false
+    default: 'CHANGELOG.md'
+  version_file:
+    description: 'Path to VERSION file (default: VERSION)'
+    required: false
+    default: 'VERSION'
+  repo_base:
+    description: 'Repository base URL for compare links (default: github server URL)'
+    required: false
+    default: ''
+
+outputs:
+  tag:
+    description: 'Full tag with v prefix (e.g., v1.2.3)'
+    value: ${{ steps.promote.outputs.tag }}
+  compare_url:
+    description: 'Compare URL for the release'
+    value: ${{ steps.promote.outputs.compare_url }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Promote changelog
+      id: promote
+      shell: bash
+      env:
+        VERSION: ${{ inputs.version }}
+        CHANGELOG_PATH: ${{ inputs.changelog }}
+        VERSION_FILE: ${{ inputs.version_file }}
+        REPO_BASE: ${{ inputs.repo_base }}
+      run: |
+        set -euo pipefail
+
+        changelog="$CHANGELOG_PATH"
+        version_file="$VERSION_FILE"
+        version="$VERSION"
+        tag="v$version"
+
+        [ -f "$changelog" ] || { echo "::error::CHANGELOG.md not found"; exit 1; }
+
+        # Derive current version from latest tag or [Unreleased] heading
+        current="$( { git tag --list 'v[0-9]*.[0-9]*.[0-9]*' | sed 's/^v//'
+                      sed -n 's/^## \[\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\)\].*/\1/p' "$changelog"; } \
+                    | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -t. -k1,1n -k2,2n -k3,3n | tail -n 1 || true)"
+        has_previous=1
+        [ -z "$current" ] && { current="0.0.0"; has_previous=0; }
+
+        today="$(date +%Y-%m-%d)"
+
+        # Determine repo base URL for compare links
+        repo_base="$REPO_BASE"
+        if [ -z "$repo_base" ]; then
+          repo_base="$(echo "${{ github.server_url }}/${{ github.repository }}" | sed 's/\.git$//')"
+        fi
+
+        # Work on LF copy
+        crlf=0
+        grep -q $'\r' "$changelog" && crlf=1
+        work="$(mktemp -p /tmp)"
+        out="$(mktemp -p /tmp)"
+        trap 'rm -f "$work" "$out"' EXIT
+        tr -d '\r' < "$changelog" > "$work"
+
+        # Promote [Unreleased] to version heading
+        awk -v ver="$version" -v tag="$tag" -v prev="v$current" -v has_prev="$has_previous" -v date="$today" '
+          function flush(   c, i, first, last) {
+              print "## [" ver "] - " date
+              print ""
+              for (c = 1; c <= nc; c++) {
+                  first = 1; last = cnt[c]
+                  while (first <= last && body[c, first] ~ /^[ \t]*$/) first++
+                  while (last >= first && body[c, last] ~ /^[ \t]*$/) last--
+                  if (first > last) continue
+                  print head[c]
+                  print ""
+                  for (i = first; i <= last; i++) print body[c, i]
+                  print ""
+              }
+          }
+          state == 0 && /^## \[Unreleased\]/ { print; print ""; state = 1; next }
+          state == 1 && (/^## \[/ || /^\[[^]]+\]:/) { flush(); state = 2 }
+          state == 1 {
+              if ($0 ~ /^###[ \t]+/) { nc++; head[nc] = $0; cnt[nc] = 0 }
+              else if (nc > 0) body[nc, ++cnt[nc]] = $0
+              next
+          }
+          /^\[Unreleased\]:[ \t]/ && index($0, "/compare/") {
+              base = $0; sub(/^\[Unreleased\]:[ \t]+/, "", base); sub(/\/compare\/.*$/, "", base)
+              print "[Unreleased]: " base "/compare/" tag "...HEAD"
+              if (has_prev == 1) print "[" ver "]: " base "/compare/" prev "..." tag
+              else print "[" ver "]: " base "/releases/tag/" tag
+              next
+          }
+          { print }
+          END { if (state == 1) flush() }
+        ' "$work" > "$out"
+
+        if [ "$crlf" -eq 1 ]; then sed 's/$/\r/' "$out" > "$changelog"; else cp "$out" "$changelog"; fi
+
+        # Write VERSION file
+        printf '%s\n' "$version" > "$version_file"
+
+        echo "tag=$tag" >> $GITHUB_OUTPUT
+        echo "compare_url=${repo_base}/compare/${prev}...${tag}" >> $GITHUB_OUTPUT
+        echo "Promoted [Unreleased] → $tag ($today)"

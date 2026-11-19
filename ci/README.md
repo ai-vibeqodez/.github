@@ -81,6 +81,8 @@ All composite actions live in `ci/actions/` and are referenced by consumer workf
 | --- | --- |
 | `badge/` | Generate custom SVG badges |
 | `badge-deploy/` | Deploy an SVG badge to a branch (self-contained) |
+| `changelog-generate/` | Generate [Unreleased] section from git log (conventional commits) |
+| `changelog-promote/` | Promote [Unreleased] to a version heading and write VERSION file |
 | `changelog-release/` | Extract release notes from CHANGELOG.md by tag |
 | `checksums/` | Generate SHA256SUMS.txt for files in a directory |
 | `checksums-verify/` | Verify SHA256 checksums against a checksums file |

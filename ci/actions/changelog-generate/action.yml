@@ -1,0 +1,171 @@
+name: 'Changelog Generator'
+description: 'Generates [Unreleased] section in CHANGELOG.md from git log (conventional commits)'
+
+inputs:
+  changelog:
+    description: 'Path to CHANGELOG.md (default: CHANGELOG.md)'
+    required: false
+    default: 'CHANGELOG.md'
+  force:
+    description: 'Overwrite [Unreleased] even if it already has entries (default: false)'
+    required: false
+    default: 'false'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Generate changelog from git log
+      id: generate
+      shell: bash
+      env:
+        CHANGELOG_PATH: ${{ inputs.changelog }}
+        FORCE: ${{ inputs.force }}
+      run: |
+        set -euo pipefail
+
+        changelog="$CHANGELOG_PATH"
+        [ -f "$changelog" ] || { echo "::error::CHANGELOG.md not found"; exit 1; }
+
+        # Determine the previous tag (latest v* tag).
+        prev_tag="$(git tag -l 'v*' --sort=-version:refname | head -n1)"
+        if [ -n "$prev_tag" ]; then
+          range="${prev_tag}..HEAD"
+        else
+          range="HEAD"
+        fi
+
+        commits="$(git log --pretty=format:'%s' "$range" 2>/dev/null || true)"
+        [ -n "$commits" ] || { echo "No commits found in $range"; exit 0; }
+
+        # Categorize commits.
+        declare -a cat_breaking=() cat_feature=() cat_fix=() cat_change=() cat_remove=()
+        skip_keywords=(workflow github action deps dependency format lint prettier eslint)
+
+        is_skip() {
+          local line="$1"
+          [[ "$line" =~ ^(ci|chore)\( ]] || return 1
+          for kw in "${skip_keywords[@]}"; do
+            [[ "$line" == *"$kw"* ]] && return 0
+          done
+          return 1
+        }
+
+        clean_entry() {
+          echo "$1" | sed -E 's/^[a-z]+\([^)]*\): *//; s/^[a-z]+: *//'
+        }
+
+        add_entry() {
+          local category="$1" subject="$2"
+          local entry
+          entry="$(clean_entry "$subject")"
+          case "$category" in
+            breaking) cat_breaking+=("$entry") ;;
+            feature)  cat_feature+=("$entry") ;;
+            fix)      cat_fix+=("$entry") ;;
+            change)   cat_change+=("$entry") ;;
+            remove)   cat_remove+=("$entry") ;;
+          esac
+        }
+
+        while IFS= read -r line; do
+          [ -z "$line" ] && continue
+          local_type=""
+
+          # Breaking change detection
+          if [[ "$line" =~ ^[a-z]+\([^)]*\)!\: ]] || [[ "$line" =~ ^[a-z]+!\: ]] || [[ "$line" == *"BREAKING CHANGE"* ]]; then
+            local_type="breaking"
+            line="${line//!:/ :}"
+          fi
+
+          # Skip infra-only ci/chore
+          is_skip "$line" && continue
+
+          # Map conventional commit prefix
+          if [[ "$line" =~ ^feat\( ]] || [[ "$line" =~ ^feat\: ]]; then
+            local_type="${local_type:+$local_type,}feature"
+          elif [[ "$line" =~ ^fix\( ]] || [[ "$line" =~ ^fix\: ]]; then
+            local_type="${local_type:+$local_type,}fix"
+          elif [[ "$line" =~ ^(perf|refactor|docs|style|chore|ci|build)\( ]] || [[ "$line" =~ ^(perf|refactor|docs|style|chore|ci|build)\: ]]; then
+            local_type="${local_type:+$local_type,}change"
+          elif [[ "$line" =~ ^test\( ]] || [[ "$line" =~ ^test\: ]]; then
+            local_type="${local_type:+$local_type,}fix"
+          elif [[ "$line" =~ ^revert\( ]] || [[ "$line" =~ ^revert\: ]]; then
+            local_type="${local_type:+$local_type,}remove"
+          else
+            local_type="${local_type:+$local_type,}change"
+          fi
+
+          IFS=',' read -ra types <<< "$local_type"
+          for t in "${types[@]}"; do
+            add_entry "$t" "$line"
+          done
+        done <<< "$commits"
+
+        # Check if [Unreleased] already has entries (unless --force).
+        if [ "$FORCE" != "true" ] && grep -q '^## \[Unreleased\]' "$changelog"; then
+          unreleased_body="$(awk '/^## \[Unreleased\]/ { found=1; next } found && /^## \[/ { exit } found { print }' "$changelog")"
+          if [ -n "$unreleased_body" ]; then
+            echo "::error::[Unreleased] already has entries. Use --force to overwrite, or run release first."
+            exit 1
+          fi
+        fi
+
+        # Build section.
+        section_file="$(mktemp)"
+        trap 'rm -f "$section_file"' EXIT
+
+        echo "## [Unreleased]" > "$section_file"
+
+        for key in breaking feature fix change remove; do
+          local_display="${key^}"
+          case "$key" in
+            breaking) entries=("${cat_breaking[@]+"${cat_breaking[@]}"}") ;;
+            feature)  entries=("${cat_feature[@]+"${cat_feature[@]}"}") ;;
+            fix)      entries=("${cat_fix[@]+"${cat_fix[@]}"}") ;;
+            change)   entries=("${cat_change[@]+"${cat_change[@]}"}") ;;
+            remove)   entries=("${cat_remove[@]+"${cat_remove[@]}"}") ;;
+          esac
+          [ "${#entries[@]}" -eq 0 ] && continue
+
+          echo "" >> "$section_file"
+          echo "### $local_display" >> "$section_file"
+          echo "" >> "$section_file"
+          for e in "${entries[@]}"; do echo "- $e" >> "$section_file"; done
+        done
+
+        # Write to changelog.
+        work="$(mktemp)"
+        out="$(mktemp)"
+        trap 'rm -f "$work" "$out" "$section_file"' EXIT
+
+        crlf=0
+        grep -q $'\r' "$changelog" && crlf=1
+        tr -d '\r' < "$changelog" > "$work"
+
+        if grep -q '^## \[Unreleased\]' "$work"; then
+          awk -v secfile="$section_file" '
+            /^## \[Unreleased\]/ { in_u = 1; print; next }
+            in_u && /^## \[/ {
+              in_u = 0
+              first = 1
+              while ((getline line < secfile) > 0) { if (first) { first = 0; continue } print line }
+              close(secfile)
+              print ""
+              print
+              next
+            }
+            in_u { next }
+            { print }
+          ' "$work" > "$out"
+        else
+          awk -v secfile="$section_file" '
+            /^# Changelog$/ { print; print ""; while ((getline line < secfile) > 0) print line; next }
+            { print }
+          ' "$work" > "$out"
+        fi
+
+        if [ "$crlf" -eq 1 ]; then sed 's/$/\r/' "$out" > "$changelog"; else cp "$out" "$changelog"; fi
+
+        total=$(( ${#cat_breaking[@]} + ${#cat_feature[@]} + ${#cat_fix[@]} + ${#cat_change[@]} + ${#cat_remove[@]} ))
+        echo "entries=$total" >> $GITHUB_OUTPUT
+        echo "Generated $total entry(s) in CHANGELOG.md [Unreleased]"
