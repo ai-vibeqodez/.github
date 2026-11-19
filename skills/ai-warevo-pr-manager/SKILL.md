@@ -93,3 +93,4 @@ Self-review: PASSED
 - Include `Closes #NNN` in the PR body
 - Use Conventional Commits in the PR title
 - Document what was tested in the PR body
+- **Never merge PRs** — merging is the user's (господин's) responsibility only. Agent's role: fix bugs, work on PRs, report status.
