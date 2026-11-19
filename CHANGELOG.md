@@ -39,26 +39,17 @@ Maintainer notes:
 
 ## [1.4.8] - 2026-11-18
 
+### Added
+
+- example CI: upload badge and coverage HTML as artifacts, add deploy job for GitHub Pages
+- example CI: add `--security-opt seccomp=unconfined` to sanitizer container for TSan compatibility
+
 ### Fixed
 
-- ci
-
-### Changed
-
-- fix
-- fix
-- fix
-- fix
-- fix
-- fix
-- fix
-- fix
-- fix
-- fix
-- fix
-- fix
-- fix
-- fix
+- coverage-html-deploy: use `.` as default target_folder, create folder before `.nojekyll`, tolerate `git rm -rf` on new branch, copy dotfiles correctly
+- badge: resolve output path with `$(pwd)` instead of `${{ github.workspace }}`
+- actions-test: rename workflow to lowercase, simplify Docker context for docker-build-push, remove verbose debug steps
+- example tests: use `PRE_TEST` discovery mode to avoid TSan + Docker ASLR/seccomp conflict (exit 66)
 
 ## [1.4.7] - 2026-11-18
 
