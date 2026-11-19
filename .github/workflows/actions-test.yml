@@ -344,6 +344,7 @@ jobs:
   # ──────────────────────────────────────────────
   deploy:
     name: Deploy Tests
+    if: (!github.event.pull_request || !github.event.pull_request.head.repo.fork)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
