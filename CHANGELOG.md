@@ -14,6 +14,8 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-11-19
+
 ### Added
 
 - Add `CONTRIBUTING.md` with development setup, commit conventions, PR process, and guidelines for adding CI templates, composite actions, and skills (#5)
