@@ -8,7 +8,7 @@
 #
 # Usage:
 #   - name: Collect release assets
-#     uses: ai-warevo/.github/ci/actions/collect-release-assets@400867e7ca58ea40173dd703a4f56f96a8dc01f2
+#     uses: ai-warevo/<repo>/ci/actions/collect-release-assets@400867e7ca58ea40173dd703a4f56f96a8dc01f2
 #     with:
 #       version: '1.2.3'
 #       output_dir: release-artifacts
@@ -81,7 +81,7 @@ runs:
     - name: Generate checksums
       id: checksums
       if: inputs.include_checksums == 'true'
-      uses: ai-warevo/.github/ci/actions/checksums@6b9089e502cdca7e5f585b82d81d187c101347a0
+      uses: ai-warevo/<repo>/ci/actions/checksums@6b9089e502cdca7e5f585b82d81d187c101347a0
       with:
         artifacts_dir: "${{ inputs.output_dir }}/${{ inputs.version }}"
         checksums_file: "${{ inputs.output_dir }}/SHA256SUMS.txt"

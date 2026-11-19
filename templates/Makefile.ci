@@ -1,0 +1,34 @@
+# Makefile CI contract template
+# Copy the relevant recipes into the repository's Makefile and adapt commands.
+# Core reusable workflows invoke only these language-agnostic targets.
+
+.PHONY: ci-fast ci-deep ci-coverage build-release
+
+# Fast PR checks: lint/format, quick build, and unit tests.
+# Keep feedback quick; include ASan + UBSan in the C++ debug test build when practical.
+ci-fast:
+	@echo "Implement fast lint, build, and unit-test commands for this repository"
+	@# Example C++: cmake -S . -B build/fast -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer"
+	@# Example C++: cmake --build build/fast --parallel && ctest --test-dir build/fast --output-on-failure
+	@# Replace these examples with real commands; fail until configured:
+	@test -f .ci-fast-configured
+
+# Heavy scheduled/release checks: stress, end-to-end, security, or race detection.
+ci-deep:
+	@echo "Implement repository-specific deep verification commands"
+	@# Example C++ ThreadSanitizer: cmake -S . -B build/tsan -DCMAKE_CXX_FLAGS="-fsanitize=thread -fno-omit-frame-pointer"
+	@# Example C++ strict UBSan: use -fsanitize=undefined -fno-sanitize-recover=all
+	@test -f .ci-deep-configured
+
+# Run the test suite with coverage and write a standard SVG badge to coverage.svg.
+# The SVG is the workflow interchange format and must be committed as a build output.
+ci-coverage:
+	@echo "Implement coverage tests and generate coverage.svg"
+	@test -f .ci-coverage-configured
+
+# Build optimized production outputs into dist/ (required for tagged releases).
+build-release:
+	@rm -rf dist
+	@mkdir -p dist
+	@echo "Implement the optimized production build and place artifacts under dist/"
+	@test -f .build-release-configured

@@ -1,183 +1,78 @@
-# CI/CD Templates
+# Language-Agnostic CI/CD
 
-Универсальные шаблоны GitHub Actions workflow'ов для копирования в проекты.
+This repository provides reusable GitHub Actions workflows for projects in `ai-warevo`. The shared workflows orchestrate a small Makefile contract; each project owns its build, test, coverage, and release commands. This keeps the CI control plane language-agnostic across C++, C#, Python, JavaScript/TypeScript, Go, Rust, and other stacks.
 
-## Структура
+## Three tiers
 
-```
-ci/
-├── README.md
-├── actions/
-│   ├── badge/              — SVG Badge Generator (coverage бейдж)
-│   │   ├── action.yml
-│   │   └── README.md
-│   ├── changelog-release/  — генерация body релиза из CHANGELOG.md
-│   ├── checksums/          — генерация SHA256SUMS.txt из артефактов
-│   ├── checksums-verify/   — верификация SHA256SUMS.txt
-│   ├── clang-format/       — проверка форматирования C++ (clang-format-18)
-│   ├── clang-tidy/         — статический анализ C++ (clang-tidy-18)
-│   ├── cmake-build/        — CMake configure → build → install
-│   ├── collect-release-assets/ — скачивание артефактов билда
-│   ├── coverage-html-deploy/ — деплой HTML coverage на gh-pages
-│   ├── coverage-parser/    — парсер coverage (XML/LCOV)
-│   ├── ctest-run/          — запуск CTest для CMake проектов
-│   ├── docker-build-push/  — сборка и push Docker image
-│   ├── docker-push-ghcr/   — push Docker image в GHCR
-│   ├── docker-save/        — сохранение Docker image в tarball
-│   ├── download-artifacts/ — скачивание артефактов из других job
-│   ├── gcovr-report/       — генерация coverage XML + HTML (gcovr)
-│   ├── release-version/    — определение версии из CHANGELOG или workflow_dispatch
-│   └── setup-toolchain/    — установка toolchain + CMake args (clang-18, gcc-15, MSVC)
-├── .github/
-│   └── workflows/
-│       ├── ci.yml                  — универсальный CI (заглушки для всех стеков)
-│       ├── ci-cpp-container.yml    — C++20 контейнерный CI (gcc-15, clang-18)
-│       ├── release.yml             — автоматический релиз из CHANGELOG
-│       ├── test.yml                — универсальное тестирование (заглушки)
-│       └── test-cpp-container.yml  — C++20 контейнерный test + coverage + badge
-```
+| Tier | Trigger | Purpose | Contract |
+| --- | --- | --- | --- |
+| PR | Pull request | Fast, repeatable feedback and commit subject validation | `make ci-fast` |
+| Scheduled | Weekly/nightly cron or manual dispatch | Slow tests, stress, security, race checks, and coverage | `make ci-deep`, `make ci-coverage` |
+| Release Gate | Push of a `v*` tag | Require fast and deep checks in parallel, then build and publish exact release notes and artifacts | `make ci-fast`, `make ci-deep`, `make build-release` |
 
-## Container-first CI
+A failed check prevents downstream release publication. No shared workflow assumes a particular compiler, package manager, or test framework.
 
-Все C++ workflow'ы работают в Docker-образе **`ghcr.io/ai-warevo/ci-cpp20`**:
+## Makefile contract
 
-```
-runs-on: ubuntu-latest
-container:
-  image: ghcr.io/ai-warevo/ci-cpp20
-  options: --user root
+Each consumer repository must define these targets at its root:
+
+- `ci-fast`: quick lint/format checks, build, and unit tests. For C++, a common choice is ASan + UBSan.
+- `ci-deep`: expensive stress, end-to-end/integration, security, or race-detection checks. For C++, this may include TSan and strict UBSan.
+- `ci-coverage`: execute the coverage-enabled test suite and generate a valid `coverage.svg` at the repository root.
+- `build-release`: create optimized production artifacts under `dist/`.
+
+Targets should fail with a nonzero status if a required command fails. The reusable workflows invoke only these names. See [`templates/Makefile.ci`](../templates/Makefile.ci) for an intentionally unconfigured scaffold; replace its guard examples with real commands before adoption.
+
+Example sanitizer flags for C++:
+
+```make
+# Fast memory/undefined-behavior checks
+-fsanitize=address,undefined -fno-omit-frame-pointer
+
+# Separate deep race-detection build (do not combine with ASan)
+-fsanitize=thread -fno-omit-frame-pointer
+
+# Strict UBSan variant
+-fsanitize=undefined -fno-sanitize-recover=all
 ```
 
-Образ содержит:
-- **gcc-15** (libstdc++) — по умолчанию (`g++` symlink)
-- **clang-18** (libc++ + libstdc++)
-- **cmake**, **ninja-build**
-- **clang-tidy-18**, **clang-format-18**
-- **gcovr** (forky/unstable)
-- **gdb**, **lld-18**, ASan/TSan runtimes
+## Workflows
 
-В контейнере `setup-toolchain` — **no-op installer**, только вычисляет CMake args:
-```yaml
-- id: tc
-  uses: ai-warevo/.github/ci/actions/setup-toolchain@main
-  with:
-    toolchain: clang18-libcxx
-    container_mode: true
-- uses: ai-warevo/.github/ci/actions/cmake-build@main
-  with:
-    extra_args: "${{ steps.tc.outputs.cmake_args }}"
-```
+Reusable workflows live in `.github/workflows/` and are called by repositories in the organization using `workflow_call`:
 
-## Как использовать
+| Workflow | Purpose | Inputs |
+| --- | --- | --- |
+| `reusable-pr.yml` | Validate Conventional Commit subjects and run `make ci-fast` | Optional `setup-command` |
+| `reusable-scheduled.yml` | Run `make ci-deep` and `make ci-coverage`; optionally publish `coverage.svg` to `badges` | Optional `setup-command`; `update-badge` defaults to `false` |
+| `reusable-release.yml` | Gate on fast and deep checks, build `dist/`, extract the exact tag section from CHANGELOG, create a GitHub Release | Optional `setup-command` |
 
-### Быстрый старт (копирование workflow)
+The commit validator permits the standard types `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, and `revert`, with optional scope and breaking marker; maximum subject length is 88 characters. The generated `release vX.Y.Z` commit is exempt. A PR caller should run on pull requests; the release caller must trigger on `v*` tags. Scheduled callers should include both a cron and `workflow_dispatch` if manual operation is desired.
 
-1. Скопируй workflow в свой проект:
-   ```bash
-   cp ci/.github/workflows/ci-cpp-container.yml .github/workflows/ci.yml
-   cp ci/.github/workflows/test-cpp-container.yml .github/workflows/test.yml
+`setup-command` is an optional shell command for installing tools (for example, `sudo apt-get update && sudo apt-get install -y g++`). Keep it limited to trusted package installation. It executes in the caller repository's job context. Prefer a preinstalled runner toolchain or a maintained setup action where practical.
+
+## Setup
+
+1. Add real `ci-fast`, `ci-deep`, `ci-coverage`, and `build-release` recipes to the project Makefile. Use [`templates/Makefile.ci`](../templates/Makefile.ci) as a starting point, not as production-ready commands.
+2. Ensure `ci-coverage` writes a valid root-level `coverage.svg`. Ensure `build-release` creates the intended release files inside `dist/`.
+3. Copy the caller templates into the project at `.github/workflows/pr.yml`, `.github/workflows/scheduled.yml`, and `.github/workflows/release.yml`:
+
+   ```sh
+   mkdir -p .github/workflows
+   cp path/to/ai-warevo/.github/templates/github/workflows/pr.yml .github/workflows/pr.yml
+   cp path/to/ai-warevo/.github/templates/github/workflows/scheduled.yml .github/workflows/scheduled.yml
+   cp path/to/ai-warevo/.github/templates/github/workflows/release.yml .github/workflows/release.yml
    ```
 
-2. Для badge/deploy — на ветке `badges` нужен доступ через `GITHUB_TOKEN`.
+4. Configure `setup-command` only where the selected hosted runner lacks a required tool. Keep the caller thin; the target repository Makefile remains the source of stack-specific behavior.
+5. Enable badge publication with `update-badge: true` only after creating the target repository's `badges` branch and granting its workflow token `contents: write` (Settings → Actions → General → Workflow permissions). The shared job requests write permission only for badge publication. Keep it `false` otherwise.
+6. Verify that the changelog follows Keep a Changelog, and that the release commit from `make release PUSH=1` pushes the annotated `vX.Y.Z` tag. The tag must have an exact `## [X.Y.Z]` or `## [X.Y.Z] - YYYY-MM-DD` section in `CHANGELOG.md`; missing or empty notes fail the gate.
+7. Run all four Makefile targets locally. Open a PR and verify the PR status check before relying on it as a branch protection rule.
+8. Add the project's status and coverage badges to its README. The coverage image URL is `https://raw.githubusercontent.com/OWNER/REPOSITORY/badges/coverage.svg`.
 
-3. Создай релиз:
-   ```bash
-   make release-dry-run   # проверить, что будет
-   make release           # создать тег и коммит
-   ```
+## Permissions and security
 
-4. Запушь тег (SSH ключ нужен):
-   ```bash
-   GIT_SSH_COMMAND="ssh -i /tmp/ssh/id_ed25519 -o UserKnownHostsFile=/tmp/ssh/known_hosts -o StrictHostKeyChecking=no" \
-     git push origin v0.7.0
-   ```
+Reusable workflows default to `contents: read`. Only the scheduled badge publication job and release publication job request `contents: write`. Callers should not grant broader permissions. Pin reusable workflow references to a reviewed ref; the copyable templates use `@main` as requested for easy adoption, while production consumers with stricter supply-chain requirements should replace it with a reviewed commit SHA. Third-party actions use modern major-version references in reusable workflows.
 
-### Ручной запуск (workflow_dispatch)
+## Existing stack-specific CI
 
-```bash
-gh workflow run test.yml --ref main -f version=1.0.0
-```
-
-## ci-cpp-container.yml — C++20 Container CI
-
-Последовательный pipeline: **build → lint → test**.
-
-- Запускается по `pull_request` к `main`/`master` и `merge_group`
-- Отменяет старые запуски для одного и того же PR/ветки
-- **Build**: матрица по toolchain (clang18-libcxx, gcc15)
-- **Lint**: clang-format + clang-tidy (требует `compile_commands.json`)
-- **Test**: ctest в Debug конфигурации
-
-### Composite Actions
-
-| Action | Назначение |
-|--------|-----------|
-| `setup-toolchain` | Вычисляет CMake args для toolchain (в контейнере — no-op) |
-| `cmake-build` | CMake configure → build → install |
-| `ctest-run` | Запуск ctest |
-| `clang-format` | Проверка форматирования (--dry-run --Werror) |
-| `clang-tidy` | Статический анализ (требует compile_commands.json) |
-
-## test-cpp-container.yml — C++20 Container Test + Coverage
-
-Запускается:
-- **Вручную** (`workflow_dispatch`) — по кнопке в GitHub UI
-- **По push** в `main`/`master`
-- **По расписанию** — каждый понедельник в 06:00 UTC
-
-- Матрица: 4 конфигурации (clang18-libcxx, gcc15, clang18-libstdcxx+TSan, gcc15+UBSan)
-- **Coverage**: gcovr XML + HTML (только gcc-15)
-- **Badge**: SVG-бейдж с процентом покрытия → деплой на ветку `badges`
-- **HTML Report**: деплой на `gh-pages`
-
-### Coverage Badge
-
-После запуска на `main`/`master`:
-1. Парсит `coverage.xml` от gcovr
-2. Определяет цвет: 🔴 <50%, 🟡 50–80%, 🟢 ≥80%
-3. Генерирует SVG-бейдж через `ai-warevo/.github/ci/actions/badge@main`
-4. Деплоит бейдж на ветку `badges`
-5. Деплоит HTML-отчёт на `gh-pages` (если `htmlcov/index.html` существует)
-
-Для использования в `README.md`:
-```markdown
-![Coverage](https://raw.githubusercontent.com/your-org/your-repo/badges/coverage.svg)
-```
-
-## release.yml — Build → Release → Docker
-
-Автоматический pipeline из трёх job:
-
-1. **build-example** — билд проекта (CMake) и загрузка артефактов
-2. **release** — парсит CHANGELOG, генерирует checksums, создаёт GitHub Release с артефактами
-3. **docker** — собирает и пушит Docker image в GHCR
-
-### Composite Actions
-
-| Action | Назначение |
-|--------|-----------|
-| `release-version` | Определяет версию из CHANGELOG.md или input |
-| `changelog-release` | Генерирует body релиза из секции CHANGELOG |
-| `checksums` | Генерирует SHA256SUMS.txt для артефактов |
-| `checksums-verify` | Верифицирует checksums артефактов |
-| `download-artifacts` | Скачивает артефакты из других job (pattern match) |
-| `docker-push-ghcr` | Push Docker image в GitHub Container Registry |
-| `docker-save` | Сохраняет Docker image в tarball |
-| `collect-release-assets` | Скачивает артефакты билда |
-
-## ci.yml — Universal Template (заглушки)
-
-Универсальный шаблон с placeholder'ами для разных стеков.
-Раскомментируй нужный стек и замени заглушки.
-
-## Поддерживаемые стеки
-
-| Стек     | ci.yml | test.yml | ci-cpp-container | test-cpp-container |
-|----------|--------|----------|------------------|-------------------|
-| C++      | ✅     | ✅       | ✅ (container)   | ✅ (container)    |
-| Node.js  | ✅     | ✅       |                  |                   |
-| Python   | ✅     | ✅       |                  |                   |
-| C# (.NET)| ✅     | ✅       |                  |                   |
-| Go       | ✅     | ✅       |                  |                   |
-| Rust     | ✅     | ✅       |                  |                   |
-| Java     | ✅     | ❌       |                  |                   |
+This shared repository also contains established C++ container workflows and composite actions under `ci/.github/` and `ci/actions/`. They remain available for consumers that need their specialized matrix/build behavior. The Makefile contract workflows are an additional simpler integration path, not a replacement for those existing workflows.

@@ -7,7 +7,7 @@
 #
 # Usage:
 #   - name: Run clang-tidy
-#     uses: ai-warevo/.github/ci/actions/clang-tidy@main
+#     uses: ai-warevo/<repo>/ci/actions/clang-tidy@main
 #     with:
 #       source_dir: .
 #       build_dir: build

@@ -8,7 +8,7 @@
 #
 # Usage:
 #   - name: Push to GHCR
-#     uses: ai-warevo/.github/ci/actions/docker-push-ghcr@main
+#     uses: ai-warevo/<repo>/ci/actions/docker-push-ghcr@main
 #     with:
 #       image: ghcr.io/myorg/myapp
 #       version: '1.2.3'

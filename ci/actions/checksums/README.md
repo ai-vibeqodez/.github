@@ -19,7 +19,7 @@ Composite GitHub Action для генерации и верификации SHA2
 
 ```yaml
 - name: Generate and verify checksums
-  uses: ai-warevo/.github/ci/actions/checksums@main
+  uses: ai-warevo/<repo>/ci/actions/checksums@main
   with:
     artifacts_dir: 'release-assets'
     checksums_file: 'SHA256SUMS.txt'

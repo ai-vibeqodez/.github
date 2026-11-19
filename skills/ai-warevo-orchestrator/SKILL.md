@@ -126,8 +126,11 @@ When a sub-skill is not available, execute the step directly using these rules:
 - Always delegate to sub-skills when available — do not duplicate their logic
 - Verify each sub-skill completes successfully before proceeding
 - Stop the pipeline if any step fails (do not continue with partial results)
-- Never push directly to `ai-warevo` — always use fork
+- Never push directly to `ai-warevo` — always use fork (see `git-github-push` skill)
 - Always sync `main` before branching
 - Run all available tests and linters before pushing
 - Self-review every PR before submitting
 - Iterate on review feedback until approved
+
+## Git workflow rules
+Shared rules (never commit to `main`, SSH only, fork as `dshagent`, PAT auth, never merge) are defined in [`git-github-push/SKILL.md`](../git-github-push/SKILL.md).

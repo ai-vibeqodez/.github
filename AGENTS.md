@@ -1,10 +1,10 @@
 # AGENTS.md
 
-Guidance for working on `ai-warevo/.github`. Read `README.md` for the user-facing API; this file is about *how to change the repo*.
+Guidance for working on an `ai-warevo/<repo>`. Read `README.md` for the user-facing API; this file is about *how to change the repo*.
 
 ## Identity & philosophy
 
-`ai-warevo/.github` is a **shared infrastructure monorepo** for the ai-warevo organisation. It contains reusable artefacts that any project consumes regardless of stack (C#, Python, JS, C++, Go, Rust, Java):
+`ai-warevo/<repo>` is a **shared infrastructure monorepo** for the ai-warevo organisation. It contains reusable artefacts that any project consumes regardless of stack (C#, Python, JS, C++, Go, Rust, Java):
 
 - **AI skills** (`skills/`) — agent-facing tool definitions for analyst, planner, executor, skill-creator, git-github-push.
 - **Templates** (`templates/`) — OVERVIEW, task, README, CHANGELOG, CONTRIBUTING markdown skeletons.
@@ -61,17 +61,34 @@ They print the detected categories and next `vX.Y.Z`, then promote `[Unreleased]
 
 ## AI skills (how they work)
 
-Each skill lives in `skills/<name>/SKILL.md`. A skill is a self-contained instruction set for the agent:
+Each skill lives in `skills/<name>/SKILL.md`. A skill is a self-contained instruction set for the agent.
 
-| Skill | Role | Input | Output |
-|-------|------|-------|--------|
-| `analyst/` | Requirements gathering via interview | Project name, context, stakeholders | Structured requirements doc |
-| `planner/` | Plan creation from requirements | Requirements doc | `OVERVIEW.md`, `task_XX.md` files |
-| `executor/` | Execute tasks from todo/ | Task file path, OVERVIEW context | Implemented files, filled result |
-| `skill-creator/` | Create new skills | Skill description | `skills/<name>/SKILL.md`, updated indexes |
-| `git-github-push/` | Push commits via SSH | Ready commits, remote repo | Successful GitHub push |
+| Skill | Role |
+|-------|------|
+| `ai-warevo-orchestrator/` | Full pipeline: discover → prepare → impl → PR |
+| `ai-warevo-issue-discoverer/` | Find & select issues from org repos |
+| `ai-warevo-workspace-prepper/` | Fork, clone, create branch |
+| `ai-warevo-code-impl/` | Implement changes, run tests |
+| `ai-warevo-pr-manager/` | Push to fork, create PR, monitor CI |
+| `git-github-push/` | Low-level git push via SSH |
+| `analyst/` | Requirements gathering |
+| `planner/` | Plan creation |
+| `executor/` | Task execution |
+| `skill-creator/` | Create new skills |
 
-Skills are loaded via the `skill` tool. When editing a skill, keep it concise — agent context window is precious. Follow the pattern of existing skills: identity, input/output contract, step-by-step instructions, conventions.
+Skills are loaded via the `skill` tool. When editing a skill, keep it concise — agent context window is precious.
+
+### Git workflow (shared rules)
+
+All skills share these rules — see `git-github-push/` for the full reference:
+
+- **Never commit to `main`** — always use a feature/fix branch.
+- **Never push to `origin`** (`ai-warevo/...`) — read-only. Push only to `dshagent` (your fork).
+- **If `dshagent` remote is missing** — fork first, then add it.
+- **Always use SSH** — never HTTPS (rate limits).
+- **Merging is the user's responsibility** — agent creates PR, monitors CI, never merges.
+
+For details: [`git-github-push/SKILL.md`](skills/git-github-push/SKILL.md)
 
 ## CI/CD architecture
 
@@ -112,7 +129,7 @@ Pinning to `@main` is a supply-chain risk: a compromised branch can inject malic
 
 ```sh
 # Composite action: resolve SHA for a directory
-curl -s "https://api.github.com/repos/ai-warevo/.github/commits?path=ci/actions/<name>&per_page=1" \
+curl -s "https://api.github.com/repos/ai-warevo/<repo>/commits?path=ci/actions/<name>&per_page=1" \
   | jq -r '.[0].sha'
 
 # Third-party action: resolve SHA for a tagged ref
@@ -122,12 +139,12 @@ curl -s "https://api.github.com/repos/<owner>/<repo>/git/ref/tags/<tag>" \
 
 Update the SHA whenever the upstream action receives a meaningful update. Add a `Fixed` or `Changed` bullet to `CHANGELOG.md` under `## [Unreleased]` when bumping.
 
-### Workflow conventions
+## Workflow conventions
 
 - Use `concurrency` blocks to cancel stale runs on the same branch/PR.
 - Use `needs` to establish job dependencies; keep the graph shallow.
 - Matrix jobs for multi-platform/multi-version testing; single jobs for release.
-- All workflows reference shared composite actions from `ai-warevo/.github/ci/actions/<name>@<40-char-SHA>`.
+- All workflows reference shared composite actions from `ai-warevo/<repo>/ci/actions/<name>@<40-char-SHA>`.
 
 ## Documentation & comments
 
