@@ -19,18 +19,18 @@
 #
 # Usage (container):
 #   - id: tc
-#     uses: ai-warevo/.github/ci/actions/setup-toolchain@main
+#     uses: ai-warevo/<repo>/ci/actions/setup-toolchain@main
 #     with:
 #       toolchain: clang18-libcxx
 #       container_mode: true
 #       sanitizer: address   # optional: address, thread, memory, undefined
-#   - uses: ai-warevo/.github/ci/actions/cmake-build@main
+#   - uses: ai-warevo/<repo>/ci/actions/cmake-build@main
 #     with:
 #       extra_args: "${{ steps.tc.outputs.cmake_args }}"
 #
 # Usage (native):
 #   - id: tc
-#     uses: ai-warevo/.github/ci/actions/setup-toolchain@main
+#     uses: ai-warevo/<repo>/ci/actions/setup-toolchain@main
 #     with:
 #       toolchain: clang18-libcxx
 #       container_mode: false   # or omit

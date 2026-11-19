@@ -27,7 +27,7 @@ Composite GitHub Action для резолва версии релиза.
 steps:
   - name: Resolve version
     id: version
-    uses: ai-warevo/.github/ci/actions/release-version@main
+    uses: ai-warevo/<repo>/ci/actions/release-version@main
     with:
       version: ${{ github.event.inputs.version }}
 ```

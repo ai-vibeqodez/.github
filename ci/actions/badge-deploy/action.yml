@@ -5,7 +5,7 @@
 #
 # Usage:
 #   - name: Deploy Badge
-#     uses: ai-warevo/.github/ci/actions/badge-deploy@main
+#     uses: ai-warevo/<repo>/ci/actions/badge-deploy@main
 #     with:
 #       badge_path: coverage.svg
 #       branch: badges

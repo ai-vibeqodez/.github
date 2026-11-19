@@ -8,7 +8,7 @@
 #
 # Usage:
 #   - name: Generate Coverage
-#     uses: ai-warevo/.github/ci/actions/gcovr-report@main
+#     uses: ai-warevo/<repo>/ci/actions/gcovr-report@main
 #     with:
 #       source_dir: .
 #       build_dir: build

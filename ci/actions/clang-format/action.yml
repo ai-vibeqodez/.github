@@ -7,7 +7,7 @@
 #
 # Usage:
 #   - name: Check formatting
-#     uses: ai-warevo/.github/ci/actions/clang-format@main
+#     uses: ai-warevo/<repo>/ci/actions/clang-format@main
 #     with:
 #       source_dir: .
 #       extensions: cpp,hpp

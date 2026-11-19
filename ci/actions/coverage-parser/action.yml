@@ -6,7 +6,7 @@
 # Usage:
 #   - name: Parse Coverage
 #     id: parser
-#     uses: ai-warevo/.github/ci/actions/coverage-parser@main
+#     uses: ai-warevo/<repo>/ci/actions/coverage-parser@main
 #     with:
 #       xml_path: coverage.xml
 #       lcov_path: coverage.lcov

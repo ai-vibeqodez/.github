@@ -1,10 +1,10 @@
 # AGENTS.md
 
-Guidance for working on `ai-warevo/.github`. Read `README.md` for the user-facing API; this file is about *how to change the repo*.
+Guidance for working on an `ai-warevo/<repo>`. Read `README.md` for the user-facing API; this file is about *how to change the repo*.
 
 ## Identity & philosophy
 
-`ai-warevo/.github` is a **shared infrastructure monorepo** for the ai-warevo organisation. It contains reusable artefacts that any project consumes regardless of stack (C#, Python, JS, C++, Go, Rust, Java):
+`ai-warevo/<repo>` is a **shared infrastructure monorepo** for the ai-warevo organisation. It contains reusable artefacts that any project consumes regardless of stack (C#, Python, JS, C++, Go, Rust, Java):
 
 - **AI skills** (`skills/`) — agent-facing tool definitions for analyst, planner, executor, skill-creator, git-github-push.
 - **Templates** (`templates/`) — OVERVIEW, task, README, CHANGELOG, CONTRIBUTING markdown skeletons.
@@ -129,7 +129,7 @@ Pinning to `@main` is a supply-chain risk: a compromised branch can inject malic
 
 ```sh
 # Composite action: resolve SHA for a directory
-curl -s "https://api.github.com/repos/ai-warevo/.github/commits?path=ci/actions/<name>&per_page=1" \
+curl -s "https://api.github.com/repos/ai-warevo/<repo>/commits?path=ci/actions/<name>&per_page=1" \
   | jq -r '.[0].sha'
 
 # Third-party action: resolve SHA for a tagged ref
@@ -144,7 +144,7 @@ Update the SHA whenever the upstream action receives a meaningful update. Add a 
 - Use `concurrency` blocks to cancel stale runs on the same branch/PR.
 - Use `needs` to establish job dependencies; keep the graph shallow.
 - Matrix jobs for multi-platform/multi-version testing; single jobs for release.
-- All workflows reference shared composite actions from `ai-warevo/.github/ci/actions/<name>@<40-char-SHA>`.
+- All workflows reference shared composite actions from `ai-warevo/<repo>/ci/actions/<name>@<40-char-SHA>`.
 
 ## Documentation & comments
 

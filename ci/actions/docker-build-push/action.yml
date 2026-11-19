@@ -4,7 +4,7 @@
 #
 # Usage:
 #   - name: Build and push Docker image
-#     uses: ai-warevo/.github/ci/actions/docker-build-push@main
+#     uses: ai-warevo/<repo>/ci/actions/docker-build-push@main
 #     with:
 #       context: ./example
 #       dockerfile: example/Dockerfile

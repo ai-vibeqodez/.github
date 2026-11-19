@@ -59,11 +59,11 @@ container:
 В контейнере `setup-toolchain` — **no-op installer**, только вычисляет CMake args:
 ```yaml
 - id: tc
-  uses: ai-warevo/.github/ci/actions/setup-toolchain@main
+  uses: ai-warevo/<repo>/ci/actions/setup-toolchain@main
   with:
     toolchain: clang18-libcxx
     container_mode: true
-- uses: ai-warevo/.github/ci/actions/cmake-build@main
+- uses: ai-warevo/<repo>/ci/actions/cmake-build@main
   with:
     extra_args: "${{ steps.tc.outputs.cmake_args }}"
 ```
@@ -135,7 +135,7 @@ gh workflow run test.yml --ref main -f version=1.0.0
 После запуска на `main`/`master`:
 1. Парсит `coverage.xml` от gcovr
 2. Определяет цвет: 🔴 <50%, 🟡 50–80%, 🟢 ≥80%
-3. Генерирует SVG-бейдж через `ai-warevo/.github/ci/actions/badge@main`
+3. Генерирует SVG-бейдж через `ai-warevo/<repo>/ci/actions/badge@main`
 4. Деплоит бейдж на ветку `badges`
 5. Деплоит HTML-отчёт на `gh-pages` (если `htmlcov/index.html` существует)
 
