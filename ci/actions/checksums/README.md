@@ -19,7 +19,7 @@ A composite GitHub Action for generating and verifying SHA256 checksums of artif
 
 ```yaml
 - name: Generate and verify checksums
-  uses: ai-warevo/<repo>/ci/actions/checksums@main
+  uses: ai-warevo/<repo>/ci/actions/checksums@72e62471355bf347d09c7e183af5fd33bf41fbaf
   with:
     artifacts_dir: 'release-assets'
     checksums_file: 'SHA256SUMS.txt'

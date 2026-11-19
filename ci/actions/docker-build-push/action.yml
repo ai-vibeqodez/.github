@@ -4,7 +4,7 @@
 #
 # Usage:
 #   - name: Build and push Docker image
-#     uses: ai-warevo/<repo>/ci/actions/docker-build-push@main
+#     uses: ai-warevo/<repo>/ci/actions/docker-build-push@6cae36f7fe728c23b1a6170d09d6dace55edea77
 #     with:
 #       context: ./example
 #       dockerfile: example/Dockerfile

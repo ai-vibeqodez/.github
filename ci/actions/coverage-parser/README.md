@@ -29,10 +29,10 @@ A composite GitHub Action for extracting the coverage percentage from `coverage.
 ```yaml
 - name: Parse Coverage
   id: coverage
-  uses: ai-warevo/<repo>/ci/actions/coverage-parser@main
+  uses: ai-warevo/<repo>/ci/actions/coverage-parser@72e62471355bf347d09c7e183af5fd33bf41fbaf
 
 - name: Generate Badge
-  uses: ai-warevo/<repo>/ci/actions/badge@main
+  uses: ai-warevo/<repo>/ci/actions/badge@72e62471355bf347d09c7e183af5fd33bf41fbaf
   with:
     text_right: '${{ steps.coverage.outputs.percent }}'
     bg_color_right: '${{ steps.coverage.outputs.color }}'

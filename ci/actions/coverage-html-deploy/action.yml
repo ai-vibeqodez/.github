@@ -5,7 +5,7 @@
 #
 # Usage:
 #   - name: Deploy Coverage HTML
-#     uses: ai-warevo/<repo>/ci/actions/coverage-html-deploy@main
+#     uses: ai-warevo/<repo>/ci/actions/coverage-html-deploy@6cae36f7fe728c23b1a6170d09d6dace55edea77
 #     with:
 #       folder: htmlcov
 #       branch: gh-pages

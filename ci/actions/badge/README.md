@@ -46,7 +46,7 @@ jobs:
 
       - name: Generate Custom Badge
         id: generate_step
-        uses: ai-warevo/<repo>/ci/actions/badge@main
+        uses: ai-warevo/<repo>/ci/actions/badge@72e62471355bf347d09c7e183af5fd33bf41fbaf
         with:
           width: '150'
           text_left: 'production'

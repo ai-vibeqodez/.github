@@ -27,7 +27,7 @@ A composite GitHub Action for resolving the release version.
 steps:
   - name: Resolve version
     id: version
-    uses: ai-warevo/<repo>/ci/actions/release-version@main
+    uses: ai-warevo/<repo>/ci/actions/release-version@72e62471355bf347d09c7e183af5fd33bf41fbaf
     with:
       version: ${{ github.event.inputs.version }}
 ```

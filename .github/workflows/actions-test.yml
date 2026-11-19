@@ -1,7 +1,7 @@
 # actions-test — Test every composite action in ci/actions/
 #
 # Manual dispatch only (workflow_dispatch). Copies to consumer repos and
-# references actions via ai-warevo/.github/ci/actions/<name>@main.
+# references actions via ai-warevo/.github/ci/actions/<name>@<sha>.
 # All 16 actions covered: unit(6) → deploy(4) → artifacts(2) → integration(5)
 # → release(4) → docker-push(2) → edge-cases(4).
 

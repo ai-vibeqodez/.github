@@ -9,14 +9,14 @@
 #
 # Usage:
 #   - name: Configure & Build
-#     uses: ai-warevo/<repo>/ci/actions/cmake-build@main
+#     uses: ai-warevo/<repo>/ci/actions/cmake-build@6cae36f7fe728c23b1a6170d09d6dace55edea77
 #     with:
 #       source_dir: .
 #       build_dir: build
 #       build_type: Debug
 #       extra_args: -DAW_TPL_BUILD_TESTS=ON
 #   # With toolchain args from setup-toolchain:
-#   - uses: ai-warevo/<repo>/ci/actions/cmake-build@main
+#   - uses: ai-warevo/<repo>/ci/actions/cmake-build@6cae36f7fe728c23b1a6170d09d6dace55edea77
 #     with:
 #       extra_args: "${{ steps.tc.outputs.cmake_args }} -DAW_TPL_WARNINGS_AS_ERRORS=ON"
 
