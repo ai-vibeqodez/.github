@@ -1,0 +1,14 @@
+name: Pull Request CI
+
+on:
+  pull_request:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: ai-warevo/.github/.github/workflows/reusable-pr.yml@main
+    with:
+      setup-command: ''

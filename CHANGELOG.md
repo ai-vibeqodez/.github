@@ -14,6 +14,10 @@ Maintainer notes:
 
 ## [Unreleased]
 
+### Added
+
+- Add language-agnostic Makefile-contract CI workflows, caller templates, and `ci-setup` agent skill
+
 ### Security
 
 - Replace all `@main` action pinning with 40-char commit SHA hashes across all workflow and action files; resolves supply-chain risk from compromised branch refs (#1)

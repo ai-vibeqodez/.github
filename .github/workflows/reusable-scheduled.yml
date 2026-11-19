@@ -1,0 +1,80 @@
+name: Reusable Scheduled CI
+
+on:
+  workflow_call:
+    inputs:
+      setup-command:
+        description: Optional shell command to install the caller repository's toolchain
+        required: false
+        type: string
+        default: ''
+      update-badge:
+        description: Publish coverage.svg to the badges branch
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: reusable-scheduled-${{ github.repository }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  ci-deep:
+    name: Heavy verification and coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout caller repository
+        uses: actions/checkout@v4
+      - name: Set up caller toolchain
+        if: ${{ inputs.setup-command != '' }}
+        shell: bash
+        env:
+          SETUP_COMMAND: ${{ inputs.setup-command }}
+        run: eval "$SETUP_COMMAND"
+      - name: Run deep CI contract
+        run: make ci-deep
+      - name: Run coverage contract
+        run: make ci-coverage
+      - name: Require standard coverage badge data
+        run: test -s coverage.svg
+      - name: Upload coverage badge
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-badge
+          path: coverage.svg
+          if-no-files-found: error
+
+  publish-badge:
+    name: Publish coverage badge
+    if: ${{ inputs.update-badge }}
+    needs: ci-deep
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download coverage badge
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-badge
+          path: badge
+      - name: Publish to badges branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --branch badges "git@github.com:${REPOSITORY}.git" badge-repo
+          install -m 0644 badge/coverage.svg badge-repo/coverage.svg
+          git -C badge-repo config user.name "github-actions[bot]"
+          git -C badge-repo config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C badge-repo add coverage.svg
+          if git -C badge-repo diff --cached --quiet; then
+            echo "Coverage badge is unchanged."
+          else
+            git -C badge-repo commit -m "ci: update coverage badge"
+            git -C badge-repo push origin badges
+          fi

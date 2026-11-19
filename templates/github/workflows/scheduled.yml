@@ -1,0 +1,15 @@
+name: Scheduled CI
+
+on:
+  schedule:
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: ai-warevo/.github/.github/workflows/reusable-scheduled.yml@main
+    with:
+      update-badge: false
