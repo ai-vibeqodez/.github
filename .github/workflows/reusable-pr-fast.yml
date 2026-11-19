@@ -1,0 +1,119 @@
+# reusable-pr-fast — lint + build + unit tests on PR
+#
+# Reusable workflow (workflow_call).
+# Consumers call via:
+#   uses: ai-warevo/.github/.github/workflows/reusable-pr-fast.yml@<sha>
+#
+# Parameters:
+#   source_dir         — source directory (default: example)
+#   build_dir          — build directory (default: build)
+#   build_type         — CMake build type (default: Debug)
+#   extra_args         — extra CMake arguments (default: -DAW_EXAMPLE_BUILD_TESTS=ON)
+#   extensions         — source file extensions for clang-format (default: cpp,hpp,c,h)
+#   container_image    — CI container image (default: ghcr.io/ai-warevo/ci-cpp20)
+
+name: reusable-pr-fast
+
+on:
+  workflow_call:
+    inputs:
+      source_dir:
+        description: 'Source directory'
+        type: string
+        default: example
+      build_dir:
+        description: 'Build directory'
+        type: string
+        default: build
+      build_type:
+        description: 'CMake build type'
+        type: string
+        default: Debug
+      extra_args:
+        description: 'Extra CMake arguments'
+        type: string
+        default: -DAW_EXAMPLE_BUILD_TESTS=ON
+      extensions:
+        description: 'Source file extensions for clang-format'
+        type: string
+        default: cpp,hpp,c,h
+      container_image:
+        description: 'CI container image'
+        type: string
+        default: ghcr.io/ai-warevo/ci-cpp20
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  clang-format:
+    name: clang-format
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ inputs.container_image }}
+      options: --user root
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Check formatting
+        uses: ./.github/actions/clang-format@66a569af12cee8bcbc8a0a7746b65a0b3e11bfb3
+        with:
+          source_dir: .
+          extensions: ${{ inputs.extensions }}
+
+  clang-tidy:
+    name: clang-tidy
+    runs-on: ubuntu-latest
+    needs: clang-format
+    container:
+      image: ${{ inputs.container_image }}
+      options: --user root
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Configure & Build
+        uses: ./.github/actions/cmake-build@e9b20ed3a4f8a49bf774a1f1c28c4fb39e27bad5
+        with:
+          source_dir: ${{ inputs.source_dir }}
+          build_dir: ${{ inputs.build_dir }}
+          build_type: ${{ inputs.build_type }}
+          extra_args: ${{ inputs.extra_args }}
+
+      - name: Run clang-tidy
+        uses: ./.github/actions/clang-tidy@8a8099f57b65eb8282e8df7fc38fbb6b106676c6
+        with:
+          source_dir: ${{ inputs.source_dir }}
+          build_dir: ${{ inputs.build_dir }}
+
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    needs: clang-format
+    container:
+      image: ${{ inputs.container_image }}
+      options: --user root
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Configure & Build
+        uses: ./.github/actions/cmake-build@e9b20ed3a4f8a49bf774a1f1c28c4fb39e27bad5
+        with:
+          source_dir: ${{ inputs.source_dir }}
+          build_dir: ${{ inputs.build_dir }}
+          build_type: ${{ inputs.build_type }}
+          extra_args: ${{ inputs.extra_args }}
+
+      - name: Run Tests
+        uses: ./.github/actions/ctest-run@f9d6360ab55c7c8ec283dd036f96f0a20f0672fe
+        with:
+          source_dir: ${{ inputs.source_dir }}
+          build_dir: ${{ inputs.build_dir }}
+          config: ${{ inputs.build_type }}
+          output_on_failure: 'true'

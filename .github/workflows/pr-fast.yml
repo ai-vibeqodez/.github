@@ -1,0 +1,29 @@
+# pr-fast — lint + build + unit tests on PR (monorepo)
+#
+# Triggers: pull_request / merge_group to main/master
+# Calls: reusable-pr-fast.yml
+#
+# This is the monorepo's own CI — it calls the reusable workflow
+# with monorepo-specific parameters.
+
+name: pr-fast
+
+on:
+  pull_request:
+    branches: [main, master]
+  merge_group:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: ./.github/workflows/reusable-pr-fast.yml
+    with:
+      source_dir: example
+      build_dir: build
+      build_type: Debug
+      extra_args: -DAW_EXAMPLE_BUILD_TESTS=ON
+      extensions: cpp,hpp,c,h
+      container_image: ghcr.io/ai-warevo/ci-cpp20

@@ -1,0 +1,53 @@
+# changelog-release — Unit tests
+#
+# Tests: existing tag, missing tag (expect failure)
+
+name: changelog-release — Unit Tests
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: changelog-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      # ─── existing tag ───
+      - name: changelog-release — existing tag
+        id: cr_existing
+        uses: ./.github/actions/changelog-release@d82701c539be4ee85ebed40d2417d48977628f4b
+        with:
+          tag: v1.2.12
+          changelog: CHANGELOG.md
+          release-body: release_existing.md
+
+      - name: changelog-release — validate existing
+        run: |
+          set -euo pipefail
+          [ -f release_existing.md ] || { echo "::error::Release body missing"; exit 1; }
+          grep -q 'v1.2.12' release_existing.md || { echo "::error::Version missing"; exit 1; }
+          echo "✓ changelog-release existing tag"
+
+      # ─── missing tag (expect failure) ───
+      - name: changelog-release — missing tag (expect failure)
+        id: cr_missing
+        continue-on-error: true
+        uses: ./.github/actions/changelog-release@d82701c539be4ee85ebed40d2417d48977628f4b
+        with:
+          tag: v9.9.9
+          changelog: CHANGELOG.md
+          release-body: release_missing.md
+
+      - name: changelog-release — validate missing
+        run: |
+          set -euo pipefail
+          [ "${{ steps.cr_missing.outcome }}" = "failure" ] || \
+            { echo "::error::Expected action to fail for missing tag"; exit 1; }
+          [ ! -f release_missing.md ] || { echo "::error::Release body should not exist"; exit 1; }
+          echo "✓ changelog-release missing tag (correctly fails)"

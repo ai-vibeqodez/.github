@@ -1,0 +1,238 @@
+# setup-toolchain: computes CMake arguments for a given toolchain configuration.
+#
+# Two execution modes:
+#
+# **Container mode** (default when `container_mode: true` or when `sudo` is
+# unavailable): all compilers, libraries, and tools are pre-installed
+# (e.g. in `ghcr.io/ai-warevo/ci-cpp20`). This mode skips installation and
+# only emits the CMake arguments that select the requested compiler and
+# standard library.
+#
+# **Native mode** (default on GitHub-hosted runners): installs the toolchain
+# via apt-get / MSVC Dev Cmd.
+#
+# Toolchains:
+#   clang18-libcxx     clang-18 + libc++   (primary configuration; needs -fexperimental-library)
+#   clang18-libstdcxx  clang-18 + libstdc++ (used for TSan: libc++ internals are not instrumented)
+#   gcc15              g++-15 + libstdc++
+#   msvc               MSVC (Visual Studio 17+ on windows-latest)
+#
+# Usage (container):
+#   - id: tc
+#     uses: ai-warevo/<repo>/.github/actions/setup-toolchain@6cae36f7fe728c23b1a6170d09d6dace55edea77
+#     with:
+#       toolchain: clang18-libcxx
+#       container_mode: true
+#       sanitizer: address   # optional: address, thread, memory, undefined
+#   - uses: ai-warevo/<repo>/.github/actions/cmake-build@6cae36f7fe728c23b1a6170d09d6dace55edea77
+#     with:
+#       extra_args: "${{ steps.tc.outputs.cmake_args }}"
+#
+# Usage (native):
+#   - id: tc
+#     uses: ai-warevo/<repo>/.github/actions/setup-toolchain@6cae36f7fe728c23b1a6170d09d6dace55edea77
+#     with:
+#       toolchain: clang18-libcxx
+#       container_mode: false   # or omit
+#       sanitizer_runtime: true  # install libclang-rt-18-dev
+#       tools: true              # also install clang-format-18 / clang-tidy-18
+
+name: 'Setup toolchain'
+description: 'Compute CMake arguments for clang-18 (libc++/libstdc++), g++-15, or MSVC'
+
+inputs:
+  toolchain:
+    description: 'clang18-libcxx | clang18-libstdcxx | gcc15 | msvc'
+    required: true
+  container_mode:
+    description: 'Skip installation, only compute CMake args (true = container mode). Auto-detected if sudo is unavailable.'
+    required: false
+    default: ''
+  sanitizer:
+    description: 'Sanitizer to enable: address, thread, memory, undefined (empty = none). Only clang-18 supports sanitizers.'
+    required: false
+    default: ''
+  sanitizer_runtime:
+    description: 'Also install the clang sanitizer runtimes (libclang-rt-18-dev). Ignored in container mode.'
+    required: false
+    default: 'false'
+  tools:
+    description: 'Also install clang-format-18 / clang-tidy-18. Ignored in container mode.'
+    required: false
+    default: 'false'
+
+outputs:
+  cmake_args:
+    description: 'Arguments for cmake-build extra_args (no spaces inside a single argument)'
+    value: ${{ steps.args.outputs.cmake_args }}
+  compiler:
+    description: 'C++ compiler name (e.g. g++-15, clang++-18)'
+    value: ${{ steps.args.outputs.compiler }}
+  stdlib:
+    description: 'Standard library (libc++, libstdc++)'
+    value: ${{ steps.args.outputs.stdlib }}
+
+runs:
+  using: 'composite'
+  steps:
+    # ── Detect container mode ──
+    - name: Detect environment
+      id: detect
+      shell: bash
+      run: |
+        set -euo pipefail
+        MODE="${{ inputs.container_mode }}"
+        if [ -z "$MODE" ]; then
+          # Auto-detect: no sudo = container mode
+          if ! command -v sudo &>/dev/null; then
+            MODE="true"
+            echo "No sudo available — auto-detected container mode"
+          else
+            MODE="false"
+          fi
+        fi
+        echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+
+    # ── Installer (native runner only) ──
+    - name: Install packages
+      if: steps.detect.outputs.mode == 'false' && inputs.toolchain != 'msvc'
+      shell: bash
+      env:
+        TOOLCHAIN: ${{ inputs.toolchain }}
+        SANITIZER_RUNTIME: ${{ inputs.sanitizer_runtime }}
+        TOOLS: ${{ inputs.tools }}
+      run: |
+        set -euo pipefail
+
+        PKGS=(ninja-build)
+        case "$TOOLCHAIN" in
+          clang18-libcxx)
+            PKGS+=(clang-18 libc++-18-dev libc++abi-18-dev) ;;
+          clang18-libstdcxx)
+            PKGS+=(clang-18) ;;
+          gcc15)
+            sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+            PKGS+=(g++-15) ;;
+          *)
+            echo "::error::unknown toolchain '$TOOLCHAIN'"; exit 1 ;;
+        esac
+        if [ "$SANITIZER_RUNTIME" = "true" ]; then PKGS+=(libclang-rt-18-dev); fi
+        if [ "$TOOLS" = "true" ]; then PKGS+=(clang-format-18 clang-tidy-18); fi
+        sudo apt-get update || true
+        # Retry loop: the ubuntu-toolchain-r/test PPA sometimes returns 503.
+        MAX_RETRIES=3
+        RETRY=0
+        while [ $RETRY -lt $MAX_RETRIES ]; do
+          if sudo apt-get install -y --fix-missing --no-install-recommends "${PKGS[@]}" 2>&1; then
+            break
+          fi
+          RETRY=$((RETRY + 1))
+          if [ $RETRY -lt $MAX_RETRIES ]; then
+            echo "::warning::apt-get install failed (attempt $RETRY/$MAX_RETRIES); fixing broken packages and retrying..."
+            sudo apt-get update || true
+            sudo apt-get --fix-broken install -y --no-install-recommends || true
+            sudo rm -f /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock /var/cache/apt/archives/lock
+            sudo dpkg --configure -a || true
+            sudo apt-get update || true
+          else
+            echo "::error::apt-get install failed after $MAX_RETRIES attempts"
+            exit 1
+          fi
+        done
+        if [ "$TOOLS" = "true" ]; then
+          mkdir -p "$HOME/.local/bin"
+          ln -sf "$(command -v clang-format-18)" "$HOME/.local/bin/clang-format"
+          ln -sf "$(command -v clang-tidy-18)" "$HOME/.local/bin/clang-tidy"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+        fi
+
+    # ── TSan sysctl (native runner only — GitHub Actions sandbox blocks
+    #    vm.mmap_rnd_bits writes; make it non-fatal so TSan still runs
+    #    with the default ASLR level) ──
+    - name: Configure TSan
+      if: steps.detect.outputs.mode == 'false' && inputs.sanitizer == 'thread'
+      shell: bash
+      run: |
+        set -euo pipefail
+        if sudo sysctl -w vm.mmap_rnd_bits=28 2>&1; then
+          echo "::notice::TSan: reduced ASLR entropy (vm.mmap_rnd_bits=28)"
+        else
+          echo "::warning::TSan: could not set vm.mmap_rnd_bits (GitHub Actions sandbox); proceeding with default"
+        fi
+
+    # ── MSVC setup ──
+    - name: Setup MSVC environment
+      if: steps.detect.outputs.mode == 'false' && inputs.toolchain == 'msvc'
+      uses: ilammy/msvc-dev-cmd@v1
+
+    # ── Compute CMake arguments ──
+    - name: Compute CMake arguments
+      id: args
+      shell: bash
+      env:
+        TOOLCHAIN: ${{ inputs.toolchain }}
+        SANITIZER: ${{ inputs.sanitizer }}
+      run: |
+        set -euo pipefail
+        case "$TOOLCHAIN" in
+          clang18-libcxx)
+            CXX="clang++-18"
+            STL_FLAGS="-stdlib=libc++ -fexperimental-library"
+            LINKER_FLAGS="-stdlib=libc++"
+            ;;
+          clang18-libstdcxx)
+            CXX="clang++-18"
+            STL_FLAGS="-stdlib=libstdc++"
+            LINKER_FLAGS="-stdlib=libstdc++"
+            ;;
+          gcc15)
+            CXX="g++-15"
+            STL_FLAGS=""
+            LINKER_FLAGS=""
+            ;;
+          msvc)
+            CXX="cl"
+            STL_FLAGS=""
+            LINKER_FLAGS=""
+            ;;
+          *)
+            echo "::error::unknown toolchain '$TOOLCHAIN'"; exit 1 ;;
+        esac
+
+        # Sanitizer flags (only for clang-18)
+        SAN_FLAGS=""
+        if [ -n "$SANITIZER" ]; then
+          case "$SANITIZER" in
+            address)     SAN_FLAGS="-fsanitize=address" ;;
+            thread)      SAN_FLAGS="-fsanitize=thread" ;;
+            memory)      SAN_FLAGS="-fsanitize=memory" ;;
+            undefined)   SAN_FLAGS="-fsanitize=undefined" ;;
+            *)           echo "::error::unknown sanitizer '$SANITIZER'"; exit 1 ;;
+          esac
+          # TSan needs libstdc++
+          if [ "$SANITIZER" = "thread" ]; then
+            STL_FLAGS="-stdlib=libstdc++"
+          fi
+        fi
+
+        # Each -DCMAKE_* flag is a separate token — no spaces inside values.
+        # CMake appends repeated -DCMAKE_CXX_FLAGS values, so we emit them
+        # individually to avoid shell-splitting issues in the caller.
+        ARGS="-GNinja -DCMAKE_CXX_COMPILER=$CXX"
+        if [ -n "$STL_FLAGS" ]; then
+          ARGS="$ARGS -DCMAKE_CXX_FLAGS=$STL_FLAGS"
+        fi
+        if [ -n "$SAN_FLAGS" ]; then
+          ARGS="$ARGS -DCMAKE_CXX_FLAGS=$SAN_FLAGS"
+        fi
+        if [ -n "$LINKER_FLAGS" ]; then
+          ARGS="$ARGS -DCMAKE_EXE_LINKER_FLAGS=$LINKER_FLAGS -DCMAKE_SHARED_LINKER_FLAGS=$LINKER_FLAGS"
+        fi
+
+        echo "cmake_args=$ARGS" >> "$GITHUB_OUTPUT"
+        echo "compiler=$CXX" >> "$GITHUB_OUTPUT"
+        if [[ "$STL_FLAGS" == *"libc++"* ]]; then
+          echo "stdlib=libc++" >> "$GITHUB_OUTPUT"
+        else
+          echo "stdlib=libstdc++" >> "$GITHUB_OUTPUT"
+        fi

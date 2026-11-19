@@ -24,7 +24,7 @@ This format is based on [Keep a Changelog](https://keepachangelog.com/) and [Sem
 - <Deprecated feature> — e.g., "`ci-coverage` standalone target (merged into `weekly-deep`)"
 
 ### Removed
-- <Removed capability> — e.g., "Legacy `Makefile` template (use `Makefile.ci` instead)"
+- <Removed capability> — e.g., "Legacy `templates/Makefile.ci` (use root `Makefile` adapted per-repo)"
 
 ### Fixed
 - <Bug fix> — e.g., "Correct SHA pinning for badge composite action"

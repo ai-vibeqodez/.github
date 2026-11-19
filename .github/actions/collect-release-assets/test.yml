@@ -1,0 +1,58 @@
+# collect-release-assets — Unit tests
+#
+# Tests: upload test assets, collect and organize by version
+
+name: collect-release-assets — Unit Tests
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  producer:
+    name: Producer
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Create test assets
+        run: |
+          mkdir -p /tmp/collect-test
+          echo "binary-linux" > /tmp/collect-test/linux.bin
+          echo "binary-win" > /tmp/collect-test/windows.exe
+          echo "binary-mac" > /tmp/collect-test/macos
+
+      - name: Upload as artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: collect-test-asset
+          path: /tmp/collect-test
+          retention-days: 1
+
+  consumer:
+    name: Consumer
+    runs-on: ubuntu-latest
+    needs: producer
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: collect-release-assets — collect
+        id: collect
+        uses: ./.github/actions/collect-release-assets@924581e055ad6259c0e49614ca48cd62da220b6f
+        with:
+          version: '0.0.1-test'
+          output_dir: /tmp/collect-test-output
+          include_checksums: 'false'
+          github_token: ${{ github.token }}
+
+      - name: collect-release-assets — validate
+        run: |
+          set -euo pipefail
+          [ -d "/tmp/collect-test-output/0.0.1-test" ] || \
+            { echo "::error::Version dir not created"; exit 1; }
+          echo "✓ collect-release-assets — organized"

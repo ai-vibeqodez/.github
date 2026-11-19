@@ -1,0 +1,25 @@
+# weekly-deep — e2e, integration, sanitizers (ASan, TSan, UBSan) + coverage (monorepo)
+#
+# Triggers: weekly cron (Monday 00:00 UTC), manual dispatch
+# Calls: reusable-weekly-deep.yml
+
+name: weekly-deep
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'  # every Monday at 00:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  weekly:
+    uses: ./.github/workflows/reusable-weekly-deep.yml
+    with:
+      source_dir: example
+      build_dir: build
+      container_image: ghcr.io/ai-warevo/ci-cpp20
+      source_filter: host/src/ plugin/src/ include/
+      exclude: _deps/*

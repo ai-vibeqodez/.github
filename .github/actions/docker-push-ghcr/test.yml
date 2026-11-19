@@ -1,0 +1,60 @@
+# docker-push-ghcr — Unit tests
+#
+# Tests: save image → push to GHCR (pull-only, no real push)
+
+name: docker-push-ghcr — Unit Tests
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  producer:
+    name: Producer
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: docker-save — pull image
+        run: docker pull alpine:3.19
+
+      - name: docker-save — create artifact
+        id: docker_save
+        uses: ./.github/actions/docker-save@71d64943c8f56d7b8ae5b03fb1bccfb0cbd106a8
+        with:
+          image: alpine
+          tag: '3.19'
+          output: alpine-push.tar
+          artifact_name: docker-image
+
+      - name: docker-save — validate artifact
+        run: |
+          set -euo pipefail
+          [ -f alpine-push.tar ] || { echo "::error::tar not created"; exit 1; }
+          echo "✓ docker-save → artifact uploaded"
+
+  consumer:
+    name: Consumer
+    runs-on: ubuntu-latest
+    needs: producer
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: docker-push-ghcr — load & push
+        id: docker_push
+        uses: ./.github/actions/docker-push-ghcr@199e9173da800d5b33a8289ca4966600eaac8728
+        with:
+          image: ghcr.io/${{ github.repository_owner }}/actions-test
+          version: '0.0.1-test'
+          artifact_name: docker-image
+          artifact_path: alpine-push.tar
+          token: ${{ secrets.GITHUB_TOKEN }}
+          push_latest: 'false'
+
+      - name: docker-push-ghcr — validate
+        run: echo "✓ docker-push-ghcr — loaded + pushed to GHCR"

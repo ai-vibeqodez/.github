@@ -1,0 +1,28 @@
+# pr-fast — lint + build + unit tests on PR
+#
+# Template: copy this file into your project's .github/workflows/ and
+# customize the `on:` trigger and `with:` inputs.
+#
+# The actual CI logic lives in the reusable workflow:
+#   ai-warevo/.github/.github/workflows/reusable-pr-fast.yml
+#
+# To customize, change only this file — never the reusable workflow.
+
+name: pr-fast
+
+on:
+  pull_request:
+    branches: [main, master]
+  merge_group:
+    branches: [main, master]
+
+jobs:
+  pr-fast:
+    uses: ai-warevo/.github/.github/workflows/reusable-pr-fast.yml@2ea4e63f69c0d83ef3e1197ed11948c5d36a28aa
+    with:
+      source_dir: .
+      build_dir: build
+      build_type: Debug
+      extra_args: -DAW_EXAMPLE_BUILD_TESTS=ON
+      extensions: cpp,hpp,c,h
+      container_image: ghcr.io/ai-warevo/ci-cpp20

@@ -1,0 +1,137 @@
+# gcovr-report — Generate coverage reports (XML + HTML)
+#
+# Generates both XML (for parsing) and HTML (for deployment) coverage reports
+# from a CMake build.
+#
+# In a container (e.g. ci-cpp20) gcovr and gcov are pre-installed.
+# This action pins gcov to match the compiler version used for the build.
+#
+# Usage:
+#   - name: Generate Coverage
+#     uses: ai-warevo/<repo>/.github/actions/gcovr-report@6cae36f7fe728c23b1a6170d09d6dace55edea77
+#     with:
+#       source_dir: .
+#       build_dir: build
+#       source_filter: include/aw/tpl/ src/
+#       exclude: _deps/*
+#       output_dir: htmlcov
+
+name: 'GCOVR Coverage Report'
+description: 'Generate coverage reports (XML + HTML) from a CMake build'
+
+inputs:
+  source_dir:
+    description: 'Source directory (relative to workspace)'
+    required: false
+    default: '.'
+  build_dir:
+    description: 'Build directory (relative to source_dir)'
+    required: false
+    default: 'build'
+  source_filter:
+    description: '--filter patterns (space-separated path prefixes to match against absolute source paths)'
+    required: false
+    default: ''
+  exclude:
+    description: '--exclude pattern (may be specified multiple times, comma-separated)'
+    required: false
+    default: '_deps/*'
+  output_dir:
+    description: 'Output directory for HTML report'
+    required: false
+    default: 'htmlcov'
+  xml_path:
+    description: 'Output path for coverage.xml'
+    required: false
+    default: 'coverage.xml'
+
+outputs:
+  xml_path:
+    description: 'Path to generated coverage.xml'
+    value: ${{ steps.gcovr.outputs.xml_path }}
+  html_dir:
+    description: 'Path to generated HTML report directory'
+    value: ${{ steps.gcovr.outputs.html_dir }}
+  percent:
+    description: 'Line coverage percentage'
+    value: ${{ steps.gcovr.outputs.percent }}
+
+runs:
+  using: 'composite'
+  steps:
+    # ── Pin gcov to match the compiler ──
+    - name: Pin gcov version
+      shell: bash
+      run: |
+        set -euo pipefail
+        GCC_VER=$(gcc -dumpversion | cut -d. -f1)
+        echo "Detected GCC version: $GCC_VER"
+        if command -v gcov-${GCC_VER} &>/dev/null; then
+          mkdir -p "$GITHUB_WORKSPACE/bin"
+          ln -sf "$(which gcov-${GCC_VER})" "$GITHUB_WORKSPACE/bin/gcov"
+          export PATH="$GITHUB_WORKSPACE/bin:$PATH"
+          echo "Linked $GITHUB_WORKSPACE/bin/gcov -> gcov-${GCC_VER}"
+        else
+          echo "WARNING: gcov-${GCC_VER} not found; using default gcov"
+        fi
+        gcov --version | head -1
+        gcovr --version
+
+    # ── Generate coverage reports ──
+    - name: Generate coverage reports
+      id: gcovr
+      shell: bash
+      env:
+        SOURCE_DIR: ${{ inputs.source_dir }}
+        BUILD_DIR: ${{ inputs.build_dir }}
+        FILTER: ${{ inputs.source_filter }}
+        EXCLUDE: ${{ inputs.exclude }}
+        OUTPUT_DIR: ${{ inputs.output_dir }}
+        XML_PATH: ${{ inputs.xml_path }}
+      run: |
+        set -euo pipefail
+
+        BUILD_ROOT="$GITHUB_WORKSPACE/${SOURCE_DIR}/${BUILD_DIR}"
+        SOURCE_ABS="$GITHUB_WORKSPACE/${SOURCE_DIR}"
+
+        # Collect exclude args
+        EXCLUDE_ARGS=""
+        for pattern in $(echo "$EXCLUDE" | tr ',' ' '); do
+          pattern=$(echo "$pattern" | xargs)
+          [ -n "$pattern" ] && EXCLUDE_ARGS="$EXCLUDE_ARGS --exclude $pattern"
+        done
+
+        # Collect filter args — convert relative filter prefixes to absolute paths
+        FILTER_ARGS=""
+        if [ -n "${FILTER:-}" ]; then
+          for pattern in $FILTER; do
+            FILTER_ARGS="$FILTER_ARGS --filter ${SOURCE_ABS}/${pattern}"
+          done
+        fi
+
+        mkdir -p "$OUTPUT_DIR"
+
+        echo "=== Running gcovr ==="
+        echo "gcovr -r $BUILD_ROOT $FILTER_ARGS $EXCLUDE_ARGS --xml $XML_PATH --html-details $OUTPUT_DIR/index.html"
+
+        gcovr -r "$BUILD_ROOT" \
+          --gcov-ignore-errors=no_working_dir_found \
+          $FILTER_ARGS \
+          $EXCLUDE_ARGS \
+          --exclude-unreachable-branches \
+          --exclude-throw-branches \
+          --print-summary \
+          --xml "$XML_PATH" \
+          --html-details "$OUTPUT_DIR/index.html" 2>&1 || true
+
+        # Extract percentage
+        PERCENTAGE=0
+        if [ -f "$XML_PATH" ]; then
+          PERCENTAGE=$(grep -oP 'line-rate="\K[0-9.]+' "$XML_PATH" | head -1 | awk '{printf "%d", $1 * 100}')
+        fi
+        : "${PERCENTAGE:=0}"
+
+        echo "Coverage: ${PERCENTAGE}%"
+        echo "xml_path=${XML_PATH}" >> "$GITHUB_OUTPUT"
+        echo "html_dir=${OUTPUT_DIR}" >> "$GITHUB_OUTPUT"
+        echo "percent=${PERCENTAGE}" >> "$GITHUB_OUTPUT"

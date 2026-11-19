@@ -1,0 +1,95 @@
+# coverage-parser — Unit tests
+#
+# Tests: high coverage (95%), zero coverage (0%), missing file (default 0)
+
+name: coverage-parser — Unit Tests
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: coverage-parser
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      # ─── high coverage ───
+      - name: coverage-parser — high coverage
+        id: cp_high
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/cov-test
+          cat > /tmp/cov-test/coverage.xml <<'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <coverage line-rate="0.95" branch-rate="0.80" version="1.9">
+            <lines>
+              <line hits="1" number="1"/>
+              <line hits="1" number="2"/>
+              <line hits="0" number="3"/>
+            </lines>
+          </coverage>
+          EOF
+
+      - name: coverage-parser — parse high
+        id: cp_parse
+        uses: ./.github/actions/coverage-parser@535608f54753ec4631db924873b9b78ee561040e
+        with:
+          xml_path: /tmp/cov-test/coverage.xml
+
+      - name: coverage-parser — validate high
+        run: |
+          set -euo pipefail
+          [ "${{ steps.cp_parse.outputs.percent }}" = "95" ] || \
+            { echo "::error::Expected 95, got ${{ steps.cp_parse.outputs.percent }}"; exit 1; }
+          [ "${{ steps.cp_parse.outputs.color }}" = "#44cc11" ] || \
+            { echo "::error::Expected #44cc11, got ${{ steps.cp_parse.outputs.color }}"; exit 1; }
+          echo "✓ coverage-parser high coverage"
+
+      # ─── zero coverage ───
+      - name: coverage-parser — zero coverage
+        id: cp_zero
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/cov-test
+          cat > /tmp/cov-test/coverage.xml <<'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <coverage line-rate="0" branch-rate="0" version="1.9">
+            <lines>
+              <line hits="0" number="1"/>
+            </lines>
+          </coverage>
+          EOF
+
+      - name: coverage-parser — parse zero
+        id: cp_zero_parse
+        uses: ./.github/actions/coverage-parser@535608f54753ec4631db924873b9b78ee561040e
+        with:
+          xml_path: /tmp/cov-test/coverage.xml
+
+      - name: coverage-parser — validate zero
+        run: |
+          set -euo pipefail
+          [ "${{ steps.cp_zero_parse.outputs.percent }}" = "0" ] || \
+            { echo "::error::Expected 0, got ${{ steps.cp_zero_parse.outputs.percent }}"; exit 1; }
+          [ "${{ steps.cp_zero_parse.outputs.color }}" = "#e05d44" ] || \
+            { echo "::error::Expected #e05d44, got ${{ steps.cp_zero_parse.outputs.color }}"; exit 1; }
+          echo "✓ coverage-parser zero coverage"
+
+      # ─── missing file ───
+      - name: coverage-parser — missing file (default 0)
+        id: cp_missing
+        uses: ./.github/actions/coverage-parser@535608f54753ec4631db924873b9b78ee561040e
+        with:
+          xml_path: /nonexistent/coverage.xml
+
+      - name: coverage-parser — validate missing
+        run: |
+          set -euo pipefail
+          [ "${{ steps.cp_missing.outputs.percent }}" = "0" ] || \
+            { echo "::error::Expected 0 for missing file, got ${{ steps.cp_missing.outputs.percent }}"; exit 1; }
+          echo "✓ coverage-parser missing file → 0%"

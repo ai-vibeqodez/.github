@@ -1,0 +1,77 @@
+# badge — Unit tests
+#
+# Tests: custom params, defaults, nested output directory
+
+name: badge — Unit Tests
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: badge
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      # ─── custom params ───
+      - name: badge — custom params
+        id: badge
+        uses: ./.github/actions/badge@8be273762e7d32d969e7a0e25118a6ec171520d4
+        with:
+          width: '200'
+          height: '30'
+          text_left: 'coverage'
+          text_right: '95%'
+          bg_color_left: '#333'
+          bg_color_right: '#22cc11'
+          text_color: '#fff'
+          filename: 'custom.svg'
+
+      - name: badge — validate custom
+        run: |
+          set -euo pipefail
+          [ -f custom.svg ] || { echo "::error::custom.svg not created"; exit 1; }
+          grep -q '<svg' custom.svg || { echo "::error::Invalid SVG"; exit 1; }
+          grep -q '200' custom.svg || { echo "::error::Width mismatch"; exit 1; }
+          grep -q 'coverage' custom.svg || { echo "::error::Text missing"; exit 1; }
+          grep -q '95%' custom.svg || { echo "::error::Value missing"; exit 1; }
+          echo "✓ badge custom params"
+
+      # ─── defaults ───
+      - name: badge — defaults
+        id: badge_def
+        uses: ./.github/actions/badge@8be273762e7d32d969e7a0e25118a6ec171520d4
+        with:
+          text_left: 'coverage'
+          text_right: '80%'
+          bg_color_right: '#44cc11'
+          filename: 'default.svg'
+
+      - name: badge — validate defaults
+        run: |
+          set -euo pipefail
+          [ -f default.svg ] || { echo "::error::default.svg not created"; exit 1; }
+          grep -q '120' default.svg || { echo "::error::Default width mismatch"; exit 1; }
+          grep -q '20' default.svg || { echo "::error::Default height mismatch"; exit 1; }
+          echo "✓ badge defaults"
+
+      # ─── nested output ───
+      - name: badge — nested output
+        id: badge_nested
+        uses: ./.github/actions/badge@8be273762e7d32d969e7a0e25118a6ec171520d4
+        with:
+          text_left: 'cov'
+          text_right: '100%'
+          bg_color_right: '#44cc11'
+          filename: 'sub/dir/badge.svg'
+
+      - name: badge — validate nested
+        run: |
+          set -euo pipefail
+          [ -f sub/dir/badge.svg ] || { echo "::error::Nested SVG not created"; exit 1; }
+          echo "✓ badge nested output"

@@ -1,0 +1,49 @@
+# changelog-generate — Unit tests
+#
+# Tests: generates [Unreleased] from git log, force mode, error on existing entries
+
+name: changelog-generate — Unit Tests
+
+on:
+  workflow_call:
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    name: changelog-generate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+
+      # ─── generate from recent commits ───
+      - name: changelog-generate — generate
+        id: cg
+        uses: ./.github/actions/changelog-generate@e3e1284e7d6c31163b76acaeea879fd5de03bd04
+        with:
+          force: 'true'
+
+      - name: changelog-generate — validate
+        run: |
+          set -euo pipefail
+          grep -q '## \[Unreleased\]' CHANGELOG.md || { echo "::error::[Unreleased] not found"; exit 1; }
+          echo "✓ changelog-generate — [Unreleased] generated"
+
+      # ─── error when [Unreleased] already has entries ───
+      - name: changelog-generate — existing entries (expect failure)
+        id: cg_fail
+        continue-on-error: true
+        uses: ./.github/actions/changelog-generate@e3e1284e7d6c31163b76acaeea879fd5de03bd04
+        with:
+          force: 'false'
+
+      - name: changelog-generate — validate failure
+        run: |
+          set -euo pipefail
+          [ "${{ steps.cg_fail.outcome }}" = "failure" ] || \
+            { echo "::error::Expected failure when [Unreleased] has entries"; exit 1; }
+          echo "✓ changelog-generate — correctly rejects existing entries"

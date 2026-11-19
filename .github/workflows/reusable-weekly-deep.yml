@@ -1,0 +1,202 @@
+# reusable-weekly-deep — sanitizers + coverage + deploy
+#
+# Reusable workflow (workflow_call).
+# Consumers call via:
+#   uses: ai-warevo/.github/.github/workflows/reusable-weekly-deep.yml@<sha>
+#
+# Parameters:
+#   source_dir          — source directory (default: example)
+#   build_dir           — build directory (default: build)
+#   container_image     — CI container image (default: ghcr.io/ai-warevo/ci-cpp20)
+#   source_filter       — gcovr source filter (default: host/src/ plugin/src/ include/)
+#   exclude             — gcovr exclude pattern (default: _deps/*)
+
+name: reusable-weekly-deep
+
+on:
+  workflow_call:
+    inputs:
+      source_dir:
+        description: 'Source directory'
+        type: string
+        default: example
+      build_dir:
+        description: 'Build directory'
+        type: string
+        default: build
+      container_image:
+        description: 'CI container image'
+        type: string
+        default: ghcr.io/ai-warevo/ci-cpp20
+      source_filter:
+        description: 'gcovr source filter'
+        type: string
+        default: host/src/ plugin/src/ include/
+      exclude:
+        description: 'gcovr exclude pattern'
+        type: string
+        default: _deps/*
+
+permissions:
+  contents: write
+  packages: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sanitizer-asan:
+    name: ASan + UBSan
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ inputs.container_image }}
+      options: --user root --security-opt seccomp=unconfined
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Configure & Build
+        uses: ./.github/actions/cmake-build@e9b20ed3a4f8a49bf774a1f1c28c4fb39e27bad5
+        with:
+          source_dir: ${{ inputs.source_dir }}
+          build_dir: ${{ inputs.build_dir }}
+          build_type: RelWithDebInfo
+          extra_args: -DAW_EXAMPLE_BUILD_TESTS=ON -DAW_EXAMPLE_SANITIZE=address
+
+      - name: Run Tests
+        uses: ./.github/actions/ctest-run@f9d6360ab55c7c8ec283dd036f96f0a20f0672fe
+        with:
+          source_dir: ${{ inputs.source_dir }}
+          build_dir: ${{ inputs.build_dir }}
+          timeout: 120
+
+  sanitizer-tsan:
+    name: TSan
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ inputs.container_image }}
+      options: --user root --security-opt seccomp=unconfined
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Configure & Build
+        uses: ./.github/actions/cmake-build@e9b20ed3a4f8a49bf774a1f1c28c4fb39e27bad5
+        with:
+          source_dir: ${{ inputs.source_dir }}
+          build_dir: ${{ inputs.build_dir }}
+          build_type: RelWithDebInfo
+          extra_args: -DAW_EXAMPLE_BUILD_TESTS=ON -DAW_EXAMPLE_SANITIZE=thread
+
+      - name: Run Tests
+        uses: ./.github/actions/ctest-run@f9d6360ab55c7c8ec283dd036f96f0a20f0672fe
+        with:
+          source_dir: ${{ inputs.source_dir }}
+          build_dir: ${{ inputs.build_dir }}
+          timeout: 120
+
+  coverage:
+    name: Coverage Report
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ inputs.container_image }}
+      options: --user root
+    needs: [sanitizer-asan, sanitizer-tsan]
+    if: success()
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Configure & Build
+        uses: ./.github/actions/cmake-build@e9b20ed3a4f8a49bf774a1f1c28c4fb39e27bad5
+        with:
+          source_dir: ${{ inputs.source_dir }}
+          build_dir: ${{ inputs.build_dir }}
+          build_type: Debug
+          extra_args: -DAW_EXAMPLE_BUILD_TESTS=ON -DAW_EXAMPLE_ENABLE_COVERAGE=ON
+
+      - name: Run Tests
+        uses: ./.github/actions/ctest-run@f9d6360ab55c7c8ec283dd036f96f0a20f0672fe
+        with:
+          source_dir: ${{ inputs.source_dir }}
+          build_dir: ${{ inputs.build_dir }}
+          config: Debug
+
+      - name: Generate Coverage
+        uses: ./.github/actions/gcovr-report@6754a01eb25624e84b8c3186ca48e2812462f63c
+        with:
+          source_dir: ${{ inputs.source_dir }}
+          build_dir: ${{ inputs.build_dir }}
+          source_filter: ${{ inputs.source_filter }}
+          exclude: ${{ inputs.exclude }}
+          output_dir: htmlcov
+
+      - name: Parse Coverage Metrics
+        id: coverage_parser
+        uses: ./.github/actions/coverage-parser@535608f54753ec4631db924873b9b78ee561040e
+        with:
+          xml_path: coverage.xml
+
+      - name: Generate Coverage Badge
+        id: badge_generator
+        uses: ./.github/actions/badge@8be273762e7d32d969e7a0e25118a6ec171520d4
+        with:
+          width: '99'
+          height: '20'
+          text_left: 'coverage'
+          text_right: '${{ steps.coverage_parser.outputs.percent }}'
+          bg_color_right: '${{ steps.coverage_parser.outputs.color }}'
+          filename: 'coverage.svg'
+
+      - name: Upload Badge
+        if: success()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: coverage-badge
+          path: coverage.svg
+          retention-days: 1
+
+      - name: Upload Coverage HTML
+        if: success()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: coverage-html
+          path: htmlcov/
+          retention-days: 1
+
+  deploy:
+    name: Deploy Badges & HTML
+    runs-on: ubuntu-latest
+    needs: coverage
+    if: success() && inputs.source_dir == 'example' && (!github.event.pull_request || !github.event.pull_request.head.repo.fork)
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+
+      - name: Download Badge
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: coverage-badge
+          path: .
+
+      - name: Download Coverage HTML
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: coverage-html
+          path: htmlcov/
+
+      - name: Deploy Badge
+        uses: ./.github/actions/badge-deploy@cbab0fc6ae03943e63200bb0d7f1543ad20df1a6
+        with:
+          badge_path: coverage.svg
+
+      - name: Deploy Coverage HTML
+        uses: ./.github/actions/coverage-html-deploy@37ba6d2f53694f58c8bee3318ce80a7dce8022fe
+        with:
+          folder: htmlcov
+          target_folder: .

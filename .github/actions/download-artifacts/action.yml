@@ -1,0 +1,59 @@
+# download-artifacts — Download and merge multiple GitHub Actions artifacts
+#
+# A wrapper around actions/download-artifact@v4 for conveniently downloading
+# multiple artifacts by pattern and merging them into a single directory.
+#
+# Pattern from production workflow:
+#   download-artifact with pattern + merge-multiple
+#
+# Usage:
+#   - name: Download all release artifacts
+#     uses: ai-warevo/<repo>/.github/actions/download-artifacts@72e62471355bf347d09c7e183af5fd33bf41fbaf
+#     with:
+#       pattern: '*'
+#       merge-multiple: true
+#       path: artifacts/
+
+name: 'Download Artifacts (pattern + merge)'
+description: 'Download multiple artifacts by pattern and merge into single directory'
+
+inputs:
+  pattern:
+    description: 'Glob pattern to match artifact names (default: *)'
+    required: false
+    default: '*'
+  merge-multiple:
+    description: 'Merge artifacts into a single directory (default: true)'
+    required: false
+    default: 'true'
+  path:
+    description: 'Directory to download artifacts into'
+    required: false
+    default: 'downloaded-artifacts'
+  github_token:
+    description: 'GitHub token for authentication'
+    required: false
+    default: ${{ github.token }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        pattern: ${{ inputs.pattern }}
+        path: ${{ inputs.path }}
+        merge-multiple: ${{ inputs.merge-multiple }}
+        github_token: ${{ inputs.github_token }}
+
+    - name: List downloaded artifacts
+      shell: bash
+      run: |
+        echo "Downloaded artifacts to ${{ inputs.path }}:"
+        if [ -d "${{ inputs.path }}" ]; then
+          find "${{ inputs.path }}" -type f | head -50
+          echo "---"
+          echo "Total files: $(find "${{ inputs.path }}" -type f | wc -l)"
+        else
+          echo "(directory does not exist — no artifacts found)"
+        fi

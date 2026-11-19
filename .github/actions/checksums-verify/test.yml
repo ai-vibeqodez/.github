@@ -1,0 +1,60 @@
+# checksums-verify — Unit tests
+#
+# Tests: valid checksums, invalid checksums (expect failure)
+
+name: checksums-verify — Unit Tests
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: checksums-verify
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      # ─── prepare test files ───
+      - name: checksums-verify — prepare test files
+        run: |
+          set -euo pipefail
+          echo "test content 1" > file1.txt
+          echo "test content 2" > file2.txt
+          sha256sum file1.txt file2.txt > SHA256SUMS.txt
+          echo "✓ test files and checksums created"
+
+      # ─── valid checksums ───
+      - name: checksums-verify — valid
+        id: cv_valid
+        uses: ./.github/actions/checksums-verify@b6fea8cbedfa146c2de4e0180f19c4d11d90325d
+        with:
+          artifacts_dir: .
+          checksums_file: SHA256SUMS.txt
+
+      - name: checksums-verify — validate valid
+        run: echo "✓ checksums-verify accepts valid"
+
+      # ─── invalid checksums ───
+      - name: checksums-verify — prepare invalid checksums
+        run: |
+          set -euo pipefail
+          echo "badhash  somefile" > bad_sha.txt
+
+      - name: checksums-verify — invalid (expect failure)
+        id: cv_invalid
+        uses: ./.github/actions/checksums-verify@b6fea8cbedfa146c2de4e0180f19c4d11d90325d
+        with:
+          artifacts_dir: .
+          checksums_file: bad_sha.txt
+        continue-on-error: true
+
+      - name: checksums-verify — validate invalid
+        run: |
+          set -euo pipefail
+          [ "${{ steps.cv_invalid.outcome }}" = "failure" ] || \
+            { echo "::error::Invalid checksums should fail"; exit 1; }
+          echo "✓ checksums-verify rejects invalid"

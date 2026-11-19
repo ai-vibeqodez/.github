@@ -132,18 +132,18 @@ Closes #NNN
 
 ## Adding a New CI Template
 
-1. Create the workflow file in `ci/.github/workflows/`.
+1. Create the reusable workflow in `.github/workflows/reusable-<name>.yml` and a thin wrapper template in `templates/workflows/<name>.yml`.
 2. Add a `ci/README.md` table entry documenting the workflow.
 3. If it exercises a new capability, add an example in `example/`.
 4. Update `CHANGELOG.md` under `## [Unreleased]`.
 
 ## Adding a Composite Action
 
-1. Create the action in `ci/actions/<name>/action.yml` with a `README.md`.
+1. Create the action in `.github/actions/<name>/action.yml` with a `README.md`.
 2. **Pin to a 40-char commit SHA** in all workflows that reference it — never use `@main`.
 3. Resolve the latest SHA:
    ```bash
-   curl -s "https://api.github.com/repos/ai-warevo/.github/commits?path=ci/actions/<name>&per_page=1" \
+   curl -s "https://api.github.com/repos/ai-warevo/.github/commits?path=.github/actions/<name>&per_page=1" \
      | jq -r '.[0].sha'
    ```
 4. Add a `README.md` explaining inputs, outputs, and usage.

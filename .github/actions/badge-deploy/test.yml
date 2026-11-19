@@ -1,0 +1,40 @@
+# badge-deploy — Unit tests
+#
+# Tests: deploy badge SVG to a test branch
+
+name: badge-deploy — Unit Tests
+
+on:
+  workflow_call:
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    name: badge-deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      # ── generate badge ──
+      - name: Generate badge for deploy
+        id: badge
+        uses: ./.github/actions/badge@8be273762e7d32d969e7a0e25118a6ec171520d4
+        with:
+          text_left: 'coverage'
+          text_right: '90%'
+          bg_color_right: '#44cc11'
+          filename: 'coverage.svg'
+
+      - name: badge-deploy — to test branch
+        id: badge_deploy
+        uses: ./.github/actions/badge-deploy@cbab0fc6ae03943e63200bb0d7f1543ad20df1a6
+        with:
+          badge_path: coverage.svg
+          branch: actions-test/badge
+          target_folder: test-badges
+
+      - name: badge-deploy — validate
+        run: echo "✓ badge-deploy → actions-test:test-badges/"

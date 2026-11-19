@@ -1,0 +1,34 @@
+# clang-format — Unit tests
+#
+# Tests: check formatting on repo files (requires clang-format-18)
+
+name: clang-format — Unit Tests
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: clang-format
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/ai-warevo/ci-cpp20
+      options: --user root
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: clang-format — check repo C++ files
+        id: clang_fmt
+        uses: ./.github/actions/clang-format@6cae36f7fe728c23b1a6170d09d6dace55edea77
+        with:
+          source_dir: example
+          extensions: cpp,hpp
+          config_file: .clang-format
+          exclude: _deps/*,build/*,CMakeFiles/*,cmake/*
+
+      - name: clang-format — validate
+        run: echo "✓ clang-format — all files properly formatted"
