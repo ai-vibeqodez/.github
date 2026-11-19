@@ -57,7 +57,7 @@ jobs:
 
       # ── C++ (CMake) ──
       # - name: Configure & Build
-      #   uses: ai-warevo/.github/.github/actions/cmake-build@3166e731dcbbe7827136a9232c983fb0c22a5911
+      #   uses: ai-warevo/.github/ci/actions/cmake-build@e9b20ed3a4f8a49bf774a1f1c28c4fb39e27bad5
       #   with:
       #     source_dir: .
       #     build_type: Release
@@ -129,7 +129,7 @@ jobs:
 
       # ── C++ ──
       # - name: Run Tests
-      #   uses: ai-warevo/.github/.github/actions/ctest-run@3166e731dcbbe7827136a9232c983fb0c22a5911
+      #   uses: ai-warevo/.github/ci/actions/ctest-run@f9d6360ab55c7c8ec283dd036f96f0a20f0672fe
       #   with:
       #     source_dir: .
       #     build_dir: build
