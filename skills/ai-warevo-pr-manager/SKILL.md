@@ -85,7 +85,7 @@ Self-review: PASSED
 ```
 
 ## Rules
-- Always push to `ai-vibeqodez/<repo>` (the fork), never to `ai-warevo/<repo>`
+- Always push to `ai-vibeqodez/<repo>` (the fork) — never to `ai-warevo/<repo>`
 - PR must target `ai-warevo/<repo>:main`
 - Always self-review the diff before considering the task complete
 - Never submit a PR with failing CI checks
@@ -94,3 +94,6 @@ Self-review: PASSED
 - Use Conventional Commits in the PR title
 - Document what was tested in the PR body
 - **Never merge PRs** — merging is the user's (господин's) responsibility only. Agent's role: fix bugs, work on PRs, report status.
+
+## Git workflow rules
+Shared rules (never commit to `main`, SSH only, fork as `dshagent`, PAT auth) are defined in [`git-github-push/SKILL.md`](../git-github-push/SKILL.md).

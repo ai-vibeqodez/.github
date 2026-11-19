@@ -61,17 +61,34 @@ They print the detected categories and next `vX.Y.Z`, then promote `[Unreleased]
 
 ## AI skills (how they work)
 
-Each skill lives in `skills/<name>/SKILL.md`. A skill is a self-contained instruction set for the agent:
+Each skill lives in `skills/<name>/SKILL.md`. A skill is a self-contained instruction set for the agent.
 
-| Skill | Role | Input | Output |
-|-------|------|-------|--------|
-| `analyst/` | Requirements gathering via interview | Project name, context, stakeholders | Structured requirements doc |
-| `planner/` | Plan creation from requirements | Requirements doc | `OVERVIEW.md`, `task_XX.md` files |
-| `executor/` | Execute tasks from todo/ | Task file path, OVERVIEW context | Implemented files, filled result |
-| `skill-creator/` | Create new skills | Skill description | `skills/<name>/SKILL.md`, updated indexes |
-| `git-github-push/` | Push commits via SSH | Ready commits, remote repo | Successful GitHub push |
+| Skill | Role |
+|-------|------|
+| `ai-warevo-orchestrator/` | Full pipeline: discover → prepare → impl → PR |
+| `ai-warevo-issue-discoverer/` | Find & select issues from org repos |
+| `ai-warevo-workspace-prepper/` | Fork, clone, create branch |
+| `ai-warevo-code-impl/` | Implement changes, run tests |
+| `ai-warevo-pr-manager/` | Push to fork, create PR, monitor CI |
+| `git-github-push/` | Low-level git push via SSH |
+| `analyst/` | Requirements gathering |
+| `planner/` | Plan creation |
+| `executor/` | Task execution |
+| `skill-creator/` | Create new skills |
 
-Skills are loaded via the `skill` tool. When editing a skill, keep it concise — agent context window is precious. Follow the pattern of existing skills: identity, input/output contract, step-by-step instructions, conventions.
+Skills are loaded via the `skill` tool. When editing a skill, keep it concise — agent context window is precious.
+
+### Git workflow (shared rules)
+
+All skills share these rules — see `git-github-push/` for the full reference:
+
+- **Never commit to `main`** — always use a feature/fix branch.
+- **Never push to `origin`** (`ai-warevo/...`) — read-only. Push only to `dshagent` (your fork).
+- **If `dshagent` remote is missing** — fork first, then add it.
+- **Always use SSH** — never HTTPS (rate limits).
+- **Merging is the user's responsibility** — agent creates PR, monitors CI, never merges.
+
+For details: [`git-github-push/SKILL.md`](skills/git-github-push/SKILL.md)
 
 ## CI/CD architecture
 
@@ -121,34 +138,6 @@ curl -s "https://api.github.com/repos/<owner>/<repo>/git/ref/tags/<tag>" \
 ```
 
 Update the SHA whenever the upstream action receives a meaningful update. Add a `Fixed` or `Changed` bullet to `CHANGELOG.md` under `## [Unreleased]` when bumping.
-
-### GitHub CLI (gh) & authentication
-
-- **Always use SSH for git** — never HTTPS. HTTPS hits rate limits quickly (100 req/hr unauthenticated, 5000/hr authenticated). SSH has no rate limit.
-  ```sh
-  # Verify git remote uses SSH
-  git remote -v
-  # origin → git@github.com:ai-warevo/.github.git (org repo, read-only)
-  # dshagent → git@github.com:ai-vibeqodez/.github.git (your fork, write)
-  ```
-
-- **Push to fork, PR to org** — never push directly to `origin`:
-  ```sh
-  git push dshagent fix/issue-1
-  ```
-
-- **Authenticate `gh` CLI** — PAT is stored in `/home/node/workspace/deepseek-harness-docker/.env` (`GITHUB_TOKEN` variable). Authenticate with:
-  ```sh
-  gh auth login --with-token < /home/node/workspace/deepseek-harness-docker/.env 2>/dev/null | grep GITHUB_TOKEN | cut -d= -f2
-  ```
-  If that token is expired, search session cache for a valid PAT:
-  ```sh
-  grep -r "ghp_" /home/node/.dsh/storages/session_projcache/sessions/ | head -5
-  ```
-
-- **Verify auth before bulk operations** — always run `gh auth status` before making multiple API calls. Expired token = HTTP 401.
-
-- **Fork PR limitation** — `github-actions[bot]` token is read-only on fork PRs. Deploy jobs must check `!github.event.pull_request.head.repo.fork` to skip.
 
 ## Workflow conventions
 

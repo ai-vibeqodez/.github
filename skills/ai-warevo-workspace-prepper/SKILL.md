@@ -74,6 +74,8 @@ Branch: feat/issue-NNN
 ## Rules
 - Always sync `main` before creating the branch
 - Branch naming must follow the classification rule (`fix/` for bugs, `feat/` for everything else)
-- Never push to `ai-warevo/<repo>` directly — always use the fork
 - If any step fails, report the error and stop (do not proceed to implementation)
 - If the repo already has a branch `feat/issue-NNN` or `fix/issue-NNN`, delete it first: `git branch -D feat/issue-NNN`
+
+## Git workflow rules
+Shared rules (never commit to `main`, never push to `origin`, SSH only, fork as `dshagent`) are defined in [`git-github-push/SKILL.md`](../git-github-push/SKILL.md).
