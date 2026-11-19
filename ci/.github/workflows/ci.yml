@@ -60,7 +60,7 @@ jobs:
 
       # ── C++ (CMake) ──
       # - name: Configure & Build
-      #   uses: ai-warevo/.github/ci/actions/cmake-build@main
+      #   uses: ai-warevo/.github/ci/actions/cmake-build@fbcaa81f2162ab5dfaa44e306865f5fce2dd519a
       #   with:
       #     source_dir: .
       #     build_type: Release
@@ -87,7 +87,9 @@ jobs:
       #     java-version: '21'
       # - run: mvn compile
 
+      # TODO: Uncomment one of the language stack blocks above and remove this placeholder.
       - name: Build (placeholder)
+        if: false
         run: echo "call real command to build"
 
   lint:
@@ -108,6 +110,7 @@ jobs:
       # - run: dotnet format --verify-no-changes
 
       - name: Lint (placeholder)
+        if: false
         run: echo "call real command to lint"
 
   test:
@@ -129,11 +132,13 @@ jobs:
 
       # ── C++ ──
       # - name: Run Tests
-      #   uses: ai-warevo/.github/ci/actions/ctest-run@main
+      #   uses: ai-warevo/.github/ci/actions/ctest-run@02c1d2908f8e67123d3b5a3acbe0f17367bcbbed
       #   with:
       #     source_dir: .
       #     build_dir: build
       #     config: Release
 
+      # TODO: Uncomment one of the language stack blocks above and remove this placeholder.
       - name: Test (placeholder)
+        if: false
         run: echo "call real command to test"

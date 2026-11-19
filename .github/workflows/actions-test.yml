@@ -37,13 +37,13 @@ jobs:
           - release-version
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       # ─── badge ───
       - name: badge — custom params
         if: matrix.action == 'badge'
         id: badge
-        uses: ai-warevo/.github/ci/actions/badge@main
+        uses: ai-warevo/.github/ci/actions/badge@c3d7d4dcbe7188bf39fb5f21a78f2233ec3cc565
         with:
           width: '200'
           height: '30'
@@ -68,7 +68,7 @@ jobs:
       - name: badge — defaults
         if: matrix.action == 'badge'
         id: badge_def
-        uses: ai-warevo/.github/ci/actions/badge@main
+        uses: ai-warevo/.github/ci/actions/badge@c3d7d4dcbe7188bf39fb5f21a78f2233ec3cc565
         with:
           text_left: 'coverage'
           text_right: '80%'
@@ -87,7 +87,7 @@ jobs:
       - name: badge — nested output
         if: matrix.action == 'badge'
         id: badge_nested
-        uses: ai-warevo/.github/ci/actions/badge@main
+        uses: ai-warevo/.github/ci/actions/badge@c3d7d4dcbe7188bf39fb5f21a78f2233ec3cc565
         with:
           text_left: 'cov'
           text_right: '100%'
@@ -105,7 +105,7 @@ jobs:
       - name: release-version — tag event
         if: matrix.action == 'release-version'
         id: rv_tag
-        uses: ai-warevo/.github/ci/actions/release-version@main
+        uses: ai-warevo/.github/ci/actions/release-version@71c1b8b7b12bd6670511df5dedc285060a98a2b6
         with:
           version: 'v1.2.3'
 
@@ -122,7 +122,7 @@ jobs:
       - name: release-version — dispatch with v-prefix
         if: matrix.action == 'release-version'
         id: rv_v
-        uses: ai-warevo/.github/ci/actions/release-version@main
+        uses: ai-warevo/.github/ci/actions/release-version@71c1b8b7b12bd6670511df5dedc285060a98a2b6
         with:
           version: 'v2.0.0'
 
@@ -137,7 +137,7 @@ jobs:
       - name: release-version — empty dispatch (fallback)
         if: matrix.action == 'release-version'
         id: rv_empty
-        uses: ai-warevo/.github/ci/actions/release-version@main
+        uses: ai-warevo/.github/ci/actions/release-version@71c1b8b7b12bd6670511df5dedc285060a98a2b6
         with:
           version: ''
 
@@ -153,7 +153,7 @@ jobs:
       - name: changelog-release — existing tag
         if: matrix.action == 'changelog-release'
         id: cr_existing
-        uses: ai-warevo/.github/ci/actions/changelog-release@main
+        uses: ai-warevo/.github/ci/actions/changelog-release@a9ef74611405423b41898e60c5c589cc3b1a34dc
         with:
           tag: v1.2.12
           changelog: CHANGELOG.md
@@ -171,7 +171,7 @@ jobs:
         if: matrix.action == 'changelog-release'
         id: cr_missing
         continue-on-error: true
-        uses: ai-warevo/.github/ci/actions/changelog-release@main
+        uses: ai-warevo/.github/ci/actions/changelog-release@a9ef74611405423b41898e60c5c589cc3b1a34dc
         with:
           tag: v9.9.9
           changelog: CHANGELOG.md
@@ -190,7 +190,7 @@ jobs:
       - name: checksums — single file
         if: matrix.action == 'checksums'
         id: cs_single
-        uses: ai-warevo/.github/ci/actions/checksums@main
+        uses: ai-warevo/.github/ci/actions/checksums@6b9089e502cdca7e5f585b82d81d187c101347a0
         with:
           artifacts_dir: .
 
@@ -204,7 +204,7 @@ jobs:
       - name: checksums — custom filename
         if: matrix.action == 'checksums'
         id: cs_custom
-        uses: ai-warevo/.github/ci/actions/checksums@main
+        uses: ai-warevo/.github/ci/actions/checksums@6b9089e502cdca7e5f585b82d81d187c101347a0
         with:
           artifacts_dir: .
           checksums_file: custom_sums.txt
@@ -229,7 +229,7 @@ jobs:
       - name: checksums-verify — valid
         if: matrix.action == 'checksums-verify'
         id: cv_valid
-        uses: ai-warevo/.github/ci/actions/checksums-verify@main
+        uses: ai-warevo/.github/ci/actions/checksums-verify@02c1d2908f8e67123d3b5a3acbe0f17367bcbbed
         with:
           artifacts_dir: .
           checksums_file: SHA256SUMS.txt
@@ -243,7 +243,7 @@ jobs:
       - name: checksums-verify — invalid
         if: matrix.action == 'checksums-verify'
         id: cv_invalid
-        uses: ai-warevo/.github/ci/actions/checksums-verify@main
+        uses: ai-warevo/.github/ci/actions/checksums-verify@02c1d2908f8e67123d3b5a3acbe0f17367bcbbed
         with:
           artifacts_dir: .
           checksums_file: bad_sha.txt
@@ -278,7 +278,7 @@ jobs:
       - name: coverage-parser — parse high
         if: matrix.action == 'coverage-parser'
         id: cp_parse
-        uses: ai-warevo/.github/ci/actions/coverage-parser@main
+        uses: ai-warevo/.github/ci/actions/coverage-parser@b9b4ea51339d9f5113da5247b6b80020e29eff38
         with:
           xml_path: /tmp/cov-test/coverage.xml
 
@@ -310,7 +310,7 @@ jobs:
       - name: coverage-parser — parse zero
         if: matrix.action == 'coverage-parser'
         id: cp_zero_parse
-        uses: ai-warevo/.github/ci/actions/coverage-parser@main
+        uses: ai-warevo/.github/ci/actions/coverage-parser@b9b4ea51339d9f5113da5247b6b80020e29eff38
         with:
           xml_path: /tmp/cov-test/coverage.xml
 
@@ -327,7 +327,7 @@ jobs:
       - name: coverage-parser — missing file (default 0)
         if: matrix.action == 'coverage-parser'
         id: cp_missing
-        uses: ai-warevo/.github/ci/actions/coverage-parser@main
+        uses: ai-warevo/.github/ci/actions/coverage-parser@b9b4ea51339d9f5113da5247b6b80020e29eff38
         with:
           xml_path: /nonexistent/coverage.xml
 
@@ -347,12 +347,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       # ── badge-deploy ──
       - name: Generate badge for deploy
         id: badge
-        uses: ai-warevo/.github/ci/actions/badge@main
+        uses: ai-warevo/.github/ci/actions/badge@c3d7d4dcbe7188bf39fb5f21a78f2233ec3cc565
         with:
           text_left: 'coverage'
           text_right: '90%'
@@ -361,7 +361,7 @@ jobs:
 
       - name: badge-deploy — to test branch
         id: badge_deploy
-        uses: ai-warevo/.github/ci/actions/badge-deploy@main
+        uses: ai-warevo/.github/ci/actions/badge-deploy@02c1d2908f8e67123d3b5a3acbe0f17367bcbbed
         with:
           badge_path: coverage.svg
           branch: actions-test/badge
@@ -394,7 +394,7 @@ jobs:
 
       - name: coverage-html-deploy — to test branch
         id: html_deploy
-        uses: ai-warevo/.github/ci/actions/coverage-html-deploy@main
+        uses: ai-warevo/.github/ci/actions/coverage-html-deploy@71de6287301964338e41245fc4a3087a77a64475
         with:
           folder: htmlcov
           branch: actions-test/coverage
@@ -412,7 +412,7 @@ jobs:
       - name: docker-save — build & save
         id: docker_save
         if: success()
-        uses: ai-warevo/.github/ci/actions/docker-save@main
+        uses: ai-warevo/.github/ci/actions/docker-save@400867e7ca58ea40173dd703a4f56f96a8dc01f2
         with:
           image: alpine
           tag: '3.19'
@@ -437,7 +437,7 @@ jobs:
 
       - name: docker-build-push — build only (no push)
         id: docker_build
-        uses: ai-warevo/.github/ci/actions/docker-build-push@main
+        uses: ai-warevo/.github/ci/actions/docker-build-push@39158df7af5f2086370ed740f78126cfdabc6ec4
         with:
           context: /tmp/docker-test
           dockerfile: /tmp/docker-test/Dockerfile
@@ -463,13 +463,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       - name: Create artifact 1
         run: echo "hello" > file1.txt
 
       - name: Upload artifact 1
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: test-file1
           path: file1.txt
@@ -479,7 +479,7 @@ jobs:
         run: echo "world" > file2.txt
 
       - name: Upload artifact 2
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: test-file2
           path: file2.txt
@@ -491,12 +491,12 @@ jobs:
     needs: artifacts-producer
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       # ── download-artifacts ──
       - name: download-artifacts — pattern *
         id: download_all
-        uses: ai-warevo/.github/ci/actions/download-artifacts@main
+        uses: ai-warevo/.github/ci/actions/download-artifacts@400867e7ca58ea40173dd703a4f56f96a8dc01f2
         with:
           pattern: 'test-*'
           merge-multiple: 'true'
@@ -527,7 +527,7 @@ jobs:
 
       - name: collect-release-assets — upload as artifacts
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: collect-test-asset
           path: /tmp/collect-test
@@ -536,7 +536,7 @@ jobs:
       - name: collect-release-assets — collect
         id: collect
         if: success()
-        uses: ai-warevo/.github/ci/actions/collect-release-assets@main
+        uses: ai-warevo/.github/ci/actions/collect-release-assets@400867e7ca58ea40173dd703a4f56f96a8dc01f2
         with:
           version: '0.0.1-test'
           output_dir: /tmp/collect-test-output
@@ -562,11 +562,11 @@ jobs:
       options: --user root
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       - name: Configure & Build
         id: build
-        uses: ai-warevo/.github/ci/actions/cmake-build@main
+        uses: ai-warevo/.github/ci/actions/cmake-build@fbcaa81f2162ab5dfaa44e306865f5fce2dd519a
         with:
           source_dir: example
           build_dir: build
@@ -575,7 +575,7 @@ jobs:
 
       - name: Run tests
         id: test
-        uses: ai-warevo/.github/ci/actions/ctest-run@main
+        uses: ai-warevo/.github/ci/actions/ctest-run@02c1d2908f8e67123d3b5a3acbe0f17367bcbbed
         with:
           source_dir: example
           build_dir: build
@@ -584,7 +584,7 @@ jobs:
 
       - name: Generate coverage
         id: coverage
-        uses: ai-warevo/.github/ci/actions/gcovr-report@main
+        uses: ai-warevo/.github/ci/actions/gcovr-report@b9b4ea51339d9f5113da5247b6b80020e29eff38
         with:
           source_dir: example
           build_dir: build
@@ -595,13 +595,13 @@ jobs:
 
       - name: Parse coverage
         id: parse
-        uses: ai-warevo/.github/ci/actions/coverage-parser@main
+        uses: ai-warevo/.github/ci/actions/coverage-parser@b9b4ea51339d9f5113da5247b6b80020e29eff38
         with:
           xml_path: coverage.xml
 
       - name: Generate badge
         id: badge
-        uses: ai-warevo/.github/ci/actions/badge@main
+        uses: ai-warevo/.github/ci/actions/badge@c3d7d4dcbe7188bf39fb5f21a78f2233ec3cc565
         with:
           width: '120'
           height: '20'
@@ -633,11 +633,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       - name: Resolve version
         id: version
-        uses: ai-warevo/.github/ci/actions/release-version@main
+        uses: ai-warevo/.github/ci/actions/release-version@71c1b8b7b12bd6670511df5dedc285060a98a2b6
         with:
           version: '1.2.3'
 
@@ -652,7 +652,7 @@ jobs:
 
       - name: Generate release body
         id: changelog
-        uses: ai-warevo/.github/ci/actions/changelog-release@main
+        uses: ai-warevo/.github/ci/actions/changelog-release@a9ef74611405423b41898e60c5c589cc3b1a34dc
         with:
           tag: v1.2.12
           changelog: CHANGELOG.md
@@ -667,7 +667,7 @@ jobs:
 
       - name: Generate checksums
         id: checksums
-        uses: ai-warevo/.github/ci/actions/checksums@main
+        uses: ai-warevo/.github/ci/actions/checksums@6b9089e502cdca7e5f585b82d81d187c101347a0
         with:
           artifacts_dir: .
 
@@ -678,7 +678,7 @@ jobs:
           echo "✓ checksums"
 
       - name: Verify checksums
-        uses: ai-warevo/.github/ci/actions/checksums-verify@main
+        uses: ai-warevo/.github/ci/actions/checksums-verify@02c1d2908f8e67123d3b5a3acbe0f17367bcbbed
         with:
           artifacts_dir: .
           checksums_file: SHA256SUMS.txt
@@ -695,7 +695,7 @@ jobs:
     if: success()
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       # ── docker-save: build image, save to tar, upload artifact ──
       - name: docker-save — pull image
@@ -703,7 +703,7 @@ jobs:
 
       - name: docker-save — create artifact
         id: docker_save
-        uses: ai-warevo/.github/ci/actions/docker-save@main
+        uses: ai-warevo/.github/ci/actions/docker-save@400867e7ca58ea40173dd703a4f56f96a8dc01f2
         with:
           image: alpine
           tag: '3.19'
@@ -719,7 +719,7 @@ jobs:
       # ── docker-push-ghcr: download artifact, load, tag, push ──
       - name: docker-push-ghcr — load & push
         id: docker_push
-        uses: ai-warevo/.github/ci/actions/docker-push-ghcr@main
+        uses: ai-warevo/.github/ci/actions/docker-push-ghcr@02c1d2908f8e67123d3b5a3acbe0f17367bcbbed
         with:
           image: ghcr.io/${{ github.repository_owner }}/actions-test
           version: '0.0.1-test'
@@ -748,7 +748,7 @@ jobs:
           - default_badge
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       - name: Setup
         run: mkdir -p /tmp/edge-tests/empty-dir
@@ -769,7 +769,7 @@ jobs:
       - name: zero coverage — parse
         if: matrix.case == 'zero_coverage'
         id: edge_cov_parse
-        uses: ai-warevo/.github/ci/actions/coverage-parser@main
+        uses: ai-warevo/.github/ci/actions/coverage-parser@b9b4ea51339d9f5113da5247b6b80020e29eff38
         with:
           xml_path: /tmp/edge-tests/coverage.xml
 
@@ -786,7 +786,7 @@ jobs:
         if: matrix.case == 'missing_tag'
         id: cr_missing
         continue-on-error: true
-        uses: ai-warevo/.github/ci/actions/changelog-release@main
+        uses: ai-warevo/.github/ci/actions/changelog-release@a9ef74611405423b41898e60c5c589cc3b1a34dc
         with:
           tag: v9.9.9
           changelog: CHANGELOG.md
@@ -805,7 +805,7 @@ jobs:
       - name: empty dir
         if: matrix.case == 'empty_dir'
         id: cs_empty
-        uses: ai-warevo/.github/ci/actions/checksums@main
+        uses: ai-warevo/.github/ci/actions/checksums@6b9089e502cdca7e5f585b82d81d187c101347a0
         with:
           artifacts_dir: /tmp/edge-tests/empty-dir
 
@@ -822,7 +822,7 @@ jobs:
       # ── Default badge ──
       - name: default badge
         if: matrix.case == 'default_badge'
-        uses: ai-warevo/.github/ci/actions/badge@main
+        uses: ai-warevo/.github/ci/actions/badge@c3d7d4dcbe7188bf39fb5f21a78f2233ec3cc565
         with:
           text_left: 'coverage'
           text_right: '100%'

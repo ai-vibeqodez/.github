@@ -103,15 +103,31 @@ ci/
 
 - Each action lives in `ci/actions/<name>/action.yml` with a `README.md`.
 - Actions accept inputs, produce outputs (via `$GITHUB_OUTPUT`).
-- Always pin to `@main` in workflows that reference them.
+- Always pin to a **40-char commit SHA** (not `@main` or a branch tag) in workflows that reference them.
 - Actions should be **idempotent** and **self-healing** (retry on transient failures).
+
+### SHA pinning convention
+
+Pinning to `@main` is a supply-chain risk: a compromised branch can inject malicious code into any consumer workflow. Always resolve the latest commit SHA for the target directory:
+
+```sh
+# Composite action: resolve SHA for a directory
+curl -s "https://api.github.com/repos/ai-warevo/.github/commits?path=ci/actions/<name>&per_page=1" \
+  | jq -r '.[0].sha'
+
+# Third-party action: resolve SHA for a tagged ref
+curl -s "https://api.github.com/repos/<owner>/<repo>/git/ref/tags/<tag>" \
+  | jq -r '.object.sha'
+```
+
+Update the SHA whenever the upstream action receives a meaningful update. Add a `Fixed` or `Changed` bullet to `CHANGELOG.md` under `## [Unreleased]` when bumping.
 
 ### Workflow conventions
 
 - Use `concurrency` blocks to cancel stale runs on the same branch/PR.
 - Use `needs` to establish job dependencies; keep the graph shallow.
 - Matrix jobs for multi-platform/multi-version testing; single jobs for release.
-- All workflows reference shared composite actions from `ai-warevo/.github/ci/actions/<name>@main`.
+- All workflows reference shared composite actions from `ai-warevo/.github/ci/actions/<name>@<40-char-SHA>`.
 
 ## Documentation & comments
 
