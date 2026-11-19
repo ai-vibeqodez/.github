@@ -1,5 +1,5 @@
 ---
-name: git-github-push
+name: ai-warevo-git-github-push
 description: Central reference for git workflow rules and low-level SSH push operations.
 inputs:
   repo:

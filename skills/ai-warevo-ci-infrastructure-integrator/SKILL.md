@@ -1,5 +1,5 @@
 ---
-name: ci-infrastructure-integrator
+name: ai-warevo-ci-infrastructure-integrator
 description: Smart integration of ready-made CI/CD infrastructure from a catalog repository into an existing project without duplication and with preservation of existing code
 inputs:
   target_project_path:

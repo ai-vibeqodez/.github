@@ -1,5 +1,5 @@
 ---
-name: ci-setup
+name: ai-warevo-ci-setup
 description: Bootstrap the shared language-agnostic Makefile CI contract and reusable GitHub Actions workflows in a project repository.
 inputs:
   repo_path:

@@ -1,5 +1,5 @@
 ---
-name: analyst
+name: ai-warevo-analyst
 description: Gathering and formalizing requirements through interviews with the customer or stakeholders
 inputs:
   project_name:
