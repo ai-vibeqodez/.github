@@ -56,8 +56,9 @@ Before making changes:
 ```bash
 cd ~/workspace/<repo>/
 git add -A
-git commit -m "<prefix> <short description>
-\n\nCloses #NNN"
+git commit -m "<prefix> <short description> (#NNN)
+
+Closes #NNN"
 ```
 
 Example:

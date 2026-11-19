@@ -111,7 +111,7 @@ When a sub-skill is not available, execute the step directly using these rules:
 ### Push & PR (fallback)
 - `git config user.name "Anatoly Ivanov"` / `user.email "ai_vibeqodez@vk.com"`
 - `git push -u origin feat/issue-NNN`
-- `gh pr create --base main --head feat/issue-NNN --title "..." --body "Closes #NNN\n\n## Changes\n- ..."`
+- `gh pr create --base main --head feat/issue-NNN --title "<prefix> <description> (#NNN)" --body "Closes #NNN\n\n## Changes\n- ..."`
 
 ## Conventions
 - **Git user**: `Anatoly Ivanov` <ai_vibeqodez@vk.com>
