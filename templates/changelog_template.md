@@ -21,7 +21,7 @@ This format is based on [Keep a Changelog](https://keepachangelog.com/) and [Sem
 - <Updated dependency> — e.g., "Bump `actions/checkout` to v4"
 
 ### Deprecated
-- <Deprecated feature> — e.g., "`ci-fast` target without lint checks"
+- <Deprecated feature> — e.g., "`ci-coverage` standalone target (merged into `weekly-deep`)"
 
 ### Removed
 - <Removed capability> — e.g., "Legacy `Makefile` template (use `Makefile.ci` instead)"

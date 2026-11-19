@@ -8,7 +8,7 @@ Guidance for working on an `ai-warevo/<repo>`. Read `README.md` for the user-fac
 
 - **AI skills** (`skills/`) — agent-facing tool definitions for ai-warevo-analyst, ai-warevo-planner, ai-warevo-executor, ai-warevo-skill-creator, ai-warevo-git-github-push.
 - **Templates** (`templates/`) — OVERVIEW, task, README, CHANGELOG, CONTRIBUTING markdown skeletons.
-- **CI/CD** (`ci/`) — GitHub Actions reusable workflows (`ci.yml`, `test.yml`, `release.yml`) and composite actions (`badge/`, `changelog-generate/`, `changelog-promote/`, `changelog-release/`, `checksums/`, `coverage-parser/`, `docker-build-push/`, etc.).
+- **CI/CD** (`ci/`) — GitHub Actions reusable workflows (`pr-fast.yml`, `weekly-deep.yml`, `release.yml`) and composite actions (`badge/`, `changelog-generate/`, `changelog-promote/`, `changelog-release/`, `checksums/`, `coverage-parser/`, `docker-build-push/`, etc.).
 - **LLM server** (`docker-compose.yml`) — llama.cpp Docker Compose for local GPU-accelerated inference (RTX 4080, Qwen3.6-35B-A3B).
 - **Example** (`example/`) — C++23 CMake project (Catch2 v3, sanitizers, coverage) used as smoke-test for CI templates and as a reference for projects adopting the CI workflow.
 
@@ -143,9 +143,9 @@ For details: [`ai-warevo-git-github-push/SKILL.md`](skills/ai-warevo-git-github-
 ```
 ci/
 ├── .github/workflows/
-│   ├── ci.yml          # build → lint → test (push/PR to main/develop)
-│   ├── test.yml        # extended test (manual, push to main)
-│   └── release.yml     # build → release → docker (tag push or workflow_dispatch)
+│   ├── pr-fast.yml       # PR tier: lint + build + test
+│   ├── weekly-deep.yml   # Scheduled tier: deep tests + coverage
+│   └── release.yml       # Release tier: build + release + publish
 └── actions/
     ├── badge/              # SVG coverage badge generation
     ├── changelog-generate/ # generate [Unreleased] from git log

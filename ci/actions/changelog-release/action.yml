@@ -18,7 +18,7 @@ inputs:
     description: "What's Included section in release body"
     required: false
     default: |
-      - Universal CI/CD workflow templates (ci.yml, test.yml) for Node.js, Python, C#, C++, Go, Rust, Java
+      - Universal CI/CD workflow templates (pr-fast.yml, weekly-deep.yml, release.yml) for Node.js, Python, C#, C++, Go, Rust, Java
       - Custom GitHub Action: SVG Badge Generator
       - AI skills: analyst, planner, executor, skill-creator, git-github-push
       - Project templates: overview, task, README, CHANGELOG, CONTRIBUTING
@@ -34,8 +34,8 @@ inputs:
 
       Copy CI/CD templates:
       ```bash
-      cp path/to/ci/.github/workflows/ci.yml .github/workflows/ci.yml
-      cp path/to/ci/.github/workflows/test.yml .github/workflows/test.yml
+      cp path/to/ci/.github/workflows/pr-fast.yml .github/workflows/pr-fast.yml
+      cp path/to/ci/.github/workflows/weekly-deep.yml .github/workflows/weekly-deep.yml
       ```
 
 outputs:

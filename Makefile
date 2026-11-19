@@ -6,18 +6,14 @@
 #   2. Trigger the release workflow:
 #      make release          # GitHub Actions: workflow_dispatch, derives version
 #      make release VERSION=1.2.3  # GitHub Actions: workflow_dispatch with override
-#
-# CI targets (called by reusable workflows):
-#   make ci-fast   — lint, build, unit tests
-#   make ci-deep   — stress, integration, security tests
-#   make ci-coverage — coverage report generation
-#   make build-release — production artifacts
 
-.PHONY: ci-fast ci-deep ci-coverage build-release release release-dry-run
+.PHONY: pr-fast weekly-deep release release-dry-run
+
+# ═══════════════════════════════════════════════════════════
+#  SYSTEM — do not modify, this is infrastructure
+# ═══════════════════════════════════════════════════════════
 
 # Release via GitHub Actions workflow_dispatch (no local scripts).
-# Derives version from CHANGELOG.md categories, promotes [Unreleased],
-# commits, tags vX.Y.Z — which triggers the tag-push release flow.
 release:
 	gh workflow run release.yml --ref main $(if $(VERSION),--field version=$(VERSION))
 
@@ -30,15 +26,23 @@ release-dry-run:
 	@echo "  Added, Deprecated → minor"
 	@echo "  Fixed, Changed, Security → patch"
 
-# CI contract targets (consumed by reusable workflows)
-ci-fast:
-	@echo "ci-fast: lint + build + unit tests"
+pr-fast:
+	gh workflow run pr-fast.yml --ref main
 
-ci-deep:
-	@echo "ci-deep: stress + integration + security tests"
+weekly-deep:
+	gh workflow run weekly-deep.yml --ref main
 
-ci-coverage:
-	@echo "ci-coverage: coverage report generation"
+# ═══════════════════════════════════════════════════════════
+#  YOURS — add your custom targets here
+# ═══════════════════════════════════════════════════════════
 
-build-release:
-	@echo "build-release: production artifacts"
+# Example:
+# dev:
+# 	cmake -B build/dev -G Ninja -DCMAKE_BUILD_TYPE=Debug
+# 	cmake --build build/dev --parallel
+#
+# lint:
+# 	@echo "run your linter"
+#
+# test:
+# 	@echo "run your tests"

@@ -1,15 +1,12 @@
-# CI — Universal Template
+# pr-fast — lint + build + unit tests on PR
 #
-# Copy this file into your project as .github/workflows/ci.yml
+# Copy this file into your project as .github/workflows/pr-fast.yml
 # and replace placeholders with real commands for your stack.
 #
 # Supported stacks (pick the one you need and uncomment):
 #   Node.js / TypeScript, Python, C# (.NET), C++ (CMake), Go, Rust, Java, and more.
-#
-# Triggers: pull_request to main/master, merge_group (on PR merge).
-# Regular push to main/master does NOT trigger CI — saves GitHub Actions limits.
 
-name: CI
+name: pr-fast
 
 on:
   pull_request:
