@@ -149,13 +149,13 @@ When a sub-skill is not available, execute the step directly using these rules:
 - **Push target**: `ai-vibeqodez/<repo>` (agent's fork)
 - **PR target**: `ai-warevo/<repo>:main` (organization repo)
 - **Issue filtering**: Only `loktionov129` and `ai-vibeqodez`
-- **SSH setup**: Use `/tmp/ssh` workaround if filesystem is read-only (see `git-github-push` skill)
+- **SSH setup**: Use `/tmp/ssh` workaround if filesystem is read-only (see `ai-warevo-git-github-push` skill)
 
 ## Rules
 - Always delegate to sub-skills when available — do not duplicate their logic
 - Verify each sub-skill completes successfully before proceeding
 - Stop the pipeline if any step fails (do not continue with partial results)
-- Never push directly to `ai-warevo` — always use fork (see `git-github-push` skill)
+- Never push directly to `ai-warevo` — always use fork (see `ai-warevo-git-github-push` skill)
 - Always sync `main` before branching
 - Run all available tests and linters before pushing
 - Self-review every PR before submitting

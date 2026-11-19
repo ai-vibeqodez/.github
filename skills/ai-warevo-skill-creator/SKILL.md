@@ -1,5 +1,5 @@
 ---
-name: skill-creator
+name: ai-warevo-skill-creator
 description: Creating new skills and updating the skills repository
 inputs:
   name:

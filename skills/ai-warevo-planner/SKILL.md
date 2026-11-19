@@ -1,11 +1,11 @@
 ---
-name: planner
+name: ai-warevo-planner
 description: Create a project plan, OVERVIEW.md, and task files from requirements documents
 inputs:
   requirements_doc:
     type: markdown
     required: true
-    description: "Requirements document from analyst skill"
+    description: "Requirements document from ai-warevo-analyst skill"
   priorities:
     type: string
     required: false
@@ -39,7 +39,7 @@ outputs:
 Based on a requirements document, create a project plan: OVERVIEW.md with checkboxes and task files.
 
 ## Input
-- Requirements document (from Skill 01_analyst)
+- Requirements document (from Skill 01_ai-warevo-analyst)
 - Priorities and MVP definition
 - Deadlines and constraints
 

@@ -68,7 +68,7 @@ cd ~/workspace/<repo>/
 git push -u origin feat/issue-NNN
 ```
 
-If SSH key issue (read-only filesystem), use the workaround from `git-github-push` skill:
+If SSH key issue (read-only filesystem), use the workaround from `ai-warevo-git-github-push` skill:
 ```bash
 mkdir -p /tmp/ssh && cp ~/.ssh/id_ed25519 /tmp/ssh/ && chmod 700 /tmp/ssh && chmod 600 /tmp/ssh/id_ed25519
 eval "$(ssh-agent -s)" && ssh-add /tmp/ssh/id_ed25519
