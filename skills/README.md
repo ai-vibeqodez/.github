@@ -1,43 +1,81 @@
-# 📚 Каталог Skill'ов
+# 📚 Skill Catalog
 
-## analyst/ — Аналитик
-**Назначение**: Сбор и формализация требований через интервью.
-**Вход**: Название проекта, контекст, стейкхолдеры
-**Выход**: Документ с требованиями (структурированный)
-**Сложность**: Средняя
-**Зависимости**: Нет
+## analyst/ — Analyst
+**Purpose**: Requirements gathering via stakeholder interview.
+**Input**: Project name, context, stakeholders
+**Output**: Structured requirements document
+**Complexity**: Medium
+**Dependencies**: None
 
-## planner/ — Планировщик
-**Назначение**: Создание плана, OVERVIEW.md и task-файлов из требований.
-**Вход**: Документ требований (от Аналитик)
-**Выход**: OVERVIEW.md, task_XX.md в директории задачи
-**Сложность**: Средняя
-**Зависимости**: analyst/
+## planner/ — Planner
+**Purpose**: Create project plan, OVERVIEW.md and task files from requirements.
+**Input**: Requirements document (from Analyst)
+**Output**: OVERVIEW.md, task_XX.md in task directory
+**Complexity**: Medium
+**Dependencies**: analyst/
 
-## skill-creator/ — Создатель скиллов
-**Назначение**: Создание новых skill'ов и актуализация репозитория.
-**Вход**: Описание нового skill'а
-**Выход**: skills/<name>/SKILL.md, обновлённые SKILLS.md и README.md
-**Сложность**: Высокая
-**Зависимости**: Нет
+## executor/ — Executor
+**Purpose**: Execute tasks from todo/<task_short_name>/task_XX.md.
+**Input**: Path to task file, context from OVERVIEW.md
+**Output**: Implemented files, filled result, updated OVERVIEW.md
+**Complexity**: Medium
+**Dependencies**: planner/ (tasks must be created)
 
-## executor/ — Исполнитель
-**Назначение**: Выполнение задач из todo/<task_short_name>/task_XX.md.
-**Вход**: Путь к task-файлу, контекст из OVERVIEW.md
-**Выход**: Выполненные файлы, заполненный результат, обновлённый OVERVIEW.md
-**Сложность**: Средняя
-**Зависимости**: planner/ (задачи должны быть созданы)
+## skill-creator/ — Skill Creator
+**Purpose**: Create new skills and update the skill catalog.
+**Input**: Description of new skill
+**Output**: skills/<name>/SKILL.md, updated SKILLS.md and README.md
+**Complexity**: High
+**Dependencies**: None
 
 ## git-github-push/ — Git GitHub Push
-**Назначение**: Push коммитов в GitHub через SSH с обходом read-only файловой системы контейнера.
-**Вход**: Готовые коммиты, удалённый репозиторий
-**Выход**: Успешный push в GitHub
-**Сложность**: Низкая
-**Зависимости**: Нет
+**Purpose**: Push commits to GitHub via SSH with read-only filesystem workaround.
+**Input**: Ready commits, remote repository
+**Output**: Successful push to GitHub
+**Complexity**: Low
+**Dependencies**: None
 
-## ci-infrastructure-integrator/ — Интегратор CI/CD-инфраструктуры
-**Назначение**: Умная интеграция готовой CI/CD-инфраструктуры из репозитория-каталога в существующий проект через smart merge.
-**Вход**: Путь к целевому проекту, путь к репозиторию-каталогу, тип проекта
-**Выход**: Интегрированные workflow-файлы, обновлённая сборочная конфигурация, документация
-**Сложность**: Средняя
-**Зависимости**: Нет
+## ci-infrastructure-integrator/ — CI/CD Infrastructure Integrator
+**Purpose**: Smart integration of CI/CD infrastructure from catalog repo into existing project via smart merge.
+**Input**: Target project path, catalog repo path, project type
+**Output**: Integrated workflow files, updated build config, documentation
+**Complexity**: Medium
+**Dependencies**: None
+
+## ai-warevo-orchestrator/ — Org Repo Worker (Orchestrator)
+**Purpose**: Orchestrates the full autonomous workflow by delegating to specialized sub-skills. Does not implement steps directly — delegates and verifies.
+**Input**: Issue number or task description, target repository
+**Output**: Implemented changes pushed to fork, open PR targeting org repo
+**Complexity**: High
+**Dependencies**: git-github-push/, ai-warevo-issue-discoverer/, ai-warevo-workspace-prepper/, ai-warevo-code-impl/, ai-warevo-pr-manager/
+**Language**: English
+
+### Sub-skills
+
+#### ai-warevo-issue-discoverer/ — Issue Discoverer
+**Purpose**: Find, filter, and select the highest-priority open issue from an organization repository.
+**Input**: Target repository name
+**Output**: Selected issue number, full details, classification (bug/feature/task/docs/ci)
+**Complexity**: Low
+**Dependencies**: None
+
+#### ai-warevo-workspace-prepper/ — Workspace Prepper
+**Purpose**: Prepare the working environment — fork, clone, and create a branch for the selected issue.
+**Input**: Repository name, issue number, classification
+**Output**: Local working directory path, branch name
+**Complexity**: Low
+**Dependencies**: ai-warevo-issue-discoverer/
+
+#### ai-warevo-code-impl/ — Code Implementer
+**Purpose**: Classify the task, implement changes, and run all tests — full implementation cycle.
+**Input**: Working directory, issue details, branch name
+**Output**: Implemented changes committed, commit hash, test confirmation
+**Complexity**: High
+**Dependencies**: ai-warevo-workspace-prepper/
+
+#### ai-warevo-pr-manager/ — PR Manager
+**Purpose**: Push branch to fork, create PR targeting the organization repo, self-review, and monitor CI.
+**Input**: Branch name, issue number, commit hash, working directory, change summary
+**Output**: PR URL, CI status, self-review notes
+**Complexity**: Medium
+**Dependencies**: ai-warevo-code-impl/
