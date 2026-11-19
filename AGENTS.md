@@ -200,10 +200,12 @@ Update the SHA whenever the upstream action receives a meaningful update. Add a 
 - Runs llama.cpp server with CUDA on RTX 4080 (16GB VRAM).
 - Primary model: **Qwen3.6-35B-A3B-UD-Q4_K_XL** (~21 GB, MoE ~3B active params).
 - Hybrid GPU/CPU split: attention + KV on GPU, MoE experts overflow to CPU RAM.
-- API: `http://host.docker.internal:8080/v1` (port 8080, may conflict).
+- API: `http://host.docker.internal:8080/v1` (container port is always 8080).
+- Host port defaults to 8081, configurable via `LLAMACPP_PORT` env var.
 - Model loaded from `./models/` volume (read-only).
 - Health check polls `/health` every 15s; start period 180s.
-- The API key must match `LLAMACPP_API_KEY` in `dsh-home/.credentials.yaml`.
+- **API key required** — no default. Set `LLAMACPP_API_KEY` in `.env` or environment; must match `dsh-home/.credentials.yaml`.
+- Resource limits: 32G memory / 8 CPU max, 16G reserved.
 
 ## Contributing
 

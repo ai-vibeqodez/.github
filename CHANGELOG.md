@@ -14,6 +14,11 @@ Maintainer notes:
 
 ## [Unreleased]
 
+### Security
+
+- Harden `docker-compose.yml`: remove hardcoded API key default, add resource limits, configurable host port
+- Add `.env.example` documenting required environment variables
+
 ### Added
 
 - Add language-agnostic Makefile-contract CI workflows, caller templates, and `ci-setup` agent skill
