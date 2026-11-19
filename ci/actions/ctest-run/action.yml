@@ -4,7 +4,7 @@
 #
 # Usage:
 #   - name: Run Tests
-#     uses: ai-warevo/<repo>/ci/actions/ctest-run@main
+#     uses: ai-warevo/<repo>/ci/actions/ctest-run@6cae36f7fe728c23b1a6170d09d6dace55edea77
 #     with:
 #       source_dir: example
 #       build_dir: build

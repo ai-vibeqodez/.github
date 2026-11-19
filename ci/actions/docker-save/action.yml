@@ -9,7 +9,7 @@
 #
 # Usage:
 #   - name: Save Docker image
-#     uses: ai-warevo/<repo>/ci/actions/docker-save@main
+#     uses: ai-warevo/<repo>/ci/actions/docker-save@72e62471355bf347d09c7e183af5fd33bf41fbaf
 #     with:
 #       image: myapp/backend
 #       tag: '1.2.3'

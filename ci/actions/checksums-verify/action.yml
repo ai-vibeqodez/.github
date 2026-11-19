@@ -5,7 +5,7 @@
 #
 # Usage:
 #   - name: Verify checksums
-#     uses: ai-warevo/<repo>/ci/actions/checksums-verify@main
+#     uses: ai-warevo/<repo>/ci/actions/checksums-verify@72e62471355bf347d09c7e183af5fd33bf41fbaf
 #     with:
 #       artifacts_dir: release-artifacts/1.2.3
 #       checksums_file: SHA256SUMS.txt

@@ -42,7 +42,7 @@ jobs:
 
       - name: Generate Release Body
         id: changelog
-        uses: ai-warevo/<repo>/ci/actions/changelog-release@main
+        uses: ai-warevo/<repo>/ci/actions/changelog-release@72e62471355bf347d09c7e183af5fd33bf41fbaf
         with:
           tag: ${{ github.ref_name }}
           changelog: 'CHANGELOG.md'

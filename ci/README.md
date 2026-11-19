@@ -73,6 +73,32 @@ The commit validator permits the standard types `feat`, `fix`, `docs`, `style`, 
 
 Reusable workflows default to `contents: read`. Only the scheduled badge publication job and release publication job request `contents: write`. Callers should not grant broader permissions. Pin reusable workflow references to a reviewed ref; the copyable templates use `@main` as requested for easy adoption, while production consumers with stricter supply-chain requirements should replace it with a reviewed commit SHA. Third-party actions use modern major-version references in reusable workflows.
 
+## Composite Actions
+
+All composite actions live in `ci/actions/` and are referenced by consumer workflows using `ai-warevo/.github/ci/actions/<name>@<40-char-SHA>`. Each action has its own `README.md` with inputs, outputs, and usage examples.
+
+| Action | Purpose |
+| --- | --- |
+| `badge/` | Generate custom SVG badges |
+| `badge-deploy/` | Deploy an SVG badge to a branch (self-contained) |
+| `changelog-release/` | Extract release notes from CHANGELOG.md by tag |
+| `checksums/` | Generate SHA256SUMS.txt for files in a directory |
+| `checksums-verify/` | Verify SHA256 checksums against a checksums file |
+| `clang-format/` | Check C++ formatting with clang-format, fail on violations |
+| `clang-tidy/` | Run clang-tidy on C++ source files, fail on warnings |
+| `cmake-build/` | Configure, build, and optionally install with CMake |
+| `collect-release-assets/` | Collect build artifacts from multiple jobs for release |
+| `coverage-html-deploy/` | Deploy coverage HTML report to GitHub Pages |
+| `coverage-parser/` | Extract coverage percentage from coverage.xml or LCOV |
+| `ctest-run/` | Run CTest for a CMake project |
+| `docker-build-push/` | Build and push a Docker image to a container registry |
+| `docker-push-ghcr/` | Load and push Docker image to GitHub Container Registry |
+| `docker-save/` | Save Docker image as tar artifact |
+| `download-artifacts/` | Download multiple artifacts by pattern and merge |
+| `gcovr-report/` | Generate coverage reports (XML + HTML) from CMake build |
+| `release-version/` | Resolve release version from tag, input, or run_number |
+| `setup-toolchain/` | Compute CMake arguments for a toolchain configuration |
+
 ## Existing stack-specific CI
 
 This shared repository also contains established C++ container workflows and composite actions under `ci/.github/` and `ci/actions/`. They remain available for consumers that need their specialized matrix/build behavior. The Makefile contract workflows are an additional simpler integration path, not a replacement for those existing workflows.

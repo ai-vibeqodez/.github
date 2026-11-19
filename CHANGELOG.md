@@ -18,25 +18,18 @@ Maintainer notes:
 
 - Add `CONTRIBUTING.md` with development setup, commit conventions, PR process, and guidelines for adding CI templates, composite actions, and skills (#5)
 - Add `docs/ARCHITECTURE.md` with full architecture overview: CI/CD tiers, composite actions, workflow hierarchy, release pipeline, AI skills pipeline, and data flow diagrams (#5)
-- Expand `templates/readme_template.md`: add badges, quick start, structure, API reference, and testing sections
-- Expand `templates/overview.md`: add task plan table, progress metrics, risks table, and decisions log (#5)
-- Expand `templates/contributing_template.md`: add development setup, build/test instructions, commit conventions, and PR process (#5)
-- Expand `templates/task_template.md`: add implementation checklist, acceptance criteria, and result section with examples (#5)
-- Expand `templates/changelog_template.md`: add versioning guide, example entries for all categories, and writing guidelines (#5)
-
-### Security
-
-- Harden `docker-compose.yml`: remove hardcoded API key default, add resource limits, configurable host port
-- Add `.env.example` documenting required environment variables
-
-### Added
-
 - Add language-agnostic Makefile-contract CI workflows, caller templates, and `ci-setup` agent skill
+- Expand `templates/changelog_template.md`: add versioning guide, example entries for all categories, and writing guidelines (#5)
+- Expand `templates/contributing_template.md`: add development setup, build/test instructions, commit conventions, and PR process (#5)
+- Expand `templates/overview.md`: add task plan table, progress metrics, risks table, and decisions log (#5)
+- Expand `templates/readme_template.md`: add badges, quick start, structure, API reference, and testing sections
+- Expand `templates/task_template.md`: add implementation checklist, acceptance criteria, and result section with examples (#5)
 
 ### Security
 
-- Replace all `@main` action pinning with 40-char commit SHA hashes across all workflow and action files; resolves supply-chain risk from compromised branch refs (#1)
 - Guard placeholder steps in universal CI templates (`ci.yml`, `test.yml`) with `if: false` to prevent accidental execution when no language stack is configured
+- Harden `docker-compose.yml`: remove hardcoded API key default, add resource limits, configurable host port
+- Replace all `@main` action pinning with 40-char commit SHA hashes across all workflow and action files; resolves supply-chain risk from compromised branch refs (#1)
 
 ## [1.5.0] - 2026-11-18
 

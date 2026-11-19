@@ -8,7 +8,7 @@
 #
 # Usage:
 #   - name: Download all release artifacts
-#     uses: ai-warevo/<repo>/ci/actions/download-artifacts@main
+#     uses: ai-warevo/<repo>/ci/actions/download-artifacts@72e62471355bf347d09c7e183af5fd33bf41fbaf
 #     with:
 #       pattern: '*'
 #       merge-multiple: true
