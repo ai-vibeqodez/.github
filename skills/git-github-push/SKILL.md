@@ -37,12 +37,13 @@ git remote add dshagent git@github.com:ai-vibeqodez/<repo>.git
 
 ## SSH setup (read-only filesystem workaround)
 
-SSH key at `~/.ssh/id_ed25519` bound to `ai-vibeqodez`. `/home/node/.ssh/` may not exist or be read-only.
+SSH key: **`/home/node/workspace/.ssh/id_ed25519`** (bound to `ai-vibeqodez`).
+`~/.ssh/` does not exist — key lives at the full path above.
 
 ```bash
 mkdir -p /tmp/ssh
-cp ~/.ssh/id_ed25519 /tmp/ssh/
-cp ~/.ssh/id_ed25519.pub /tmp/ssh/
+cp /home/node/workspace/.ssh/id_ed25519 /tmp/ssh/
+cp /home/node/workspace/.ssh/id_ed25519.pub /tmp/ssh/
 touch /tmp/ssh/known_hosts
 chmod 700 /tmp/ssh
 chmod 600 /tmp/ssh/id_ed25519
@@ -87,3 +88,4 @@ user.name: Anatoly Ivanov
 3. **Used HTTPS remote** — switch to SSH: `git remote set-url dshagent git@github.com:ai-vibeqodez/<repo>.git`.
 4. **Expired PAT** — HTTP 401 on API calls; search session cache for valid token.
 5. **Archived repos** — read-only; can't push.
+6. **SSH key at wrong path** — key is at `/home/node/workspace/.ssh/id_ed25519`, not `~/.ssh/`.
