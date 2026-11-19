@@ -55,13 +55,13 @@ jobs:
 
       - name: Setup toolchain
         id: tc
-        uses: ai-warevo/.github/ci/actions/setup-toolchain@f217dca9d19e0bb62278981043e73b944b0c5526
+        uses: ai-warevo/.github/ci/actions/setup-toolchain@3166e731dcbbe7827136a9232c983fb0c22a5911
         with:
           toolchain: ${{ matrix.toolchain }}
           container_mode: true
 
       - name: Configure & Build
-        uses: ai-warevo/.github/ci/actions/cmake-build@fbcaa81f2162ab5dfaa44e306865f5fce2dd519a
+        uses: ai-warevo/.github/ci/actions/cmake-build@3166e731dcbbe7827136a9232c983fb0c22a5911
         with:
           source_dir: .
           build_dir: build
@@ -83,12 +83,12 @@ jobs:
 
       - name: Setup toolchain
         id: tc
-        uses: ai-warevo/.github/ci/actions/setup-toolchain@f217dca9d19e0bb62278981043e73b944b0c5526
+        uses: ai-warevo/.github/ci/actions/setup-toolchain@3166e731dcbbe7827136a9232c983fb0c22a5911
         with:
           toolchain: msvc
 
       - name: Configure & Build
-        uses: ai-warevo/.github/ci/actions/cmake-build@fbcaa81f2162ab5dfaa44e306865f5fce2dd519a
+        uses: ai-warevo/.github/ci/actions/cmake-build@3166e731dcbbe7827136a9232c983fb0c22a5911
         with:
           source_dir: .
           build_dir: build
@@ -112,13 +112,13 @@ jobs:
       # Build with compile_commands.json for clang-tidy
       - name: Setup toolchain
         id: tc
-        uses: ai-warevo/.github/ci/actions/setup-toolchain@f217dca9d19e0bb62278981043e73b944b0c5526
+        uses: ai-warevo/.github/ci/actions/setup-toolchain@3166e731dcbbe7827136a9232c983fb0c22a5911
         with:
           toolchain: clang18-libcxx
           container_mode: true
 
       - name: Configure (for compile_commands.json)
-        uses: ai-warevo/.github/ci/actions/cmake-build@fbcaa81f2162ab5dfaa44e306865f5fce2dd519a
+        uses: ai-warevo/.github/ci/actions/cmake-build@3166e731dcbbe7827136a9232c983fb0c22a5911
         with:
           source_dir: .
           build_dir: build
@@ -127,14 +127,14 @@ jobs:
           parallel: false
 
       - name: clang-format check
-        uses: ai-warevo/.github/ci/actions/clang-format@02c1d2908f8e67123d3b5a3acbe0f17367bcbbed
+        uses: ai-warevo/.github/ci/actions/clang-format@3166e731dcbbe7827136a9232c983fb0c22a5911
         with:
           source_dir: .
           extensions: cpp,hpp
           exclude: _deps/*,build/*,CMakeFiles/*,cmake/*
 
       - name: clang-tidy
-        uses: ai-warevo/.github/ci/actions/clang-tidy@b9b4ea51339d9f5113da5247b6b80020e29eff38
+        uses: ai-warevo/.github/ci/actions/clang-tidy@3166e731dcbbe7827136a9232c983fb0c22a5911
         with:
           source_dir: .
           build_dir: build
@@ -157,13 +157,13 @@ jobs:
 
       - name: Setup toolchain
         id: tc
-        uses: ai-warevo/.github/ci/actions/setup-toolchain@f217dca9d19e0bb62278981043e73b944b0c5526
+        uses: ai-warevo/.github/ci/actions/setup-toolchain@3166e731dcbbe7827136a9232c983fb0c22a5911
         with:
           toolchain: clang18-libcxx
           container_mode: true
 
       - name: Configure & Build (Debug)
-        uses: ai-warevo/.github/ci/actions/cmake-build@fbcaa81f2162ab5dfaa44e306865f5fce2dd519a
+        uses: ai-warevo/.github/ci/actions/cmake-build@3166e731dcbbe7827136a9232c983fb0c22a5911
         with:
           source_dir: .
           build_dir: build
@@ -171,7 +171,7 @@ jobs:
           extra_args: "${{ steps.tc.outputs.cmake_args }}"
 
       - name: Run Tests
-        uses: ai-warevo/.github/ci/actions/ctest-run@02c1d2908f8e67123d3b5a3acbe0f17367bcbbed
+        uses: ai-warevo/.github/ci/actions/ctest-run@3166e731dcbbe7827136a9232c983fb0c22a5911
         with:
           source_dir: .
           build_dir: build
@@ -193,12 +193,12 @@ jobs:
 
       - name: Setup toolchain
         id: tc
-        uses: ai-warevo/.github/ci/actions/setup-toolchain@f217dca9d19e0bb62278981043e73b944b0c5526
+        uses: ai-warevo/.github/ci/actions/setup-toolchain@3166e731dcbbe7827136a9232c983fb0c22a5911
         with:
           toolchain: msvc
 
       - name: Configure & Build (Debug)
-        uses: ai-warevo/.github/ci/actions/cmake-build@fbcaa81f2162ab5dfaa44e306865f5fce2dd519a
+        uses: ai-warevo/.github/ci/actions/cmake-build@3166e731dcbbe7827136a9232c983fb0c22a5911
         with:
           source_dir: .
           build_dir: build
@@ -206,7 +206,7 @@ jobs:
           extra_args: "${{ steps.tc.outputs.cmake_args }}"
 
       - name: Run Tests
-        uses: ai-warevo/.github/ci/actions/ctest-run@02c1d2908f8e67123d3b5a3acbe0f17367bcbbed
+        uses: ai-warevo/.github/ci/actions/ctest-run@3166e731dcbbe7827136a9232c983fb0c22a5911
         with:
           source_dir: .
           build_dir: build
