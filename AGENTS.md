@@ -128,12 +128,13 @@ Update the SHA whenever the upstream action receives a meaningful update. Add a 
   ```sh
   # Verify git remote uses SSH
   git remote -v
-  # Should show: git@github.com:ai-warevo/.github.git
-  # NOT: https://github.com/ai-warevo/.github.git
+  # origin → git@github.com:ai-warevo/.github.git (org repo, read-only)
+  # dshagent → git@github.com:ai-vibeqodez/.github.git (your fork, write)
   ```
-  If remote is HTTPS, switch it:
+
+- **Push to fork, PR to org** — never push directly to `origin`:
   ```sh
-  git remote set-url origin git@github.com:ai-warevo/.github.git
+  git push dshagent fix/issue-1
   ```
 
 - **Authenticate `gh` CLI** — PAT is stored in `/home/node/workspace/deepseek-harness-docker/.env` (`GITHUB_TOKEN` variable). Authenticate with:
