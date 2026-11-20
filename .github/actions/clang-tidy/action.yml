@@ -54,7 +54,7 @@ inputs:
     required: false
     default: '.*'
   exclude:
-    description: 'Directory names to exclude (comma-separated, pruned by find)'
+    description: 'Directory names to exclude from compile database paths (comma-separated)'
     required: false
     default: '_deps,build,CMakeFiles,cmake'
   fail_on_error:
@@ -87,19 +87,37 @@ runs:
         # Parse checks: allow multi-line YAML lists (join with comma)
         CHECKS_CLEAN=$(echo "$CHECKS" | tr '\n' ',' | sed 's/,,*/,/g; s/^[[:space:]]*//; s/[[:space:]]*$//')
 
-        # Build find exclude prune expressions
-        EXCLUDE_PRUNES=()
+        # Read only translation units configured for this build.
+        SOURCE_PATH=$(realpath "$SOURCE_DIR")
+        EXCLUDE_NAMES=()
         IFS=',' read -ra EXCLUDE_LIST <<< "$EXCLUDE"
         for exc in "${EXCLUDE_LIST[@]}"; do
-          exc=$(echo "$exc" | xargs)  # trim whitespace
+          exc=$(echo "$exc" | xargs)
           if [ -n "$exc" ]; then
-            EXCLUDE_PRUNES+=(-name "$exc" -prune -o)
+            EXCLUDE_NAMES+=("$exc")
           fi
         done
 
         ERRORS=0
         WARNINGS=""
-        while IFS= read -r -d '' file; do
+        while IFS= read -r file; do
+          if [[ "$file" != "$SOURCE_PATH"/* || ! -f "$file" ]]; then
+            continue
+          fi
+
+          relative_file=${file#"$SOURCE_PATH"/}
+          excluded=false
+          IFS='/' read -ra path_parts <<< "$relative_file"
+          for part in "${path_parts[@]::${#path_parts[@]}-1}"; do
+            for exc in "${EXCLUDE_NAMES[@]}"; do
+              if [ "$part" = "$exc" ]; then
+                excluded=true
+                break 2
+              fi
+            done
+          done
+          [ "$excluded" = true ] && continue
+
           if ! clang-tidy "$file" \
             -p "$BUILD_PATH" \
             --checks="$CHECKS_CLEAN" \
@@ -112,7 +130,7 @@ runs:
               exit 1
             fi
           fi
-        done < <(find "$SOURCE_DIR" "${EXCLUDE_PRUNES[@]}" \( -name '*.cpp' -o -name '*.hpp' -o -name '*.h' -o -name '*.c' \) -print0 2>/dev/null)
+        done < <(python3 -c 'import json, sys; [print((entry["file"] if entry["file"].startswith("/") else entry["directory"] + "/" + entry["file"])) for entry in json.load(open(sys.argv[1]))]' "${BUILD_PATH}/compile_commands.json")
 
         if [ "$ERRORS" -gt 0 ]; then
           echo -e "clang-tidy found issues in $ERRORS file(s):\n$WARNINGS"
