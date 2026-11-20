@@ -38,7 +38,7 @@ runs:
         [ -n "$commits" ] || { echo "No commits found in $range"; exit 0; }
 
         # Categorize commits.
-        declare -a cat_breaking=() cat_feature=() cat_fix=() cat_change=() cat_remove=()
+        declare -a cat_breaking=() cat_added=() cat_fixed=() cat_changed=() cat_removed=()
         skip_keywords=(workflow github action deps dependency format lint prettier eslint)
 
         is_skip() {
@@ -60,10 +60,10 @@ runs:
           entry="$(clean_entry "$subject")"
           case "$category" in
             breaking) cat_breaking+=("$entry") ;;
-            feature)  cat_feature+=("$entry") ;;
-            fix)      cat_fix+=("$entry") ;;
-            change)   cat_change+=("$entry") ;;
-            remove)   cat_remove+=("$entry") ;;
+            added)    cat_added+=("$entry") ;;
+            fixed)    cat_fixed+=("$entry") ;;
+            changed)  cat_changed+=("$entry") ;;
+            removed)  cat_removed+=("$entry") ;;
           esac
         }
 
@@ -82,17 +82,17 @@ runs:
 
           # Map conventional commit prefix
           if [[ "$line" == feat\(* || "$line" == feat:* ]]; then
-            local_type="${local_type:+$local_type,}feature"
+            local_type="${local_type:+$local_type,}added"
           elif [[ "$line" == fix\(* || "$line" == fix:* ]]; then
-            local_type="${local_type:+$local_type,}fix"
+            local_type="${local_type:+$local_type,}fixed"
           elif [[ "$line" == perf\(* || "$line" == perf:* || "$line" == refactor\(* || "$line" == refactor:* || "$line" == docs\(* || "$line" == docs:* || "$line" == style\(* || "$line" == style:* || "$line" == chore\(* || "$line" == chore:* || "$line" == ci\(* || "$line" == ci:* || "$line" == build\(* || "$line" == build:* ]]; then
-            local_type="${local_type:+$local_type,}change"
+            local_type="${local_type:+$local_type,}changed"
           elif [[ "$line" == test\(* || "$line" == test:* ]]; then
-            local_type="${local_type:+$local_type,}fix"
+            local_type="${local_type:+$local_type,}fixed"
           elif [[ "$line" == revert\(* || "$line" == revert:* ]]; then
-            local_type="${local_type:+$local_type,}remove"
+            local_type="${local_type:+$local_type,}removed"
           else
-            local_type="${local_type:+$local_type,}change"
+            local_type="${local_type:+$local_type,}changed"
           fi
 
           IFS=',' read -ra types <<< "$local_type"
@@ -116,14 +116,15 @@ runs:
 
         echo "## [Unreleased]" > "$section_file"
 
-        for key in breaking feature fix change remove; do
+        for key in breaking added changed deprecated fixed removed security; do
           local_display="${key^}"
           case "$key" in
             breaking) entries=("${cat_breaking[@]+"${cat_breaking[@]}"}") ;;
-            feature)  entries=("${cat_feature[@]+"${cat_feature[@]}"}") ;;
-            fix)      entries=("${cat_fix[@]+"${cat_fix[@]}"}") ;;
-            change)   entries=("${cat_change[@]+"${cat_change[@]}"}") ;;
-            remove)   entries=("${cat_remove[@]+"${cat_remove[@]}"}") ;;
+            added)    entries=("${cat_added[@]+"${cat_added[@]}"}") ;;
+            fixed)    entries=("${cat_fixed[@]+"${cat_fixed[@]}"}") ;;
+            changed)  entries=("${cat_changed[@]+"${cat_changed[@]}"}") ;;
+            removed)  entries=("${cat_removed[@]+"${cat_removed[@]}"}") ;;
+            *)        entries=() ;;
           esac
           [ "${#entries[@]}" -eq 0 ] && continue
 
@@ -166,6 +167,6 @@ runs:
 
         if [ "$crlf" -eq 1 ]; then sed 's/$/\r/' "$out" > "$changelog"; else cp "$out" "$changelog"; fi
 
-        total=$(( ${#cat_breaking[@]} + ${#cat_feature[@]} + ${#cat_fix[@]} + ${#cat_change[@]} + ${#cat_remove[@]} ))
+        total=$(( ${#cat_breaking[@]} + ${#cat_added[@]} + ${#cat_fixed[@]} + ${#cat_changed[@]} + ${#cat_removed[@]} ))
         echo "entries=$total" >> $GITHUB_OUTPUT
         echo "Generated $total entry(s) in CHANGELOG.md [Unreleased]"

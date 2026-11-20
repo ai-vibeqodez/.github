@@ -21,6 +21,8 @@ Maintainer notes:
 
 ### Fixed
 
+- Map Conventional Commit types to Keep a Changelog categories so automatic version derivation accepts generated entries.
+- Parse SemVer major, minor, and patch components separately when deriving the next version.
 - Fix changelog generation shell syntax and wait for release version/build outputs before publishing
 
 - Automate release version derivation, changelog generation, tag creation, and artifact publishing from workflow dispatch; reject invalid or empty releases

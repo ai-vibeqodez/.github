@@ -84,9 +84,7 @@ runs:
           # Determine highest priority category
           has_category() { echo "$unreleased" | grep -q "^### $1"; }
 
-          major="${current%.*}"
-          minor="${current#*.}"; minor="${minor%.*}"
-          patch="${current##*.}"
+          IFS='.' read -r major minor patch <<< "$current"
 
           if has_category "Breaking"; then
             next_version="$((major + 1)).0.0"
