@@ -104,7 +104,7 @@ jobs:
           extra_args: ${{ inputs.extra_args }}
 
       - name: Run clang-tidy
-        uses: ai-warevo/.github/.github/actions/clang-tidy@main
+        uses: ./.github/actions/clang-tidy
         with:
           source_dir: ${{ inputs.source_dir }}
           build_dir: ${{ inputs.build_dir }}
