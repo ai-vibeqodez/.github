@@ -66,12 +66,12 @@ jobs:
 
       - name: Resolve version
         id: version
-        uses: ai-warevo/.github/.github/actions/release-version@22b49f0fafc78abf31f547b39b0e4f7cbe3e6c0c
+        uses: ai-warevo/.github/.github/actions/release-version@1b6b853d5c72da0bc26f5907aadb5168f8b81cf7
         with:
           version: ${{ inputs.version }}
 
       - name: Build
-        uses: ai-warevo/.github/.github/actions/cmake-build@eff474262b7f63a057fa4720ab23d345faa3ef86
+        uses: ai-warevo/.github/.github/actions/cmake-build@4920cdcbc17dacf6f8bcd3393939d230346915be
         with:
           source_dir: ${{ inputs.source_dir }}
           build_dir: ${{ inputs.build_dir }}
@@ -105,7 +105,7 @@ jobs:
 
       - name: Generate Release Body
         id: changelog
-        uses: ai-warevo/.github/.github/actions/changelog-release@52b7f9f2bf82b0a631994fe114c9953cd1f957f4
+        uses: ai-warevo/.github/.github/actions/changelog-release@2cdb2db4102b1423b95538cdb2794822cef11fff
         with:
           tag: ${{ needs.build-example.outputs.release_version }}
 
@@ -123,13 +123,13 @@ jobs:
 
       - name: Generate checksums
         id: checksums_generate
-        uses: ai-warevo/.github/.github/actions/checksums@922739984c57a0d568743c7e5d786de934113efd
+        uses: ai-warevo/.github/.github/actions/checksums@34dcabe6572dfa4ffe1d3a71961abed12dee4da2
         with:
           artifacts_dir: 'artifacts'
           checksums_file: 'SHA256SUMS.txt'
 
       - name: Verify checksums
-        uses: ai-warevo/.github/.github/actions/checksums-verify@9e2830e0e329247e6ab4520292ae4439dc71ff69
+        uses: ai-warevo/.github/.github/actions/checksums-verify@232498bb12c3bd75944e529949d37335a39d08bc
         with:
           artifacts_dir: 'artifacts'
           checksums_file: 'SHA256SUMS.txt'
@@ -156,7 +156,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       - name: Build and push Docker image
-        uses: ai-warevo/.github/.github/actions/docker-build-push@611b0274ac9566c37adcbb9d55993dfacb8190a4
+        uses: ai-warevo/.github/.github/actions/docker-build-push@e030c6621224e09d69c4ac472248cdd72813adba
         with:
           context: ${{ inputs.docker_context }}
           dockerfile: ${{ inputs.dockerfile }}

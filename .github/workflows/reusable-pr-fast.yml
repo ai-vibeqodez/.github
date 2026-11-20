@@ -61,7 +61,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       - name: Check formatting
-        uses: ai-warevo/.github/.github/actions/clang-format@5b7f3680c4a5e871a23124ea1101eea8706b4dab
+        uses: ai-warevo/.github/.github/actions/clang-format@e739a2d736d0484d2f5d276a163c5f1ec840f9bf
         with:
           source_dir: .
           extensions: ${{ inputs.extensions }}
@@ -78,7 +78,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       - name: Configure & Build
-        uses: ai-warevo/.github/.github/actions/cmake-build@eff474262b7f63a057fa4720ab23d345faa3ef86
+        uses: ai-warevo/.github/.github/actions/cmake-build@4920cdcbc17dacf6f8bcd3393939d230346915be
         with:
           source_dir: ${{ inputs.source_dir }}
           build_dir: ${{ inputs.build_dir }}
@@ -86,7 +86,7 @@ jobs:
           extra_args: ${{ inputs.extra_args }}
 
       - name: Run clang-tidy
-        uses: ai-warevo/.github/.github/actions/clang-tidy@ca6f26344ef59c715b43c2090c8723bfee093555
+        uses: ai-warevo/.github/.github/actions/clang-tidy@4198e956ce7b5e0ef53b3e5cebdbde616cbe1c2d
         with:
           source_dir: ${{ inputs.source_dir }}
           build_dir: ${{ inputs.build_dir }}
@@ -103,7 +103,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       - name: Configure & Build
-        uses: ai-warevo/.github/.github/actions/cmake-build@eff474262b7f63a057fa4720ab23d345faa3ef86
+        uses: ai-warevo/.github/.github/actions/cmake-build@4920cdcbc17dacf6f8bcd3393939d230346915be
         with:
           source_dir: ${{ inputs.source_dir }}
           build_dir: ${{ inputs.build_dir }}
@@ -111,7 +111,7 @@ jobs:
           extra_args: ${{ inputs.extra_args }}
 
       - name: Run Tests
-        uses: ai-warevo/.github/.github/actions/ctest-run@dc686d24e725dc221b76f16515f2927f52487816
+        uses: ai-warevo/.github/.github/actions/ctest-run@e344eef233d32de5fb5c7dbc9ae12cd8e667803d
         with:
           source_dir: ${{ inputs.source_dir }}
           build_dir: ${{ inputs.build_dir }}

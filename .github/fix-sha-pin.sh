@@ -2,153 +2,197 @@
 set -euo pipefail
 
 # fix-sha-pin.sh — resolve and update SHA pinning for all
-# ai-warevo/.github/ci/actions/* references in workflow files.
+# ai-warevo/.github/.github/actions/* references in workflow files.
 #
 # Usage:
-#   .github/fix-sha-pin.sh [--dry-run] [--push]
+#   .github/fix-sha-pin.sh [ref] [--dry-run] [--push]
 #
+# ref    — branch name, tag, or commit SHA (default: main)
 # --dry-run  show diff only (default)
 # --push     commit and push the update
+#
+# Examples:
+#   .github/fix-sha-pin.sh              # update from main
+#   .github/fix-sha-pin.sh v1.2.3       # update from tag v1.2.3
+#   .github/fix-sha-pin.sh abc1234      # update from specific commit
+#   .github/fix-sha-pin.sh feat/branch  # update from feature branch
+#   .github/fix-sha-pin.sh --dry-run    # preview changes
+#   .github/fix-sha-pin.sh main --push  # apply and push
 
 REPO_OWNER="ai-warevo"
 REPO_NAME=".github"
-CI_ACTIONS="ci/actions"
+ACTIONS_DIR=".github/actions"
 
+# ── parse arguments ──────────────────────────────────────────────
+ref="main"
 dry_run=1
 push=0
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --dry-run) dry_run=1; shift ;;
     --push)    dry_run=0; push=1; shift ;;
-    *) echo "Usage: $0 [--dry-run] [--push]" >&2; exit 1 ;;
+    -h|--help)
+      echo "Usage: $0 [ref] [--dry-run] [--push]"
+      echo "  ref    — branch, tag, or commit SHA (default: main)"
+      echo "  --dry-run  show diff only (default)"
+      echo "  --push     commit and push the update"
+      exit 0
+      ;;
+    -*)  echo "Unknown option: $1" >&2; exit 1 ;;
+    *)   ref="$1"; shift ;;
   esac
 done
 
+# Validate ref is not a flag-like value
+if [[ "$ref" == -* ]]; then
+  echo "Error: ref must not start with '-'" >&2
+  exit 1
+fi
+
 # ── helpers ──────────────────────────────────────────────────────
+# Resolve the latest commit SHA for a directory at a given ref.
+# Uses the GitHub API (works from any machine, no need for the ref locally).
 resolve_sha() {
-  # Resolve the latest commit SHA for a given path on origin/main
-  git ls-tree origin/main -- "$1" | awk '{print $3}'
+  local action_name="$1"
+  local target_ref="$2"
+  local path="${ACTIONS_DIR}/${action_name}"
+
+  # Try GitHub API first (works from CI, any branch, no checkout needed)
+  local sha
+  sha=$(curl -s "https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/commits" \
+    -H "Accept: application/vnd.github.v3+json" \
+    -d "path=${path}&sha=${target_ref}&per_page=1" \
+    | jq -r '.[0].sha // empty' 2>/dev/null)
+
+  if [[ -n "$sha" ]]; then
+    echo "$sha"
+    return 0
+  fi
+
+  # Fallback: git ls-tree (only works if ref exists locally)
+  sha=$(git ls-tree -r "${target_ref}" -- "${path}" 2>/dev/null | awk '{print $3}' | head -1)
+  if [[ -n "$sha" ]]; then
+    echo "$sha"
+    return 0
+  fi
+
+  return 1
 }
 
-# ── discover all referenced actions ──────────────────────────────
-# Pattern: ai-warevo/.github/ci/actions/<name>@<sha>
-# Also catches stale: ai-warevo/.github/.github/actions/<name>@<sha>
+# ── discover all referenced composite actions ────────────────────
+# Pattern: ai-warevo/.github/.github/actions/<name>@<sha>
 mapfile -t refs < <(
-  grep -roh 'ai-warevo/\.github/[^@]*@[a-f0-9]\{40\}' \
-    .github/workflows/*.yml ci/.github/workflows/*.yml 2>/dev/null \
+  grep -roh 'ai-warevo/\.github/\.github/actions/[^@]*@[a-f0-9]\{40\}' \
+    .github/workflows/*.yml 2>/dev/null \
     | sort -u
 )
 
 if [[ ${#refs[@]} -eq 0 ]]; then
-  echo "No ai-warevo action references found."
+  echo "No ai-warevo action references found in .github/workflows/*.yml."
   exit 0
 fi
 
 echo "=== Found ${#refs[@]} unique action references ==="
-for ref in "${refs[@]}"; do
-  echo "  $ref"
+echo "Resolving SHAs from ref: ${ref}"
+for ref_item in "${refs[@]}"; do
+  echo "  ${ref_item%%@*}@${ref_item##*@}"
 done
 
-# ── normalize and resolve SHAs ───────────────────────────────────
-declare -A action_sha   # action name → latest SHA from origin/main
-declare -A action_paths # action name → correct path (ci/actions/<name>)
+# ── resolve latest SHAs ──────────────────────────────────────────
+declare -A action_sha=()  # action name → latest SHA
 
-for ref in "${refs[@]}"; do
+for ref_item in "${refs[@]}"; do
   # Extract action name — strip everything before the last /
-  name="${ref##*/}"
+  name="${ref_item##*/}"
   name="${name%%@*}"
 
-  # Correct path: always ci/actions/<name>
-  action_paths["$name"]="${CI_ACTIONS}/${name}"
-
-  # Resolve latest SHA from origin/main
-  sha=$(resolve_sha "${CI_ACTIONS}/${name}")
+  sha=$(resolve_sha "$name" "$ref")
   if [[ -z "$sha" ]]; then
-    echo "WARNING: Could not resolve SHA for action '$name'" >&2
+    echo "WARNING: Could not resolve SHA for action '$name' at ref '${ref}'" >&2
     continue
   fi
   action_sha["$name"]="$sha"
 done
 
+if [[ ${#action_sha[@]} -eq 0 ]]; then
+  echo "No SHAs could be resolved. Is the ref '${ref}' valid?" >&2
+  exit 1
+fi
+
 # ── find stale / incorrect references ────────────────────────────
 declare -A stale=()  # old_ref → new_ref
 
-for ref in "${refs[@]}"; do
-  # Extract name and current SHA
-  name="${ref##*/}"
+for ref_item in "${refs[@]}"; do
+  name="${ref_item##*/}"
   name="${name%%@*}"
-  current_sha="${ref##*@}"
+  current_sha="${ref_item##*@}"
 
-  # Expected correct reference
-  expected_ref="ai-warevo/.github/${CI_ACTIONS}/${name}@${action_sha[$name]}"
+  # Skip if we couldn't resolve the new SHA
+  if [[ -z "${action_sha[$name]:-}" ]]; then
+    continue
+  fi
 
-  if [[ "$ref" != "$expected_ref" ]]; then
-    stale["$ref"]="$expected_ref"
+  new_sha="${action_sha[$name]}"
+  new_ref="ai-warevo/.github/.github/actions/${name}@${new_sha}"
+
+  if [[ "$ref_item" != "$new_ref" ]]; then
+    stale["$ref_item"]="$new_ref"
   fi
 done
 
 if [[ ${#stale[@]} -eq 0 ]]; then
-  echo "All action references are up to date."
-  exit 0
-fi
-
-# Guard: if dry-run and no stale refs after initial check, skip
-# (dry-run already applied changes, so stale is empty on re-run)
-if [[ $dry_run -eq 1 && ${#files_to_update[@]} -eq 0 ]]; then
-  echo "No files to update."
+  echo "All action references are up to date for ref '${ref}'."
   exit 0
 fi
 
 echo ""
 echo "=== Stale/incorrect references (${#stale[@]}) ==="
-for ref in "${!stale[@]}"; do
-  name="${ref##*/}"
+for old_ref in "${!stale[@]}"; do
+  name="${old_ref##*/}"
   name="${name%%@*}"
-  old_sha="${ref##*@}"
+  old_sha="${old_ref##*@}"
   new_sha="${action_sha[$name]}"
-  echo "  $name:"
-  echo "    old: $ref"
-  echo "    new: ${stale[$ref]}"
+  echo "  ${name}:"
+  echo "    old: @${old_sha:0:12}"
+  echo "    new: @${new_sha:0:12}"
 done
 
 # ── collect files that need changes ──────────────────────────────
-files_to_update=()  # files that need updating
+files_to_update=()
 
-for ref in "${!stale[@]}"; do
-  old_ref="$ref"
-  new_ref="${stale[$ref]}"
+for old_ref in "${!stale[@]}"; do
+  new_ref="${stale[$old_ref]}"
 
-  # Find files containing this old reference
-  for pattern_file in .github/workflows/*.yml ci/.github/workflows/*.yml; do
-    if grep -q "$old_ref" "$pattern_file" 2>/dev/null; then
-      files_to_update+=("$pattern_file")
+  for yml in .github/workflows/*.yml; do
+    if grep -qF "$old_ref" "$yml" 2>/dev/null; then
+      files_to_update+=("$yml")
     fi
   done
 done
 
 # Deduplicate and sort
-mapfile -t files_to_update < <(printf '%s\n' "${files_to_update[@]}" | sort -u)
+if [[ ${#files_to_update[@]} -gt 0 ]]; then
+  mapfile -t files_to_update < <(printf '%s\n' "${files_to_update[@]}" | sort -u)
+fi
 
 echo ""
 echo "=== Files to update (${#files_to_update[@]}) ==="
 for f in "${files_to_update[@]}"; do
-  echo "  $f"
+  echo "  ${f}"
 done
 
 # ── apply or diff ────────────────────────────────────────────────
 if [[ $dry_run -eq 1 ]]; then
   echo ""
   echo "=== Dry-run: applying changes and showing diff ==="
-  for ref in "${!stale[@]}"; do
-    old_ref="$ref"
-    new_ref="${stale[$ref]}"
+
+  for old_ref in "${!stale[@]}"; do
+    new_ref="${stale[$old_ref]}"
 
     for f in "${files_to_update[@]}"; do
-      if grep -q "$old_ref" "$f" 2>/dev/null; then
-        # Escape special characters for sed
-        escaped_old=$(printf '%s\n' "$old_ref" | sed 's/[&/\]/\\&/g')
-        escaped_new=$(printf '%s\n' "$new_ref" | sed 's/[&/\]/\\&/g')
-        sed -i "s|${escaped_old}|${escaped_new}|g" "$f"
+      if grep -qF "$old_ref" "$f" 2>/dev/null; then
+        sed -i "s|${old_ref}|${new_ref}|g" "$f"
       fi
     done
   done
@@ -160,15 +204,12 @@ if [[ $dry_run -eq 1 ]]; then
   echo "No changes committed. Run with --push to apply."
 else
   # Apply changes
-  for ref in "${!stale[@]}"; do
-    old_ref="$ref"
-    new_ref="${stale[$ref]}"
+  for old_ref in "${!stale[@]}"; do
+    new_ref="${stale[$old_ref]}"
 
     for f in "${files_to_update[@]}"; do
-      if grep -q "$old_ref" "$f" 2>/dev/null; then
-        escaped_old=$(printf '%s\n' "$old_ref" | sed 's/[&/\]/\\&/g')
-        escaped_new=$(printf '%s\n' "$new_ref" | sed 's/[&/\]/\\&/g')
-        sed -i "s|${escaped_old}|${escaped_new}|g" "$f"
+      if grep -qF "$old_ref" "$f" 2>/dev/null; then
+        sed -i "s|${old_ref}|${new_ref}|g" "$f"
       fi
     done
   done
@@ -176,7 +217,7 @@ else
   echo ""
   echo "=== Committed ==="
   git add "${files_to_update[@]}"
-  git commit -m "ci: update action SHA pinning to latest commit"
+  git commit -m "ci: update action SHA pinning to latest commit (${ref})"
 
   if [[ $push -eq 1 ]]; then
     echo "=== Pushing ==="
