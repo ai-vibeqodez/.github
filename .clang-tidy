@@ -1,0 +1,16 @@
+# ── clang-tidy configuration for ai-warevo projects ──────────────────────────
+#
+# Enables a practical subset of checks suitable for general C++ projects.
+# Disables checks that are either too strict, project-specific, or intended
+# for libc/Fuchsia development.
+
+---
+Checks: '*,bugprone-*,cppcoreguidelines-*,modernize-*,performance-*,readability-*,-llvmlibc-*, -fuchsia-*, -hicpp-*, -abseil-*'
+
+CheckOptions:
+  - {key: modernize-use-trailing-return-type.UseTrailingReturnType, value: true}
+  - {key: readability-identifier-length.ParameterNameMinimumLength, value: 2}
+  - {key: readability-identifier-length.LocalVariableNameMinimumLength, value: 2}
+
+HeaderFilterRegex: '.*'
+FormatStyle: file
