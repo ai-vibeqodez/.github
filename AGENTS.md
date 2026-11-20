@@ -8,14 +8,14 @@ Guidance for working on an `ai-warevo/<repo>`. Read `README.md` for the user-fac
 
 - **AI skills** (`skills/`) — agent-facing tool definitions for ai-warevo-analyst, ai-warevo-planner, ai-warevo-executor, ai-warevo-skill-creator, ai-warevo-git-github-push.
 - **Templates** (`templates/`) — OVERVIEW, task, README, CHANGELOG, CONTRIBUTING markdown skeletons.
-- **CI/CD** (`ci/`) — documentation for reusable workflows and composite actions (`badge/`, `changelog-generate/`, `changelog-promote/`, `changelog-release/`, `checksums/`, `coverage-parser/`, `docker-build-push/`, etc.).
+- **CI/CD** (`.github/`) — documentation for reusable workflows and composite actions (`badge/`, `changelog-generate/`, `changelog-promote/`, `changelog-release/`, `checksums/`, `coverage-parser/`, `docker-build-push/`, etc.).
 - **LLM server** (`docker-compose.yml`) — llama.cpp Docker Compose for local GPU-accelerated inference (RTX 4080, Qwen3.6-35B-A3B).
 - **Example** (`example/`) — C++23 CMake project (Catch2 v3, sanitizers, coverage) used as smoke-test for CI templates and as a reference for projects adopting the CI workflow.
 
 When designing a feature:
 - Start from the **existing pattern** in the repo (templates, CI jobs, composite actions). Mirror naming and structure.
 - Artefacts are **copied into consumer repos** — they must be self-contained and well-documented.
-- A new CI template or composite action also needs a `ci/README.md` entry and an example in `example/` if it exercises a new capability.
+- A new CI template or composite action also needs a `.github/README.md` entry and an example in `example/` if it exercises a new capability.
 
 ## Build & test (fast local loop)
 
@@ -38,7 +38,7 @@ docker compose --profile llamacpp down     # stop
 ```
 
 - **Leave to CI:** multi-platform builds (Linux/Windows/macOS), sanitizer runs (ASan/UBSan/TSan), coverage badge deploy, gh-pages HTML deploy, Docker build-push to GHCR. Don't run them locally unless debugging.
-- Adding a composite action? Register it in `ci/README.md` table. Adding a workflow? Add it to `.github/workflows/reusable-<name>.yml` and update `ci/README.md`.
+- Adding a composite action? Register it in `.github/README.md` table. Adding a workflow? Add it to `.github/workflows/reusable-<name>.yml` and update `.github/README.md`.
 
 ## Changelog & releases
 
@@ -183,7 +183,7 @@ Three-tier architecture:
 **Adding a new CI template:**
 1. Create `.github/workflows/reusable-<name>.yml` with full logic.
 2. Create `templates/workflows/<name>.yml` as a thin wrapper.
-3. Register in `ci/README.md` table.
+3. Register in `.github/README.md` table.
 
 ### Composite action conventions
 
@@ -219,7 +219,7 @@ Update the SHA whenever the upstream action receives a meaningful update. Add a 
 
 - **README.md** is the user-facing entry point. Keep it focused on *what* and *how to use*.
 - **AGENTS.md** (this file) is the developer-facing guide. Focus on *how to change the repo*.
-- **ci/README.md** documents CI/CD templates — keep the action table and workflow descriptions up to date.
+- **`.github/README.md`** documents CI/CD templates — keep the action table and workflow descriptions up to date.
 - Inline comments in scripts (`scripts/`) are minimal: explain the *why*, not the *what*.
 - Template files (`templates/`) are consumed as-is — keep them clean and well-structured.
 

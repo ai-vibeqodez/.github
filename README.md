@@ -64,7 +64,7 @@ Ready-made templates for projects: [templates/](templates/)
 | [.editorconfig](.editorconfig) | Consistent code style: utf-8, LF, indentation |
 
 ### 📋 CI/CD
-GitHub Actions templates for CI/CD: [ci/README.md](ci/README.md)
+GitHub Actions templates for CI/CD: [.github/README.md](.github/README.md)
 
 ## How to Use
 

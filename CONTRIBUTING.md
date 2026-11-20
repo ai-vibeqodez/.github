@@ -133,7 +133,7 @@ Closes #NNN
 ## Adding a New CI Template
 
 1. Create the reusable workflow in `.github/workflows/reusable-<name>.yml` and a thin wrapper template in `templates/workflows/<name>.yml`.
-2. Add a `ci/README.md` table entry documenting the workflow.
+2. Add a `.github/README.md` table entry documenting the workflow.
 3. If it exercises a new capability, add an example in `example/`.
 4. Update `CHANGELOG.md` under `## [Unreleased]`.
 
@@ -147,7 +147,7 @@ Closes #NNN
      | jq -r '.[0].sha'
    ```
 4. Add a `README.md` explaining inputs, outputs, and usage.
-5. Register it in the `ci/README.md` action table.
+5. Register it in the `.github/README.md` action table.
 6. Update `CHANGELOG.md` under `## [Unreleased]`.
 
 ## Creating a New Skill

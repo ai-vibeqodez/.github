@@ -92,18 +92,28 @@ Each reusable workflow declares its own permissions. `reusable-pr-fast.yml` uses
 
 ## Composite Actions
 
-All composite actions live in `.github/actions/` and are referenced by consumer workflows using `ai-warevo/.github/.github/actions/<name>@<40-char-SHA>`. Each action has its own `README.md` with inputs, outputs, and usage examples.
+All 21 composite actions live in `.github/actions/` and are referenced by consumer workflows using `ai-warevo/.github/.github/actions/<name>@<40-char-SHA>`. Each action has its own `README.md` with inputs, outputs, and usage examples.
 
 | Action | Purpose |
 | --- | --- |
 | `badge/` | Generate custom SVG badges |
+| `badge-deploy/` | Deploy SVG badge to target branch |
 | `changelog-generate/` | Generate [Unreleased] section from git log (conventional commits) |
 | `changelog-promote/` | Promote [Unreleased] to a version heading and write VERSION file |
 | `changelog-release/` | Extract release notes from CHANGELOG.md by tag |
 | `checksums/` | Generate SHA256SUMS.txt for files in a directory |
 | `checksums-verify/` | Verify SHA256 checksums against a checksums file |
+| `clang-format/` | Check C++ formatting with clang-format |
+| `clang-tidy/` | Run clang-tidy on C++ source and headers |
 | `cmake-build/` | Configure, build, and optionally install with CMake |
+| `collect-release-assets/` | Collect build artifacts from multiple jobs for release |
 | `coverage-html-deploy/` | Deploy coverage HTML report to GitHub Pages |
 | `coverage-parser/` | Extract coverage percentage from coverage.xml or LCOV |
+| `ctest-run/` | Run CTest for a CMake project |
 | `docker-build-push/` | Build and push a Docker image to a container registry |
+| `docker-push-ghcr/` | Push Docker image from artifact to GHCR |
+| `docker-save/` | Save Docker image as tar and upload as artifact |
+| `download-artifacts/` | Download and merge multiple artifacts by pattern |
+| `gcovr-report/` | Generate coverage reports (XML + HTML) from CMake build |
 | `release-version/` | Resolve release version from tag, input, or run_number |
+| `setup-toolchain/` | Compute CMake arguments for a given toolchain configuration |
