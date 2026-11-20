@@ -1,0 +1,97 @@
+# setup-tsan: configure ThreadSanitizer for native runners
+#
+# This action handles TSan-specific setup that cannot be embedded in setup-toolchain:
+#
+# 1. **Runner detection**: native vs container mode determines ASLR configuration
+# 2. **TSan sysctl**: on native runners, reduce ASLR entropy (vm.mmap_rnd_bits=28)
+#    so ThreadSanitizer can detect memory layout and map shared libraries
+# 3. **Stdlib switch**: emits -stdlib=libstdc++ override for Clang/TSan
+#    (required because libc++ internals are not instrumented; GCC already uses libstdc++)
+#
+# ThreadSanitizer fails in container environments because CI runners have
+# ephemeral filesystems with ASLR-incompatible memory layouts. This action
+# prepares native runners for TSan execution.
+#
+# Usage:
+#   - id: tsan
+#     uses: ai-warevo/<repo>/.github/actions/setup-tsan@main
+#     with:
+#       toolchain: clang18-libcxx  # or gcc15
+#       container_mode: false       # explicitly native
+#
+#   - id: tc
+#     uses: ai-warevo/<repo>/.github/actions/setup-toolchain@main
+#     with:
+#       toolchain: ${{ inputs.toolchain }}
+#       sanitizer: thread
+#       container_mode: false
+#
+#   - uses: ai-warevo/<repo>/.github/actions/cmake-build@main
+#     with:
+#       extra_args: "${{ steps.tsan.outputs.stdlib_override }} ${{ steps.tc.outputs.cmake_args }}"
+
+name: 'Setup ThreadSanitizer'
+description: 'Configure TSan for native runner (ASLR, stdlib override)'
+
+inputs:
+  toolchain:
+    description: 'clang18-libcxx | clang18-libstdcxx | gcc15 | msvc'
+    required: true
+  container_mode:
+    description: 'Running in container (true) or on native runner (false). Skips ASLR config if true.'
+    required: false
+    default: 'false'
+
+outputs:
+  stdlib_override:
+    description: 'For Clang/TSan: -DCMAKE_CXX_FLAGS=-stdlib=libstdc++ (empty for GCC or when not needed)'
+    value: ${{ steps.tsan.outputs.stdlib_override }}
+
+runs:
+  using: 'composite'
+  steps:
+    # ── Detect container mode ──
+    - name: Detect environment
+      id: detect
+      shell: bash
+      run: |
+        set -euo pipefail
+        MODE="${{ inputs.container_mode }}"
+        if [ -z "$MODE" ]; then
+          # Auto-detect: no sudo = container mode
+          if ! command -v sudo &>/dev/null; then
+            MODE="true"
+            echo "No sudo available — auto-detected container mode"
+          else
+            MODE="false"
+          fi
+        fi
+        echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+
+    # ── TSan sysctl (native runner only) ──
+    - name: Configure ASLR for TSan
+      if: steps.detect.outputs.mode == 'false'
+      shell: bash
+      run: |
+        set -euo pipefail
+        if sudo sysctl -w vm.mmap_rnd_bits=28 2>&1; then
+          echo "::notice::TSan: reduced ASLR entropy (vm.mmap_rnd_bits=28)"
+        else
+          echo "::warning::TSan: could not set vm.mmap_rnd_bits (GitHub Actions sandbox); proceeding with default"
+        fi
+
+    # ── Compute stdlib override for Clang/TSan ──
+    - name: Compute stdlib override
+      id: tsan
+      shell: bash
+      env:
+        TOOLCHAIN: ${{ inputs.toolchain }}
+      run: |
+        set -euo pipefail
+        OVERRIDE=""
+        # Clang/TSan requires -stdlib=libstdc++ because libc++ internals are not instrumented.
+        # GCC already uses libstdc++ by default and rejects -stdlib=libstdc++ flag.
+        if [ "$TOOLCHAIN" = "clang18-libcxx" ]; then
+          OVERRIDE="-DCMAKE_CXX_FLAGS=-stdlib=libstdc++"
+        fi
+        echo "stdlib_override=$OVERRIDE" >> "$GITHUB_OUTPUT"

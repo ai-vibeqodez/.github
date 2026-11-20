@@ -13,7 +13,7 @@
 #
 # Toolchains:
 #   clang18-libcxx     clang-18 + libc++   (primary configuration; needs -fexperimental-library)
-#   clang18-libstdcxx  clang-18 + libstdc++ (used for TSan: libc++ internals are not instrumented)
+#   clang18-libstdcxx  clang-18 + libstdc++ (default for TSan; configure via setup-tsan action)
 #   gcc15              g++-15 + libstdc++
 #   msvc               MSVC (Visual Studio 17+ on windows-latest)
 #
@@ -146,20 +146,6 @@ runs:
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
         fi
 
-    # ── TSan sysctl (native runner only — GitHub Actions sandbox blocks
-    #    vm.mmap_rnd_bits writes; make it non-fatal so TSan still runs
-    #    with the default ASLR level) ──
-    - name: Configure TSan
-      if: steps.detect.outputs.mode == 'false' && inputs.sanitizer == 'thread'
-      shell: bash
-      run: |
-        set -euo pipefail
-        if sudo sysctl -w vm.mmap_rnd_bits=28 2>&1; then
-          echo "::notice::TSan: reduced ASLR entropy (vm.mmap_rnd_bits=28)"
-        else
-          echo "::warning::TSan: could not set vm.mmap_rnd_bits (GitHub Actions sandbox); proceeding with default"
-        fi
-
     # ── MSVC setup ──
     - name: Setup MSVC environment
       if: steps.detect.outputs.mode == 'false' && inputs.toolchain == 'msvc'
@@ -199,7 +185,8 @@ runs:
             echo "::error::unknown toolchain '$TOOLCHAIN'"; exit 1 ;;
         esac
 
-        # Sanitizer flags (only for clang-18)
+        # Sanitizer flags (only for clang-18).
+        # TSan stdlib override is handled by setup-tsan action (passed via cmake-build extra_args).
         SAN_FLAGS=""
         if [ -n "$SANITIZER" ]; then
           case "$SANITIZER" in
@@ -209,11 +196,6 @@ runs:
             undefined)   SAN_FLAGS="-fsanitize=undefined" ;;
             *)           echo "::error::unknown sanitizer '$SANITIZER'"; exit 1 ;;
           esac
-          # Clang's TSan build switches away from libc++; GCC already uses
-          # libstdc++ by default and does not accept -stdlib=libstdc++.
-          if [ "$SANITIZER" = "thread" ] && [ "$TOOLCHAIN" = "clang18-libcxx" ]; then
-            STL_FLAGS="-stdlib=libstdc++"
-          fi
         fi
 
         # Each -DCMAKE_* flag is a separate token — no spaces inside values.
