@@ -1,8 +1,8 @@
-# checksums-verify — Unit tests
+# Unit Tests - checksums-verify
 #
 # Tests: valid checksums, invalid checksums (expect failure)
 
-name: checksums-verify — Unit Tests
+name: Unit Tests - checksums-verify
 
 on:
   workflow_call:

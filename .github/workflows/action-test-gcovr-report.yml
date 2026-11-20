@@ -1,8 +1,8 @@
-# gcovr-report — Unit tests
+# Unit Tests - gcovr-report
 #
 # Tests: generate coverage XML + HTML from the example project
 
-name: gcovr-report — Unit Tests
+name: Unit Tests - gcovr-report
 
 on:
   workflow_call:

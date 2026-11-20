@@ -1,8 +1,8 @@
-# coverage-parser — Unit tests
+# Unit Tests - coverage-parser
 #
 # Tests: high coverage (95%), zero coverage (0%), missing file (default 0)
 
-name: coverage-parser — Unit Tests
+name: Unit Tests - coverage-parser
 
 on:
   workflow_call:

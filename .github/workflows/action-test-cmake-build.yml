@@ -1,8 +1,8 @@
-# cmake-build — Unit tests
+# Unit Tests - cmake-build
 #
 # Tests: configure + build the example C++ project
 
-name: cmake-build — Unit Tests
+name: Unit Tests - cmake-build
 
 on:
   workflow_call:

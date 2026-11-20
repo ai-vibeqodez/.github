@@ -1,8 +1,8 @@
-# collect-release-assets — Unit tests
+# Unit Tests - collect-release-assets
 #
 # Tests: upload test assets, collect and organize by version
 
-name: collect-release-assets — Unit Tests
+name: Unit Tests - collect-release-assets
 
 on:
   workflow_call:

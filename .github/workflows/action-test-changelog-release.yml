@@ -1,8 +1,8 @@
-# changelog-release — Unit tests
+# Unit Tests - changelog-release
 #
 # Tests: existing tag, missing tag (expect failure)
 
-name: changelog-release — Unit Tests
+name: Unit Tests - changelog-release
 
 on:
   workflow_call:

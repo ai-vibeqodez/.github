@@ -1,8 +1,8 @@
-# coverage-html-deploy — Unit tests
+# Unit Tests - coverage-html-deploy
 #
 # Tests: deploy HTML coverage report to a test branch
 
-name: coverage-html-deploy — Unit Tests
+name: Unit Tests - coverage-html-deploy
 
 on:
   workflow_call:

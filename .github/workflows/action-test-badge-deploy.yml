@@ -1,8 +1,8 @@
-# badge-deploy — Unit tests
+# Unit Tests - badge-deploy
 #
 # Tests: deploy badge SVG to a test branch
 
-name: badge-deploy — Unit Tests
+name: Unit Tests - badge-deploy
 
 on:
   workflow_call:

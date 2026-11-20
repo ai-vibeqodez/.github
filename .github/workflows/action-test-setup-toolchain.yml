@@ -1,8 +1,8 @@
-# setup-toolchain — Unit tests
+# Unit Tests - setup-toolchain
 #
 # Tests: container mode — verify CMake args are computed correctly for each toolchain
 
-name: setup-toolchain — Unit Tests
+name: Unit Tests - setup-toolchain
 
 on:
   workflow_call:

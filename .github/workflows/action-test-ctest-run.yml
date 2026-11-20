@@ -1,8 +1,8 @@
-# ctest-run — Unit tests
+# Unit Tests - ctest-run
 #
 # Tests: run CTest on the example project (requires cmake-build to have run first)
 
-name: ctest-run — Unit Tests
+name: Unit Tests - ctest-run
 
 on:
   workflow_call:

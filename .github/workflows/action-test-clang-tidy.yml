@@ -1,8 +1,8 @@
-# clang-tidy — Unit tests
+# Unit Tests - clang-tidy
 #
 # Tests: run clang-tidy on the example project (requires build with compile_commands.json)
 
-name: clang-tidy — Unit Tests
+name: Unit Tests - clang-tidy
 
 on:
   workflow_call:

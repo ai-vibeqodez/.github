@@ -1,8 +1,8 @@
-# release-version — Unit tests
+# Unit Tests - release-version
 #
 # Tests: explicit version, v-prefix, empty (fallback to run_number)
 
-name: release-version — Unit Tests
+name: Unit Tests - release-version
 
 on:
   workflow_call:

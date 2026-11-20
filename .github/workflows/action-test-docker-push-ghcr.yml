@@ -1,8 +1,8 @@
-# docker-push-ghcr — Unit tests
+# Unit Tests - docker-push-ghcr
 #
 # Tests: save image → push to GHCR (pull-only, no real push)
 
-name: docker-push-ghcr — Unit Tests
+name: Unit Tests - docker-push-ghcr
 
 on:
   workflow_call:

@@ -1,8 +1,8 @@
-# docker-build-push — Unit tests
+# Unit Tests - docker-build-push
 #
 # Tests: build-only (push=false, load=true)
 
-name: docker-build-push — Unit Tests
+name: Unit Tests - docker-build-push
 
 on:
   workflow_call:

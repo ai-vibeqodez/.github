@@ -1,8 +1,8 @@
-# docker-save — Unit tests
+# Unit Tests - docker-save
 #
 # Tests: pull image, save to tar, validate artifact
 
-name: docker-save — Unit Tests
+name: Unit Tests - docker-save
 
 on:
   workflow_call:

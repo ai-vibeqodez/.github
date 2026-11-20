@@ -1,8 +1,8 @@
-# clang-format — Unit tests
+# Unit Tests - clang-format
 #
 # Tests: check formatting on repo files (requires clang-format-18)
 
-name: clang-format — Unit Tests
+name: Unit Tests - clang-format
 
 on:
   workflow_call:

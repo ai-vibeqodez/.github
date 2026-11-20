@@ -1,8 +1,8 @@
-# changelog-generate — Unit tests
+# Unit Tests - changelog-generate
 #
 # Tests: generates [Unreleased] from git log, force mode, error on existing entries
 
-name: changelog-generate — Unit Tests
+name: Unit Tests - changelog-generate
 
 on:
   workflow_call:

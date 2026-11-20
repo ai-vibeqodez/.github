@@ -1,8 +1,8 @@
-# badge — Unit tests
+# Unit Tests - badge
 #
 # Tests: custom params, defaults, nested output directory
 
-name: badge — Unit Tests
+name: Unit Tests - badge
 
 on:
   workflow_call:

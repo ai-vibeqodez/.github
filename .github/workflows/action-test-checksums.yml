@@ -1,8 +1,8 @@
-# checksums — Unit tests
+# Unit Tests - checksums
 #
 # Tests: single file, custom filename
 
-name: checksums — Unit Tests
+name: Unit Tests - checksums
 
 on:
   workflow_call:

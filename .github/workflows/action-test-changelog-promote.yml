@@ -1,8 +1,8 @@
-# changelog-promote — Unit tests
+# Unit Tests - changelog-promote
 #
 # Tests: promotes [Unreleased] to version heading, writes VERSION, outputs
 
-name: changelog-promote — Unit Tests
+name: Unit Tests - changelog-promote
 
 on:
   workflow_call:

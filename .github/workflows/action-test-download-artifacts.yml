@@ -1,8 +1,8 @@
-# download-artifacts — Unit tests
+# Unit Tests - download-artifacts
 #
 # Tests: download multiple artifacts by pattern, merge into single directory
 
-name: download-artifacts — Unit Tests
+name: Unit Tests - download-artifacts
 
 on:
   workflow_call:
