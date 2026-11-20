@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       - name: Configure & Build
-        uses: ./.github/actions/cmake-build
+        uses: ai-warevo/.github/actions/cmake-build
         with:
           source_dir: example
           build_dir: build
@@ -30,7 +30,7 @@ jobs:
           extra_args: -DAW_EXAMPLE_BUILD_TESTS=ON -DAW_EXAMPLE_ENABLE_COVERAGE=ON
 
       - name: Run tests (required for gcov data)
-        uses: ./.github/actions/ctest-run
+        uses: ai-warevo/.github/actions/ctest-run
         with:
           source_dir: example
           build_dir: build
@@ -39,7 +39,7 @@ jobs:
 
       - name: Generate coverage
         id: coverage
-        uses: ./.github/actions/gcovr-report
+        uses: ai-warevo/.github/actions/gcovr-report
         with:
           source_dir: example
           build_dir: build

@@ -23,7 +23,7 @@ jobs:
 
       - name: docker-save — build & save
         id: docker_save
-        uses: ./.github/actions/docker-save
+        uses: ai-warevo/.github/actions/docker-save
         with:
           image: alpine
           tag: '3.19'

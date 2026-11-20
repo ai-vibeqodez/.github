@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       - name: Configure & Build
-        uses: ./.github/actions/cmake-build
+        uses: ai-warevo/.github/actions/cmake-build
         with:
           source_dir: example
           build_dir: build
@@ -31,7 +31,7 @@ jobs:
 
       - name: Run tests
         id: test
-        uses: ./.github/actions/ctest-run
+        uses: ai-warevo/.github/actions/ctest-run
         with:
           source_dir: example
           build_dir: build

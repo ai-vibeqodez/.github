@@ -24,7 +24,7 @@ jobs:
 
       - name: docker-save — create artifact
         id: docker_save
-        uses: ./.github/actions/docker-save
+        uses: ai-warevo/.github/actions/docker-save
         with:
           image: alpine
           tag: '3.19'
@@ -47,7 +47,7 @@ jobs:
 
       - name: docker-push-ghcr — load & push
         id: docker_push
-        uses: ./.github/actions/docker-push-ghcr
+        uses: ai-warevo/.github/actions/docker-push-ghcr
         with:
           image: ghcr.io/${{ github.repository_owner }}/actions-test
           version: '0.0.1-test'

@@ -28,7 +28,7 @@ jobs:
 
       - name: docker-build-push — build only (no push)
         id: docker_build
-        uses: ./.github/actions/docker-build-push
+        uses: ai-warevo/.github/actions/docker-build-push
         with:
           context: /tmp/docker-test
           dockerfile: /tmp/docker-test/Dockerfile

@@ -37,7 +37,7 @@ jobs:
 
       - name: coverage-parser — parse high
         id: cp_parse
-        uses: ./.github/actions/coverage-parser
+        uses: ai-warevo/.github/actions/coverage-parser
         with:
           xml_path: /tmp/cov-test/coverage.xml
 
@@ -67,7 +67,7 @@ jobs:
 
       - name: coverage-parser — parse zero
         id: cp_zero_parse
-        uses: ./.github/actions/coverage-parser
+        uses: ai-warevo/.github/actions/coverage-parser
         with:
           xml_path: /tmp/cov-test/coverage.xml
 
@@ -83,7 +83,7 @@ jobs:
       # ─── missing file ───
       - name: coverage-parser — missing file (default 0)
         id: cp_missing
-        uses: ./.github/actions/coverage-parser
+        uses: ai-warevo/.github/actions/coverage-parser
         with:
           xml_path: /nonexistent/coverage.xml
 

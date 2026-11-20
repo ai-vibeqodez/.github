@@ -21,7 +21,7 @@ jobs:
       # ─── single file ───
       - name: checksums — single file
         id: cs_single
-        uses: ./.github/actions/checksums
+        uses: ai-warevo/.github/actions/checksums
         with:
           artifacts_dir: .
 
@@ -34,7 +34,7 @@ jobs:
       # ─── custom filename ───
       - name: checksums — custom filename
         id: cs_custom
-        uses: ./.github/actions/checksums
+        uses: ai-warevo/.github/actions/checksums
         with:
           artifacts_dir: .
           checksums_file: custom_sums.txt

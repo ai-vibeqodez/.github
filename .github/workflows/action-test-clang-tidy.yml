@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       - name: Configure & Build
-        uses: ./.github/actions/cmake-build
+        uses: ai-warevo/.github/actions/cmake-build
         with:
           source_dir: example
           build_dir: build
@@ -31,7 +31,7 @@ jobs:
 
       - name: clang-tidy — scan example
         id: clang_tidy
-        uses: ./.github/actions/clang-tidy
+        uses: ai-warevo/.github/actions/clang-tidy
         with:
           source_dir: example
           build_dir: build

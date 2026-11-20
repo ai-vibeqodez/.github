@@ -42,7 +42,7 @@ jobs:
       # ─── promote to version ───
       - name: changelog-promote — promote v1.0.0
         id: cp
-        uses: ./.github/actions/changelog-promote
+        uses: ai-warevo/.github/actions/changelog-promote
         with:
           version: '1.0.0'
 
