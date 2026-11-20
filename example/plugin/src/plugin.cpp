@@ -24,10 +24,14 @@ constexpr int kApiVersion = 1;
  */
 inline std::string_view op_to_string(int op) noexcept {
     switch (op) {
-        case 0: return "add";
-        case 1: return "subtract";
-        case 2: return "multiply";
-        default: return "unknown";
+    case 0:
+        return "add";
+    case 1:
+        return "subtract";
+    case 2:
+        return "multiply";
+    default:
+        return "unknown";
     }
 }
 
@@ -40,8 +44,7 @@ inline std::string_view op_to_string(int op) noexcept {
  * @param msg Message.
  * @param loc Source location (file name, line number by default).
  */
-inline void log_info(std::string_view msg,
-                     const std::source_location& loc = std::source_location::current()) {
+inline void log_info(std::string_view msg, const std::source_location& loc = std::source_location::current()) {
     (void)loc;
     (void)msg;
 }
@@ -53,8 +56,7 @@ namespace aw::example::plugin {
 extern "C" {
 
 PLUGIN_API int plugin_version() {
-    detail::log_info(std::format("plugin_version() called, returning {}",
-                                 detail::kApiVersion));
+    detail::log_info(std::format("plugin_version() called, returning {}", detail::kApiVersion));
     return detail::kApiVersion;
 }
 
@@ -64,16 +66,18 @@ PLUGIN_API const char* plugin_version_string() {
 
 PLUGIN_API int plugin_compute(int a, int b, int op) {
     auto op_name = detail::op_to_string(op);
-    detail::log_info(std::format("plugin_compute({}, {}, {}) [{}]",
-                                 a, b, op, op_name));
+    detail::log_info(std::format("plugin_compute({}, {}, {}) [{}]", a, b, op, op_name));
 
     switch (op) {
-        case 0: return a + b;
-        case 1: return a - b;
-        case 2: return a * b;
-        default:
-            detail::log_info(std::format("unknown operation: {}", op));
-            return -1;
+    case 0:
+        return a + b;
+    case 1:
+        return a - b;
+    case 2:
+        return a * b;
+    default:
+        detail::log_info(std::format("unknown operation: {}", op));
+        return -1;
     }
 }
 

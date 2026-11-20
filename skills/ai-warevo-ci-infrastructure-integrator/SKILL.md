@@ -76,11 +76,12 @@ Merge selected CI/CD artifacts from a catalog repository into a project that alr
 
 ### 4. Build System Configuration
 Compare the current build configuration with the example from the catalog repository (`example/` or equivalent):
+- First identify the project's declared language standard, compiler/toolchain, build presets, test framework, and existing options. For this catalog's C++23 reference profile, use the project's CMake configuration as the model, not as a mandate for non-C++ projects.
 - Add options for tests, code coverage, sanitizers (if present in the template)
 - Integrate the test framework (via FetchContent, vcpkg, Conan, or equivalent)
-- Configure sanitizers for Debug builds
+- Configure sanitizers for Debug builds where supported by the compiler and project
 - Configure code coverage for generating coverage reports
-- **Do NOT remove** existing targets and logic — add new ones
+- Preserve existing targets, options, compiler choices, and toolchain behavior; add or merge configuration rather than replacing it
 
 ### 5. Composite Actions Integration
 - **DO NOT COPY** composite actions into the project

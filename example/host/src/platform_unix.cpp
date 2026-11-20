@@ -18,8 +18,8 @@
 #include <unistd.h>
 
 #if defined(__APPLE__)
-    #include <mach-o/dyld.h>
-    #include <libgen.h>
+#include <mach-o/dyld.h>
+#include <libgen.h>
 #endif
 
 namespace aw::example::platform {
@@ -31,8 +31,7 @@ std::optional<LibraryHandle> load_library(const std::string& path) {
     lib.handle = dlopen(path.c_str(), RTLD_NOW | RTLD_LOCAL);
 
     if (!lib.handle) {
-        std::cerr << std::format("[host] dlopen failed: {} for '{}'",
-                                  dlerror(), path) << '\n';
+        std::cerr << std::format("[host] dlopen failed: {} for '{}'", dlerror(), path) << '\n';
         return std::nullopt;
     }
 

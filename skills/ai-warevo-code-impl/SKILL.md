@@ -107,6 +107,8 @@ Closes #42
 ```
 
 ### Step 5: Run build and tests
+Use the repository's documented commands and existing presets/targets first. For this repository's C++23 reference profile, verify the configured C++ standard rather than forcing it, and prefer existing CMake presets and Makefile targets. Check formatting and static-analysis configuration when present, then run the project's unit tests. For CMake projects without documented commands, configure/build with the repository's declared generator and run CTest; do not assume Catch2 or a particular compiler. Run ASan/UBSan or other sanitizer configurations only when the project supports them and the environment can run them.
+
 Check for available build/test commands in priority order:
 
 1. **Makefile**:

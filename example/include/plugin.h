@@ -4,13 +4,13 @@
 
 // ── Cross-platform export decorator ────────────────────────────────
 #if defined(_WIN32) || defined(__CYGWIN__)
-    #ifdef PLUGIN_BUILDING_DLL
-        #define PLUGIN_API __declspec(dllexport)
-    #else
-        #define PLUGIN_API __declspec(dllimport)
-    #endif
+#ifdef PLUGIN_BUILDING_DLL
+#define PLUGIN_API __declspec(dllexport)
 #else
-    #define PLUGIN_API __attribute__((visibility("default")))
+#define PLUGIN_API __declspec(dllimport)
+#endif
+#else
+#define PLUGIN_API __attribute__((visibility("default")))
 #endif
 
 /**

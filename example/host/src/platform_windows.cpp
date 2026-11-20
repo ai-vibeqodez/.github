@@ -26,8 +26,7 @@ std::optional<LibraryHandle> load_library(const std::string& path) {
 
     if (!lib.handle) {
         auto err = GetLastError();
-        std::cerr << std::format("[host] LoadLibrary failed: error code {} for '{}'",
-                                  err, path) << '\n';
+        std::cerr << std::format("[host] LoadLibrary failed: error code {} for '{}'", err, path) << '\n';
         return std::nullopt;
     }
 
