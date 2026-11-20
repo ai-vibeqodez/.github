@@ -29,7 +29,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       - name: Configure & Build
-        uses: ai-warevo/.github/.github/actions/cmake-build@eff474262b7f63a057fa4720ab23d345faa3ef86
+        uses: ai-warevo/.github/.github/actions/cmake-build@main
         with:
           source_dir: example
           build_dir: build
@@ -37,14 +37,14 @@ jobs:
           extra_args: -DAW_EXAMPLE_BUILD_TESTS=ON -DAW_EXAMPLE_ENABLE_COVERAGE=ON
 
       - name: Run Tests
-        uses: ai-warevo/.github/.github/actions/ctest-run@dc686d24e725dc221b76f16515f2927f52487816
+        uses: ai-warevo/.github/.github/actions/ctest-run@main
         with:
           source_dir: example
           build_dir: build
           config: Debug
 
       - name: Generate Coverage
-        uses: ai-warevo/.github/.github/actions/gcovr-report@9b2e72388c628fa89a8275f70f71f2c480800964
+        uses: ai-warevo/.github/.github/actions/gcovr-report@main
         with:
           source_dir: example
           build_dir: build
@@ -54,13 +54,13 @@ jobs:
 
       - name: Parse Coverage Metrics
         id: coverage_parser
-        uses: ai-warevo/.github/.github/actions/coverage-parser@763416623ef6f52219515027d61592f08b5a02a9
+        uses: ai-warevo/.github/.github/actions/coverage-parser@main
         with:
           xml_path: coverage.xml
 
       - name: Generate Coverage Badge
         id: badge_generator
-        uses: ai-warevo/.github/.github/actions/badge@313d853ed7e8d274265ebb9db20c537a1f951df6
+        uses: ai-warevo/.github/.github/actions/badge@main
         with:
           width: '99'
           height: '20'
@@ -127,12 +127,12 @@ jobs:
           cat coverage.svg 2>&1 || echo "coverage.svg not found"
 
       - name: Deploy Badge
-        uses: ai-warevo/.github/.github/actions/badge-deploy@8395025b1f8381355be22de2a96d62a371bd6e40
+        uses: ai-warevo/.github/.github/actions/badge-deploy@main
         with:
           badge_path: coverage.svg
 
       - name: Deploy Coverage HTML
-        uses: ai-warevo/.github/.github/actions/coverage-html-deploy@adeb09c08dbad780b43742b076fb70b312ce3927
+        uses: ai-warevo/.github/.github/actions/coverage-html-deploy@main
         with:
           folder: htmlcov
           target_folder: .
@@ -154,7 +154,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       - name: Configure & Build
-        uses: ai-warevo/.github/.github/actions/cmake-build@eff474262b7f63a057fa4720ab23d345faa3ef86
+        uses: ai-warevo/.github/.github/actions/cmake-build@main
         with:
           source_dir: example
           build_dir: build
@@ -162,7 +162,7 @@ jobs:
           extra_args: -DAW_EXAMPLE_BUILD_TESTS=ON -DAW_EXAMPLE_SANITIZE=${{ matrix.sanitizer }}
 
       - name: Run Tests
-        uses: ai-warevo/.github/.github/actions/ctest-run@dc686d24e725dc221b76f16515f2927f52487816
+        uses: ai-warevo/.github/.github/actions/ctest-run@main
         with:
           source_dir: example
           build_dir: build
