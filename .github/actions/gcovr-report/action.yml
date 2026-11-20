@@ -3,7 +3,7 @@
 # Generates both XML (for parsing) and HTML (for deployment) coverage reports
 # from a CMake build.
 #
-# In a container (e.g. ci-cpp20) gcovr and gcov are pre-installed.
+# In a container (e.g. ci-cpp23) gcovr and gcov are pre-installed.
 # This action pins gcov to match the compiler version used for the build.
 #
 # Usage:

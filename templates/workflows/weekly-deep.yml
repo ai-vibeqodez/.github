@@ -21,6 +21,6 @@ jobs:
     with:
       source_dir: example
       build_dir: build
-      container_image: ghcr.io/ai-warevo/ci-cpp20
+      container_image: ghcr.io/ai-warevo/ci-cpp23
       source_filter: host/src/ plugin/src/ include/
       exclude: _deps/*

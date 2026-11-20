@@ -21,7 +21,7 @@ jobs:
     name: Tests & Coverage
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/ai-warevo/ci-cpp20
+      image: ghcr.io/ai-warevo/ci-cpp23
       options: --user root
 
     steps:
@@ -141,7 +141,7 @@ jobs:
     name: Sanitizers (${{ matrix.sanitizer }})
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/ai-warevo/ci-cpp20
+      image: ghcr.io/ai-warevo/ci-cpp23
       options: --user root --security-opt seccomp=unconfined
 
     strategy:

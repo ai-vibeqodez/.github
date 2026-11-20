@@ -24,7 +24,7 @@
 ## ai-warevo-skill-creator/ — Skill Creator
 **Purpose**: Create new skills and update the skill catalog.
 **Input**: Description of new skill
-**Output**: skills/<name>/SKILL.md, updated SKILLS.md and README.md
+**Output**: skills/<name>/SKILL.md, updated skills/README.md and README.md
 **Complexity**: High
 **Dependencies**: None
 
@@ -36,11 +36,18 @@
 **Dependencies**: None
 
 ## ai-warevo-ci-infrastructure-integrator/ — CI/CD Infrastructure Integrator
-**Purpose**: Smart integration of CI/CD infrastructure from catalog repo into existing project via smart merge.
+**Purpose**: Selective, conflict-aware merge of catalog CI/CD artifacts into an already configured or partially configured project while preserving project-specific logic.
 **Input**: Target project path, catalog repo path, project type
-**Output**: Integrated workflow files, updated build config, documentation
+**Output**: Merged workflow files, preserved/extended build config, documentation, validation result
 **Complexity**: Medium
-**Dependencies**: None
+**Dependencies**: None; use after ai-warevo-ci-setup when baseline CI is bootstrapped first
+
+## ai-warevo-ci-setup/ — CI Setup
+**Purpose**: Bootstrap the complete standard Makefile CI contract and baseline reusable workflows in a project that lacks them or needs baseline conformance.
+**Input**: Repository path, optional language/build/test stack
+**Output**: `pr-fast`, `weekly-deep`, and `release` Makefile targets, baseline workflow files, coverage/release artifacts
+**Complexity**: Medium
+**Dependencies**: None; use ai-warevo-ci-infrastructure-integrator afterward for selective catalog merging
 
 ## ai-warevo-orchestrator/ — Org Repo Worker (Orchestrator)
 **Purpose**: Orchestrates the full autonomous workflow by delegating to specialized sub-skills. Does not implement steps directly — delegates and verifies.

@@ -45,7 +45,7 @@ This is the **orchestrator**. It manages the pipeline flow: calls sub-skills, pa
 - Target organization repository (e.g., `ai-warevo/<repo>`)
 
 ## Outputs
-- Implemented changes pushed to the agent's fork (`ai-vibeqodez/<repo>`)
+- Implemented changes pushed to the agent's fork via the `dshagent` remote (`ai-vibeqodez/<repo>`)
 - Open Pull Request targeting `ai-warevo/<repo>:main`
 - Summary of actions taken
 
@@ -127,7 +127,8 @@ When a sub-skill is not available, execute the step directly using these rules:
 ### Workspace Prep (fallback)
 - Check `~/workspace/<repo>/` exists → skip clone if yes
 - `gh repo fork ai-warevo/<repo> --clone=false` if fork missing
-- `git clone git@github.com:ai-vibeqodez/<repo>.git`
+- `git clone git@github.com:ai-warevo/<repo>.git`
+- `git remote add dshagent git@github.com:ai-vibeqodez/<repo>.git`
 - `git fetch origin && git checkout main && git pull origin main`
 - Branch: `feat/issue-NNN` or `fix/issue-NNN`
 
@@ -139,14 +140,14 @@ When a sub-skill is not available, execute the step directly using these rules:
 
 ### Push & PR (fallback)
 - `git config user.name "Anatoly Ivanov"` / `user.email "ai_vibeqodez@vk.com"`
-- `git push -u origin feat/issue-NNN`
-- `gh pr create --base main --head feat/issue-NNN --title "<prefix> <description> (#NNN)" --body "Closes #NNN\n\n## Changes\n- ..."`
+- `git push dshagent feat/issue-NNN`
+- `gh pr create --base main --head ai-vibeqodez:feat/issue-NNN --title "<prefix> <description> (#NNN)" --body "Closes #NNN\n\n## Changes\n- ..."`
 
 ## Conventions
 - **Git user**: `Anatoly Ivanov` <ai_vibeqodez@vk.com>
 - **Branch naming**: `feat/issue-NNN` / `fix/issue-NNN`
 - **Commit format**: Conventional Commits with issue reference
-- **Push target**: `ai-vibeqodez/<repo>` (agent's fork)
+- **Push target**: `dshagent` remote (`ai-vibeqodez/<repo>` fork)
 - **PR target**: `ai-warevo/<repo>:main` (organization repo)
 - **Issue filtering**: Only `loktionov129` and `ai-vibeqodez`
 - **SSH setup**: Use `/tmp/ssh` workaround if filesystem is read-only (see `ai-warevo-git-github-push` skill)
@@ -162,4 +163,4 @@ When a sub-skill is not available, execute the step directly using these rules:
 - Iterate on review feedback until approved
 
 ## Git workflow rules
-Shared rules (never commit to `main`, SSH only, fork as `dshagent`, PAT auth, never merge) are defined in [`git-github-push/SKILL.md`](../git-github-push/SKILL.md).
+Shared rules (never commit to `main`, SSH only, use the `dshagent` fork remote, PAT auth, never merge) are defined in [`ai-warevo-git-github-push/SKILL.md`](../ai-warevo-git-github-push/SKILL.md).

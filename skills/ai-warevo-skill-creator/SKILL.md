@@ -62,25 +62,24 @@ Creating new skills and updating the skills repository.
    - Check the names and purposes of existing skills
    - If an equivalent skill is found — suggest merging or clarifying the difference
 
-3. **Create the `skills/NN_name.md` file**
-   - Determine the next available number (NN)
-   - Create the file using the template (see below)
-   - Fill in all mandatory sections
+3. **Create the `skills/<name>/SKILL.md` file**
+   - Create the directory if it does not exist
+   - Create the file using the repository metadata and content conventions
+   - Fill in all mandatory sections, including YAML frontmatter and `## Input Validation`
 
 4. **Update `skills/README.md`**
    - Add an entry for the new skill to the catalog
-   - Specify the number, name, purpose, input/output, complexity, and dependencies
-   - Preserve sorting by number
+   - Specify the name, purpose, input/output, complexity, and dependencies
+   - Preserve the existing catalog order and formatting
 
 5. **Update `README.md`**
-   - Add a link to the new skill in the "Skills" section
+   - Add a link to the new skill in the "Skills" section when a per-skill listing exists
    - Preserve formatting and order
 
 6. **Validate consistency**
    - Check that all links are valid (files exist)
-   - Check that numbering is sequential (no gaps)
-   - Check that the catalog in `skills/README.md` is synchronized with the files in `skills/`
-   - Check that every file contains all mandatory sections
+   - Check that the catalog in `skills/README.md` is synchronized with the directories in `skills/`
+   - Check that every skill file contains valid metadata and an `## Input Validation` section
 
 ## New Skill Template
 
@@ -112,14 +111,15 @@ Brief description of the purpose (1-2 sentences)
 ```
 
 ## Output Files
-- `skills/NN_name.md` — new skill file
+- `skills/<name>/SKILL.md` — new skill file
 - `skills/README.md` — updated catalog
-- `README.md` — updated documentation
+- `README.md` — updated documentation when the root catalog links to individual skills
 
 ## Validation Rules
-- Sequential numbering without gaps (01, 02, 03, ...)
-- The catalog in `skills/README.md` matches the files in `skills/`
-- All links in README.md are valid
-- Every file contains all mandatory sections
+- Skill directory name matches the repository naming convention
+- The catalog in `skills/README.md` matches the directories and `SKILL.md` files in `skills/`
+- All skill metadata contains required `name` and `description` fields
+- Every skill file contains an `## Input Validation` section
+- All documentation links point to existing files
 - New skills do not duplicate existing ones
 - Dependencies between skills are explicitly stated in `skills/README.md`

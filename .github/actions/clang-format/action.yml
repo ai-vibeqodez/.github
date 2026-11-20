@@ -3,7 +3,7 @@
 # Runs clang-format --dry-run --Werror on all C++ source and header files.
 # Fails the step if any file is not properly formatted (CI breaks on format violations).
 #
-# In a container (e.g. ci-cpp20) clang-format-18 is pre-installed.
+# In a container (e.g. ci-cpp23) clang-format-18 is pre-installed.
 #
 # Usage:
 #   - name: Check formatting

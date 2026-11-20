@@ -63,16 +63,11 @@ Push the implementation branch to the agent's fork, create a Pull Request target
 ## Workflow
 
 ### Step 1: Push branch to fork
+Follow the canonical remote and SSH procedure in [`ai-warevo-git-github-push/SKILL.md`](../ai-warevo-git-github-push/SKILL.md), then push to the named fork remote:
 ```bash
 cd ~/workspace/<repo>/
-git push -u origin feat/issue-NNN
-```
-
-If SSH key issue (read-only filesystem), use the workaround from `ai-warevo-git-github-push` skill:
-```bash
-mkdir -p /tmp/ssh && cp ~/.ssh/id_ed25519 /tmp/ssh/ && chmod 700 /tmp/ssh && chmod 600 /tmp/ssh/id_ed25519
-eval "$(ssh-agent -s)" && ssh-add /tmp/ssh/id_ed25519
-GIT_SSH_COMMAND="ssh -i /tmp/ssh/id_ed25519 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/tmp/ssh/known_hosts" git push -u origin feat/issue-NNN
+GIT_SSH_COMMAND="ssh -i /tmp/ssh/id_ed25519 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/tmp/ssh/known_hosts" \
+  git push -u dshagent feat/issue-NNN
 ```
 
 ### Step 2: Create Pull Request
@@ -125,7 +120,7 @@ Self-review: PASSED
 ```
 
 ## Rules
-- Always push to `ai-vibeqodez/<repo>` (the fork) — never to `ai-warevo/<repo>`
+- Always push to the `dshagent` remote (`ai-vibeqodez/<repo>` fork) — never to `origin` or `ai-warevo/<repo>`
 - PR must target `ai-warevo/<repo>:main`
 - Always self-review the diff before considering the task complete
 - Never submit a PR with failing CI checks
@@ -136,4 +131,4 @@ Self-review: PASSED
 - **Never merge PRs** — merging is the user's (repo owner's) responsibility only. Agent's role: fix bugs, work on PRs, report status.
 
 ## Git workflow rules
-Shared rules (never commit to `main`, SSH only, fork as `dshagent`, PAT auth) are defined in [`git-github-push/SKILL.md`](../git-github-push/SKILL.md).
+Shared rules (never commit to `main`, never push to `origin`, SSH only, use the `dshagent` fork remote, PAT auth) are defined in [`ai-warevo-git-github-push/SKILL.md`](../ai-warevo-git-github-push/SKILL.md).

@@ -116,7 +116,7 @@ Maintainer notes:
 
 ### Fixed
 
-- run C++ jobs in ci-cpp20 Docker container
+- run C++ jobs in ci-cpp23 Docker container
 
 ## [1.4.3] - 2026-11-18
 

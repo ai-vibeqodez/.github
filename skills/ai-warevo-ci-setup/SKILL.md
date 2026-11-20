@@ -1,6 +1,6 @@
 ---
 name: ai-warevo-ci-setup
-description: Bootstrap the shared language-agnostic Makefile CI contract and reusable GitHub Actions workflows in a project repository.
+description: Bootstrap the standard Makefile CI contract and baseline reusable GitHub Actions workflows in a project repository
 inputs:
   repo_path:
     type: string
@@ -39,7 +39,7 @@ outputs:
 2. If `stack` is provided, verify at least `language` is specified
 3. If validation fails, report error and stop
 
-Use this skill when a repository needs PR checks, scheduled verification, and a gated release workflow based on `ai-warevo/.github`.
+Use this skill when a repository lacks the standard CI contract or needs the complete baseline setup: `make pr-fast`, `make weekly-deep`, `make release`, and the three corresponding workflows. It owns bootstrap and baseline conformance; use `ai-warevo-ci-infrastructure-integrator` for selective catalog adoption or conflict-aware merging into an already configured project.
 
 ## Procedure
 

@@ -25,4 +25,4 @@ jobs:
       build_type: Debug
       extra_args: -DAW_EXAMPLE_BUILD_TESTS=ON
       extensions: cpp,hpp,c,h
-      container_image: ghcr.io/ai-warevo/ci-cpp20
+      container_image: ghcr.io/ai-warevo/ci-cpp23

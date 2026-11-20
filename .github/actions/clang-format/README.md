@@ -4,7 +4,7 @@ A composite GitHub Action for checking C++ formatting with `clang-format`, faili
 
 ## Purpose
 
-Runs `clang-format --dry-run --Werror` on all C++ source and header files. Fails the step if any file is not properly formatted (CI breaks on format violations). Requires `clang-format` to be installed (e.g. `clang-format-18` in the `ci-cpp20` container).
+Runs `clang-format --dry-run --Werror` on all C++ source and header files. Fails the step if any file is not properly formatted (CI breaks on format violations). Requires `clang-format` to be installed (e.g. `clang-format-18` in the `ci-cpp23` container).
 
 ## Input parameters (`inputs`)
 

@@ -1,6 +1,6 @@
 ---
 name: ai-warevo-ci-infrastructure-integrator
-description: Smart integration of ready-made CI/CD infrastructure from a catalog repository into an existing project without duplication and with preservation of existing code
+description: Merge selected CI/CD infrastructure from a catalog repository into an existing project while preserving project-specific logic
 inputs:
   target_project_path:
     type: string
@@ -40,12 +40,12 @@ outputs:
 3. If validation fails, report error and stop
 
 ## Purpose
-Integration of ready-made CI/CD infrastructure from a catalog repository into an existing project using smart merge — no overwriting, no duplication, preserving everything valuable that already exists.
+Merge selected CI/CD artifacts from a catalog repository into a project that already has CI/CD or needs only a subset of the catalog. This skill owns comparison, conflict resolution, and preservation of existing project-specific workflows and build logic. Use `ai-warevo-ci-setup` instead when the repository needs the complete standard Makefile contract and the three baseline workflows from scratch.
 
-## Input Data
-- Path to the target project (where we integrate)
-- Path to the catalog repository with ready-made infrastructure (e.g., `/workspace/.github`)
-- Project type (language, build system, test framework — determined automatically if not specified)
+## When to Use
+- Use this skill for selective adoption or migration where existing workflows, Makefile targets, build options, or documentation must be compared and merged.
+- Use `ai-warevo-ci-setup` for a new or incomplete CI setup that should receive the full standard Makefile contract and baseline workflows.
+- If both are needed, run `ai-warevo-ci-setup` first, then use this skill to merge project-specific or additional catalog artifacts.
 
 ## Workflow
 

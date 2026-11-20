@@ -4,7 +4,7 @@
 # reusable step. Supports multi-config generators (MSVC) via the `config` input
 # and optional `cmake --install`.
 #
-# In a container-based CI (e.g. ghcr.io/ai-warevo/ci-cpp20) all compilers and
+# In a container-based CI (e.g. ghcr.io/ai-warevo/ci-cpp23) all compilers and
 # tools are pre-installed. This action simply passes through the arguments.
 #
 # Usage:

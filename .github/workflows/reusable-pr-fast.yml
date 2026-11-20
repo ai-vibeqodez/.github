@@ -10,7 +10,7 @@
 #   build_type         — CMake build type (default: Debug)
 #   extra_args         — extra CMake arguments (default: -DAW_EXAMPLE_BUILD_TESTS=ON)
 #   extensions         — source file extensions for clang-format (default: cpp,hpp,c,h)
-#   container_image    — CI container image (default: ghcr.io/ai-warevo/ci-cpp20)
+#   container_image    — CI container image (default: ghcr.io/ai-warevo/ci-cpp23)
 
 name: reusable-pr-fast
 
@@ -40,7 +40,7 @@ on:
       container_image:
         description: 'CI container image'
         type: string
-        default: ghcr.io/ai-warevo/ci-cpp20
+        default: ghcr.io/ai-warevo/ci-cpp23
       setup_command:
         description: 'Optional Bash command to prepare the source tree after checkout'
         type: string

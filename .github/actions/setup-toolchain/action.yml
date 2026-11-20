@@ -4,7 +4,7 @@
 #
 # **Container mode** (default when `container_mode: true` or when `sudo` is
 # unavailable): all compilers, libraries, and tools are pre-installed
-# (e.g. in `ghcr.io/ai-warevo/ci-cpp20`). This mode skips installation and
+# (e.g. in `ghcr.io/ai-warevo/ci-cpp23`). This mode skips installation and
 # only emits the CMake arguments that select the requested compiler and
 # standard library.
 #

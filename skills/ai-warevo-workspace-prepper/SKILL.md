@@ -69,9 +69,12 @@ gh repo view ai-vibeqodez/<repo> --json fullName
   gh repo fork ai-warevo/<repo> --clone=false
   ```
 
-### Step 3: Clone the fork
+### Step 3: Clone the upstream repository and configure the fork remote
+Clone the organization repository as the read-only `origin`, then add the existing fork as `dshagent`:
 ```bash
-git clone git@github.com:ai-vibeqodez/<repo>.git ~/workspace/<repo>/
+git clone git@github.com:ai-warevo/<repo>.git ~/workspace/<repo>/
+cd ~/workspace/<repo>/
+git remote add dshagent git@github.com:ai-vibeqodez/<repo>.git
 ```
 
 ### Step 4: Configure git
@@ -110,4 +113,4 @@ Branch: feat/issue-NNN
 - If the repo already has a branch `feat/issue-NNN` or `fix/issue-NNN`, delete it first: `git branch -D feat/issue-NNN`
 
 ## Git workflow rules
-Shared rules (never commit to `main`, never push to `origin`, SSH only, fork as `dshagent`) are defined in [`git-github-push/SKILL.md`](../git-github-push/SKILL.md).
+Shared rules (never commit to `main`, never push to `origin`, SSH only, use the `dshagent` fork remote) are defined in [`ai-warevo-git-github-push/SKILL.md`](../ai-warevo-git-github-push/SKILL.md).

@@ -4,7 +4,7 @@ A composite GitHub Action for running `clang-tidy` on C++ source and header file
 
 ## Purpose
 
-Scans C++ translation units listed in the project's `compile_commands.json` through `clang-tidy`, failing on any selected warning. This limits the scan to files configured for the current build and avoids unrelated platform-specific or vendored sources. Requires `clang-tidy` and `python3` to be installed (e.g. `clang-tidy-18` in the `ci-cpp20` container).
+Scans C++ translation units listed in the project's `compile_commands.json` through `clang-tidy`, failing on any selected warning. This limits the scan to files configured for the current build and avoids unrelated platform-specific or vendored sources. Requires `clang-tidy` and `python3` to be installed (e.g. `clang-tidy-18` in the `ci-cpp23` container).
 
 ## Input parameters (`inputs`)
 

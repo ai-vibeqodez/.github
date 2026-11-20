@@ -4,7 +4,7 @@ A composite GitHub Action for generating coverage reports (XML + HTML) from a CM
 
 ## Purpose
 
-Generates both XML (for parsing) and HTML (for deployment) coverage reports using `gcovr`. Automatically pins `gcov` to match the compiler version. Requires `gcovr` and `gcov` to be installed (e.g. in the `ci-cpp20` container).
+Generates both XML (for parsing) and HTML (for deployment) coverage reports using `gcovr`. Automatically pins `gcov` to match the compiler version. Requires `gcovr` and `gcov` to be installed (e.g. in the `ci-cpp23` container).
 
 ## Input parameters (`inputs`)
 

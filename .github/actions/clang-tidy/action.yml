@@ -3,7 +3,7 @@
 # Scans C++ files through clang-tidy using the project's compile_commands.json.
 # Non-zero exit (any warning from the selected check suite) fails the step.
 #
-# In a container (e.g. ci-cpp20) clang-tidy-18 is pre-installed.
+# In a container (e.g. ci-cpp23) clang-tidy-18 is pre-installed.
 #
 # Usage:
 #   - name: Run clang-tidy

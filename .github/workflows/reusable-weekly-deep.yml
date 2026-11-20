@@ -7,7 +7,7 @@
 # Parameters:
 #   source_dir          — source directory (default: example)
 #   build_dir           — build directory (default: build)
-#   container_image     — CI container image (default: ghcr.io/ai-warevo/ci-cpp20)
+#   container_image     — CI container image (default: ghcr.io/ai-warevo/ci-cpp23)
 #   source_filter       — gcovr source filter (default: host/src/ plugin/src/ include/)
 #   exclude             — gcovr exclude pattern (default: _deps/*)
 
@@ -27,7 +27,7 @@ on:
       container_image:
         description: 'CI container image'
         type: string
-        default: ghcr.io/ai-warevo/ci-cpp20
+        default: ghcr.io/ai-warevo/ci-cpp23
       source_filter:
         description: 'gcovr source filter'
         type: string

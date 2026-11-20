@@ -6,7 +6,7 @@ A composite GitHub Action for computing CMake arguments for a given toolchain co
 
 Sets up a C++ toolchain (compiler, standard library, sanitizer) and emits CMake arguments compatible with [cmake-build](.github/actions/cmake-build/README.md). Supports two execution modes:
 
-- **Container mode** (`container_mode: true`): skips installation, only emits CMake arguments. Used in custom containers (e.g. `ghcr.io/ai-warevo/ci-cpp20`) where compilers are pre-installed.
+- **Container mode** (`container_mode: true`): skips installation, only emits CMake arguments. Used in custom containers (e.g. `ghcr.io/ai-warevo/ci-cpp23`) where compilers are pre-installed.
 - **Native mode** (default on GitHub-hosted runners): installs the toolchain via `apt-get` or MSVC Dev Cmd.
 
 Supported toolchains: `clang18-libcxx`, `clang18-libstdcxx`, `gcc15`, `msvc`.
