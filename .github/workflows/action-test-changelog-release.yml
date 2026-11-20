@@ -21,7 +21,7 @@ jobs:
       # ─── existing tag ───
       - name: changelog-release — existing tag
         id: cr_existing
-        uses: ai-warevo/.github/actions/changelog-release@main
+        uses: ai-warevo/.github/.github/actions/changelog-release@main
         with:
           tag: v1.2.12
           changelog: CHANGELOG.md
@@ -38,7 +38,7 @@ jobs:
       - name: changelog-release — missing tag (expect failure)
         id: cr_missing
         continue-on-error: true
-        uses: ai-warevo/.github/actions/changelog-release@main
+        uses: ai-warevo/.github/.github/actions/changelog-release@main
         with:
           tag: v9.9.9
           changelog: CHANGELOG.md

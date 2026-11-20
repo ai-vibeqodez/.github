@@ -23,7 +23,7 @@ jobs:
       # ─── generate from recent commits ───
       - name: changelog-generate — generate
         id: cg
-        uses: ai-warevo/.github/actions/changelog-generate@main
+        uses: ai-warevo/.github/.github/actions/changelog-generate@main
         with:
           force: 'true'
 
@@ -37,7 +37,7 @@ jobs:
       - name: changelog-generate — existing entries (expect failure)
         id: cg_fail
         continue-on-error: true
-        uses: ai-warevo/.github/actions/changelog-generate@main
+        uses: ai-warevo/.github/.github/actions/changelog-generate@main
         with:
           force: 'false'
 

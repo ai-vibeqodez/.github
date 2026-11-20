@@ -21,7 +21,7 @@ jobs:
       # ── generate badge ──
       - name: Generate badge for deploy
         id: badge
-        uses: ai-warevo/.github/actions/badge@main
+        uses: ai-warevo/.github/.github/actions/badge@main
         with:
           text_left: 'coverage'
           text_right: '90%'
@@ -30,7 +30,7 @@ jobs:
 
       - name: badge-deploy — to test branch
         id: badge_deploy
-        uses: ai-warevo/.github/actions/badge-deploy@main
+        uses: ai-warevo/.github/.github/actions/badge-deploy@main
         with:
           badge_path: coverage.svg
           branch: actions-test/badge

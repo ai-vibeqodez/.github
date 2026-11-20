@@ -49,7 +49,7 @@ jobs:
 
       - name: download-artifacts — pattern *
         id: download_all
-        uses: ai-warevo/.github/actions/download-artifacts@main
+        uses: ai-warevo/.github/.github/actions/download-artifacts@main
         with:
           pattern: 'test-*'
           merge-multiple: 'true'

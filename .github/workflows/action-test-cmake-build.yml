@@ -23,7 +23,7 @@ jobs:
 
       - name: Configure & Build
         id: build
-        uses: ai-warevo/.github/actions/cmake-build@main
+        uses: ai-warevo/.github/.github/actions/cmake-build@main
         with:
           source_dir: example
           build_dir: build

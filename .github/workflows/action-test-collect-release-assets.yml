@@ -43,7 +43,7 @@ jobs:
 
       - name: collect-release-assets — collect
         id: collect
-        uses: ai-warevo/.github/actions/collect-release-assets@main
+        uses: ai-warevo/.github/.github/actions/collect-release-assets@main
         with:
           version: '0.0.1-test'
           output_dir: /tmp/collect-test-output

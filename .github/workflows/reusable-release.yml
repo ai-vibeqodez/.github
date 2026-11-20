@@ -68,13 +68,13 @@ jobs:
 
       - name: Generate changelog from git log
         if: github.event_name == 'workflow_dispatch'
-        uses: ai-warevo/.github/actions/changelog-generate@main
+        uses: ai-warevo/.github/.github/actions/changelog-generate@main
         with:
           force: 'true'
 
       - name: Resolve version
         id: version
-        uses: ai-warevo/.github/actions/release-version@main
+        uses: ai-warevo/.github/.github/actions/release-version@main
         with:
           version: ${{ inputs.version }}
 
@@ -101,7 +101,7 @@ jobs:
           fetch-depth: 0
 
       - name: Build
-        uses: ai-warevo/.github/actions/cmake-build@main
+        uses: ai-warevo/.github/.github/actions/cmake-build@main
         with:
           source_dir: ${{ inputs.source_dir }}
           build_dir: ${{ inputs.build_dir }}
@@ -145,14 +145,14 @@ jobs:
       # ── Promote changelog ──
       - name: Promote changelog
         if: github.event_name == 'workflow_dispatch'
-        uses: ai-warevo/.github/actions/changelog-promote@main
+        uses: ai-warevo/.github/.github/actions/changelog-promote@main
         with:
           version: ${{ needs.version-derive.outputs.release_version_stripped }}
 
       # ── Commit and tag ──
       - name: Commit CHANGELOG.md and VERSION, create tag
         if: github.event_name == 'workflow_dispatch'
-        uses: ai-warevo/.github/actions/release-commit-tag@main
+        uses: ai-warevo/.github/.github/actions/release-commit-tag@main
         with:
           version: ${{ needs.version-derive.outputs.release_version }}
           branch: ${{ github.ref_name }}
@@ -171,13 +171,13 @@ jobs:
 
       # ── Checksums ──
       - name: Generate checksums
-        uses: ai-warevo/.github/actions/checksums@main
+        uses: ai-warevo/.github/.github/actions/checksums@main
         with:
           artifacts_dir: 'artifacts'
           checksums_file: 'SHA256SUMS.txt'
 
       - name: Verify checksums
-        uses: ai-warevo/.github/actions/checksums-verify@main
+        uses: ai-warevo/.github/.github/actions/checksums-verify@main
         with:
           artifacts_dir: 'artifacts'
           checksums_file: 'SHA256SUMS.txt'
@@ -185,7 +185,7 @@ jobs:
       # ── Create GitHub Release ──
       - name: Generate Release Notes
         id: changelog
-        uses: ai-warevo/.github/actions/changelog-release@main
+        uses: ai-warevo/.github/.github/actions/changelog-release@main
         with:
           tag: ${{ needs.version-derive.outputs.release_version }}
 
@@ -203,7 +203,7 @@ jobs:
 
       # ── Docker ──
       - name: Build and push Docker image
-        uses: ai-warevo/.github/actions/docker-build-push@main
+        uses: ai-warevo/.github/.github/actions/docker-build-push@main
         with:
           context: ${{ inputs.docker_context }}
           dockerfile: ${{ inputs.dockerfile }}
