@@ -43,7 +43,7 @@ jobs:
 
       - name: collect-release-assets — collect
         id: collect
-        uses: ./.github/actions/collect-release-assets@924581e055ad6259c0e49614ca48cd62da220b6f
+        uses: ./.github/actions/collect-release-assets
         with:
           version: '0.0.1-test'
           output_dir: /tmp/collect-test-output

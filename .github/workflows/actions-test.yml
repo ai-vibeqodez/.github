@@ -1,68 +1,96 @@
-# actions-test — Dispatcher for per-action test workflows
-#
-# Runs all test workflows in .github/actions/<name>/test.yml
-# as reusable workflows via the matrix strategy.
-#
-# Usage:
-#   gh workflow run actions-test.yml
-#   gh workflow run actions-test.yml --field actions=badge,release-version
-
+# Run the selected composite-action test workflows.
 name: actions-test
 
 on:
   workflow_dispatch:
     inputs:
       actions:
-        description: 'Comma-separated list of actions to test (empty = all)'
+        description: Comma-separated action names (empty runs all)
         required: false
         default: ''
+        type: string
 
 permissions:
   contents: read
 
 jobs:
-  # ──────────────────────────────────────────────
-  # MATRIX — Dispatch each action's test.yml
-  # ──────────────────────────────────────────────
-  matrix:
-    name: ${{ matrix.action }}
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        action:
-          # Unit tests (no extra permissions)
-          - badge
-          - release-version
-          - changelog-generate
-          - changelog-promote
-          - changelog-release
-          - checksums
-          - checksums-verify
-          - coverage-parser
-          # Deploy tests (contents: write)
-          - badge-deploy
-          - coverage-html-deploy
-          # Docker tests (packages: write)
-          - docker-save
-          - docker-build-push
-          - docker-push-ghcr
-          # Artifact tests (actions: read)
-          - download-artifacts
-          - collect-release-assets
-          # Build + test (container mode)
-          - cmake-build
-          - ctest-run
-          - gcovr-report
-          - clang-format
-          - clang-tidy
-          - setup-toolchain
-    steps:
-      - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-
-      - name: Dispatch test workflow
-        run: gh workflow run test.yml --ref ${{ github.ref }} --field actions=${{ matrix.action }}
-        working-directory: .github/actions/${{ matrix.action }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  badge:
+    if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',badge,') }}
+    uses: ./.github/workflows/action-test-badge.yml
+  release-version:
+    if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',release-version,') }}
+    uses: ./.github/workflows/action-test-release-version.yml
+  changelog-generate:
+    if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',changelog-generate,') }}
+    uses: ./.github/workflows/action-test-changelog-generate.yml
+    permissions:
+      contents: write
+  changelog-promote:
+    if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',changelog-promote,') }}
+    uses: ./.github/workflows/action-test-changelog-promote.yml
+    permissions:
+      contents: write
+  changelog-release:
+    if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',changelog-release,') }}
+    uses: ./.github/workflows/action-test-changelog-release.yml
+  checksums:
+    if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',checksums,') }}
+    uses: ./.github/workflows/action-test-checksums.yml
+  checksums-verify:
+    if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',checksums-verify,') }}
+    uses: ./.github/workflows/action-test-checksums-verify.yml
+  coverage-parser:
+    if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',coverage-parser,') }}
+    uses: ./.github/workflows/action-test-coverage-parser.yml
+  badge-deploy:
+    if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',badge-deploy,') }}
+    uses: ./.github/workflows/action-test-badge-deploy.yml
+    permissions:
+      contents: write
+  coverage-html-deploy:
+    if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',coverage-html-deploy,') }}
+    uses: ./.github/workflows/action-test-coverage-html-deploy.yml
+    permissions:
+      contents: write
+  docker-save:
+    if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',docker-save,') }}
+    uses: ./.github/workflows/action-test-docker-save.yml
+  docker-build-push:
+    if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',docker-build-push,') }}
+    uses: ./.github/workflows/action-test-docker-build-push.yml
+  docker-push-ghcr:
+    if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',docker-push-ghcr,') }}
+    uses: ./.github/workflows/action-test-docker-push-ghcr.yml
+    permissions:
+      contents: read
+      packages: write
+  download-artifacts:
+    if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',download-artifacts,') }}
+    uses: ./.github/workflows/action-test-download-artifacts.yml
+    permissions:
+      contents: read
+      actions: read
+  collect-release-assets:
+    if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',collect-release-assets,') }}
+    uses: ./.github/workflows/action-test-collect-release-assets.yml
+    permissions:
+      contents: read
+      actions: read
+  cmake-build:
+    if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',cmake-build,') }}
+    uses: ./.github/workflows/action-test-cmake-build.yml
+  ctest-run:
+    if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',ctest-run,') }}
+    uses: ./.github/workflows/action-test-ctest-run.yml
+  gcovr-report:
+    if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',gcovr-report,') }}
+    uses: ./.github/workflows/action-test-gcovr-report.yml
+  clang-format:
+    if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',clang-format,') }}
+    uses: ./.github/workflows/action-test-clang-format.yml
+  clang-tidy:
+    if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',clang-tidy,') }}
+    uses: ./.github/workflows/action-test-clang-tidy.yml
+  setup-toolchain:
+    if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',setup-toolchain,') }}
+    uses: ./.github/workflows/action-test-setup-toolchain.yml

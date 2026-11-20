@@ -23,7 +23,7 @@ jobs:
 
       - name: clang-format — check repo C++ files
         id: clang_fmt
-        uses: ./.github/actions/clang-format@6cae36f7fe728c23b1a6170d09d6dace55edea77
+        uses: ./.github/actions/clang-format
         with:
           source_dir: example
           extensions: cpp,hpp

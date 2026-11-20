@@ -23,7 +23,7 @@ jobs:
 
       - name: setup-toolchain — clang18-libcxx
         id: tc
-        uses: ./.github/actions/setup-toolchain@6cae36f7fe728c23b1a6170d09d6dace55edea77
+        uses: ./.github/actions/setup-toolchain
         with:
           toolchain: clang18-libcxx
           container_mode: true
@@ -49,7 +49,7 @@ jobs:
 
       - name: setup-toolchain — clang18-libcxx + address sanitizer
         id: tc
-        uses: ./.github/actions/setup-toolchain@6cae36f7fe728c23b1a6170d09d6dace55edea77
+        uses: ./.github/actions/setup-toolchain
         with:
           toolchain: clang18-libcxx
           container_mode: true
@@ -74,7 +74,7 @@ jobs:
 
       - name: setup-toolchain — gcc15
         id: tc
-        uses: ./.github/actions/setup-toolchain@6cae36f7fe728c23b1a6170d09d6dace55edea77
+        uses: ./.github/actions/setup-toolchain
         with:
           toolchain: gcc15
           container_mode: true

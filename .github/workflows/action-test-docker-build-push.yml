@@ -28,7 +28,7 @@ jobs:
 
       - name: docker-build-push — build only (no push)
         id: docker_build
-        uses: ./.github/actions/docker-build-push@d63404d832482c378b790598a99bf53baf10ca8e
+        uses: ./.github/actions/docker-build-push
         with:
           context: /tmp/docker-test
           dockerfile: /tmp/docker-test/Dockerfile

@@ -49,7 +49,7 @@ jobs:
 
       - name: download-artifacts — pattern *
         id: download_all
-        uses: ./.github/actions/download-artifacts@3d1ba5f551da42765fe85d15bb97b5bef5519ba2
+        uses: ./.github/actions/download-artifacts
         with:
           pattern: 'test-*'
           merge-multiple: 'true'

@@ -23,7 +23,7 @@ jobs:
 
       - name: Configure & Build
         id: build
-        uses: ./.github/actions/cmake-build@e9b20ed3a4f8a49bf774a1f1c28c4fb39e27bad5
+        uses: ./.github/actions/cmake-build
         with:
           source_dir: example
           build_dir: build

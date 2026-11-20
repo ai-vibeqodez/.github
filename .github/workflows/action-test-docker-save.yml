@@ -23,7 +23,7 @@ jobs:
 
       - name: docker-save — build & save
         id: docker_save
-        uses: ./.github/actions/docker-save@71d64943c8f56d7b8ae5b03fb1bccfb0cbd106a8
+        uses: ./.github/actions/docker-save
         with:
           image: alpine
           tag: '3.19'

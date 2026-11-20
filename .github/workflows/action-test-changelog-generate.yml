@@ -23,7 +23,7 @@ jobs:
       # ─── generate from recent commits ───
       - name: changelog-generate — generate
         id: cg
-        uses: ./.github/actions/changelog-generate@e3e1284e7d6c31163b76acaeea879fd5de03bd04
+        uses: ./.github/actions/changelog-generate
         with:
           force: 'true'
 
@@ -37,7 +37,7 @@ jobs:
       - name: changelog-generate — existing entries (expect failure)
         id: cg_fail
         continue-on-error: true
-        uses: ./.github/actions/changelog-generate@e3e1284e7d6c31163b76acaeea879fd5de03bd04
+        uses: ./.github/actions/changelog-generate
         with:
           force: 'false'
 

@@ -26,23 +26,23 @@ jobs:
           set -euo pipefail
           cat >> CHANGELOG.md <<'SECTION'
 
-## [Unreleased]
+          ## [Unreleased]
 
-### Fixed
+          ### Fixed
 
-- Fix test issue
+          - Fix test issue
 
-### Added
+          ### Added
 
-- New feature added
+          - New feature added
 
-SECTION
+          SECTION
           echo "Prepared [Unreleased]"
 
       # ─── promote to version ───
       - name: changelog-promote — promote v1.0.0
         id: cp
-        uses: ./.github/actions/changelog-promote@e3e1284e7d6c31163b76acaeea879fd5de03bd04
+        uses: ./.github/actions/changelog-promote
         with:
           version: '1.0.0'
 

@@ -1,8 +1,8 @@
-# ctest-run — Unit tests
+# clang-tidy — Unit tests
 #
-# Tests: run CTest on the example project (requires cmake-build to have run first)
+# Tests: run clang-tidy on the example project (requires build with compile_commands.json)
 
-name: ctest-run — Unit Tests
+name: clang-tidy — Unit Tests
 
 on:
   workflow_call:
@@ -22,15 +22,15 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
       - name: Configure & Build
-        uses: ./.github/actions/cmake-build@e9b20ed3a4f8a49bf774a1f1c28c4fb39e27bad5
+        uses: ./.github/actions/cmake-build
         with:
           source_dir: example
           build_dir: build
           build_type: Debug
-          extra_args: -DAW_EXAMPLE_BUILD_TESTS=ON -DAW_EXAMPLE_ENABLE_COVERAGE=ON
+          extra_args: -DAW_EXAMPLE_BUILD_TESTS=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
   test:
-    name: ctest-run
+    name: clang-tidy
     runs-on: ubuntu-latest
     needs: build
     container:
@@ -40,14 +40,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
-      - name: Run tests
-        id: test
-        uses: ./.github/actions/ctest-run@f9d6360ab55c7c8ec283dd036f96f0a20f0672fe
+      - name: clang-tidy — scan example
+        id: clang_tidy
+        uses: ./.github/actions/clang-tidy
         with:
           source_dir: example
           build_dir: build
-          config: Debug
-          output_on_failure: 'true'
+          exclude: _deps/*,build/*,CMakeFiles/*,cmake/*
 
-      - name: ctest-run — validate
-        run: echo "✓ ctest-run — tests passed"
+      - name: clang-tidy — validate
+        run: echo "✓ clang-tidy — scan complete"

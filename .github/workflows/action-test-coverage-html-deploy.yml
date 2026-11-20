@@ -41,7 +41,7 @@ jobs:
 
       - name: coverage-html-deploy — to test branch
         id: html_deploy
-        uses: ./.github/actions/coverage-html-deploy@37ba6d2f53694f58c8bee3318ce80a7dce8022fe
+        uses: ./.github/actions/coverage-html-deploy
         with:
           folder: htmlcov
           branch: actions-test/coverage
