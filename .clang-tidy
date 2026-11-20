@@ -1,16 +1,21 @@
 # ── clang-tidy configuration for ai-warevo projects ──────────────────────────
 #
-# Enables a practical subset of checks suitable for general C++ projects.
-# Disables checks that are either too strict, project-specific, or intended
+# Enables a focused set of checks suitable for general C++ projects.
+# Disables checks that are too strict, project-specific, or intended
 # for libc/Fuchsia development.
 
 ---
-Checks: '*,bugprone-*,cppcoreguidelines-*,modernize-*,performance-*,readability-*,-llvmlibc-*, -fuchsia-*, -hicpp-*, -abseil-*'
+Checks: 'bugprone-*,cppcoreguidelines-*,performance-*,-cppcoreguidelines-pro-bounds-pointer-arithmetic,-cppcoreguidelines-pro-bounds-constant-array-index,-cppcoreguidelines-avoid-magic-numbers,-cppcoreguidelines-macro-to-using-enum,-cppcoreguidelines-avoid-const-or-ref-gnu-types,-cppcoreguidelines-pro-type-reinterpret-cast,-performance-move-const-arg,-bugprone-exception-escape,-bugprone-suspicious-stringview-data-usage,-cppcoreguidelines-avoid-c-arrays,-cppcoreguidelines-pro-bounds-array-to-pointer-decay'
 
 CheckOptions:
-  - {key: modernize-use-trailing-return-type.UseTrailingReturnType, value: true}
-  - {key: readability-identifier-length.ParameterNameMinimumLength, value: 2}
-  - {key: readability-identifier-length.LocalVariableNameMinimumLength, value: 2}
+  - key: readability-identifier-length.MinimumParameterNameLength
+    value: 2
+  - key: readability-identifier-length.MinimumVariableNameLength
+    value: 2
+  - key: readability-identifier-length.IgnoredParameterNames
+    value: '^[nabcxyzop]$'
+  - key: readability-identifier-length.IgnoredVariableNames
+    value: '^[nabcxyz]$'
 
 HeaderFilterRegex: '.*'
 FormatStyle: file
