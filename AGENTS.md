@@ -69,7 +69,7 @@ Release is fully handled by CI — no local scripts needed.
 gh workflow run release.yml --ref main --field version=1.2.3
 ```
 
-The composite actions (`.github/actions/changelog-generate/`, `changelog-promote/`, `release-version/`, etc.) implement all release logic. They are referenced by SHA in `.github/workflows/release.yml`.
+The composite actions (`.github/actions/changelog-generate/`, `changelog-promote/`, `release-version/`, etc.) implement all release logic. Workflows reference them with `@main`.
 
 ## AI skills (how they work)
 
@@ -146,7 +146,7 @@ Three-tier architecture:
   ┌─────────────────────────────────────────────────────────────────────┐
   │  Consumer repos                                                    │
   │  .github/workflows/*.yml  (copy from templates/, customize on:/with)│
-  │        uses: ai-warevo/.github/.github/workflows/reusable-*.yml@sha │
+  │        uses: ai-warevo/.github/.github/workflows/reusable-*.yml@main│
   └─────────────────────────────────────────────────────────────────────┘
                                   │
                                   ▼ uses:
@@ -167,7 +167,7 @@ Three-tier architecture:
   │  .github/workflows/actions-test.yml      — action test dispatcher   │
   └─────────────────────────────────────────────────────────────────────┘
                                   │
-                                  │ uses SHA-pinned actions
+                                  │ uses actions at @main
   ┌─────────────────────────────────────────────────────────────────────┐
   │  Composite actions (21 total)                                        │
   │  .github/actions/{badge,clang-format,cmake-build,ctest-run,...}/    │
@@ -189,31 +189,16 @@ Three-tier architecture:
 
 - Each action lives in `.github/actions/<name>/action.yml` with a `README.md`.
 - Actions accept inputs, produce outputs (via `$GITHUB_OUTPUT`).
-- Always pin to a **40-char commit SHA** (not `@main` or a branch tag) in workflows that reference them.
+- Reference shared and third-party actions and reusable workflows with `@main`; do not pin them to commit SHAs or version tags.
 - Actions should be **idempotent** and **self-healing** (retry on transient failures).
 
-### SHA pinning convention
-
-Pinning to `@main` is a supply-chain risk: a compromised branch can inject malicious code into any consumer workflow. Always resolve the latest commit SHA for the target directory:
-
-```sh
-# Composite action: resolve SHA for a directory
-curl -s "https://api.github.com/repos/ai-warevo/<repo>/commits?path=.github/actions/<name>&per_page=1" \
-  | jq -r '.[0].sha'
-
-# Third-party action: resolve SHA for a tagged ref
-curl -s "https://api.github.com/repos/<owner>/<repo>/git/ref/tags/<tag>" \
-  | jq -r '.object.sha'
-```
-
-Update the SHA whenever the upstream action receives a meaningful update. Add a `Fixed` or `Changed` bullet to `CHANGELOG.md` under `## [Unreleased]` when bumping.
 
 ## Workflow conventions
 
 - Use `concurrency` blocks to cancel stale runs on the same branch/PR.
 - Use `needs` to establish job dependencies; keep the graph shallow.
 - Matrix jobs for multi-platform/multi-version testing; single jobs for release.
-- All workflows reference shared composite actions from `ai-warevo/<repo>/.github/actions/<name>@<40-char-SHA>`.
+- All workflows reference shared composite actions from `ai-warevo/<repo>/.github/actions/<name>@main`.
 
 ## Documentation & comments
 
