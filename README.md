@@ -78,6 +78,8 @@ Copy templates into your project and adapt them to your context.
 
 ## Release
 
+The shared `reusable-release.yml` workflow owns version resolution, changelog generation/promotion, checksums, and GitHub Release publication. Consumer repositories keep project-specific build, artifact collection, and Docker jobs in their own thin `release.yml` wrapper, then pass an optional uploaded artifact to the reusable workflow.
+
 Releases are automatically cut from `CHANGELOG.md` following [Keep a Changelog] + [SemVer] rules.
 
 1. Add changes to `## [Unreleased]` under the appropriate categories: `Breaking`, `Added`, `Changed`, `Fixed`, etc.

@@ -153,7 +153,7 @@ Three-tier architecture:
   ┌─────────────────────────────────────────────────────────────────────┐
   │  Reusable workflows (source of truth)                              │
   │  .github/workflows/reusable-pr-fast.yml         — lint + build + test│
-  │  .github/workflows/reusable-release.yml         — build + release   │
+  │  .github/workflows/reusable-release.yml         — version + release │
   │  .github/workflows/reusable-weekly-deep.yml     — sanitizers+coverage│
   └─────────────────────────────────────────────────────────────────────┘
                                   │
