@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   release:
-    uses: ai-warevo/.github/workflows/reusable-release.yml@main
+    uses: ai-warevo/.github/.github/workflows/reusable-release.yml@main
     with:
       source_dir: example
       build_dir: build

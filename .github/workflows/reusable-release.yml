@@ -2,7 +2,7 @@
 #
 # Reusable workflow (workflow_call).
 # Consumers call via:
-#   uses: ai-warevo/.github/workflows/reusable-release.yml@<sha>
+#   uses: ai-warevo/.github/.github/workflows/reusable-release.yml@<sha>
 #
 # Parameters:
 #   source_dir          — source directory (default: example)
