@@ -14,19 +14,37 @@ Maintainer notes:
 
 ## [Unreleased]
 
-### Breaking
+## [1.6.1] - 2026-11-20
 
-- Remove `scripts/` directory — all release logic (changelog generation, version derivation, promotion, tagging) moved to reusable CI composite actions (`changelog-generate`, `changelog-promote`) and the `bump` job in `.github/workflows/release.yml`. Consumers call `gh workflow run release.yml` instead of `make release` or `scripts/release.sh`
-- Replace script-based `Makefile` targets (`release`, `changelog`, `update`) with GitHub Actions workflow dispatch. `make release` now triggers `workflow_dispatch`; `make release-dry-run` shows version derivation rules
+### Changed
+
+- fix
+- fix release
+- pin all action references to @main
+- update action SHA pinning to latest commit (main)
+- Merge branch 'fix/ci-sha-pins' of github.com:ai-vibeqodez/.github
+- clean up ci/.github/workflows, SHA-pin template wrappers
+- Merge pull request #33 from ai-vibeqodez/refactor/remove-scripts
+- rename workflows to pr-fast / weekly-deep / release model
+- remove scripts/, replace with CI composite actions
+- Merge pull request #30 from ai-vibeqodez/fix/issue-27
 
 ### Fixed
 
-- Map Conventional Commit types to Keep a Changelog categories so automatic version derivation accepts generated entries.
-- Parse SemVer major, minor, and patch components separately when deriving the next version.
-- Fix changelog generation shell syntax and wait for release version/build outputs before publishing
-
-- Automate release version derivation, changelog generation, tag creation, and artifact publishing from workflow dispatch; reject invalid or empty releases
-
+- changes
+- release
+- resolve merge conflicts — use @main for ai-warevo actions
+- 42
+- docs
+- skip Conventional Commits validation for merge commits
+- update composite action SHAs and fix paths
+- update composite action SHAs and fix paths in workflows
+- merge pr
+- use relative paths for composite actions in reusable workflows
+- correct action paths and update SHAs in template workflows
+- fix
+- add missing release.yml universal template (#27)
+- scripts: update
 
 ## [1.6.0] - 2026-11-19
 
