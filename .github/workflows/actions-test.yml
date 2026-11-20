@@ -57,6 +57,4 @@ jobs:
           - clang-format
           - clang-tidy
           - setup-toolchain
-    steps:
-      - name: Call test workflow
-        uses: ai-vibeqodez/.github/.github/actions/${{ matrix.action }}/test.yml@${{ github.sha }}
+    uses: ai-warevo/.github/.github/actions/${{ matrix.action }}/test.yml@${{ github.sha }}
