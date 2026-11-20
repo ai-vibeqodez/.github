@@ -1,8 +1,8 @@
-# Release — Publish GitHub Release from CHANGELOG (monorepo)
+# Release — build example, publish assets, then Docker image
 #
-# Triggers:
-#   - tag push v* → release from CHANGELOG (manual tag creation)
-#   - workflow_dispatch → auto-release: generates changelog, derives version, publishes release
+# The reusable release workflow owns versioning, changelog promotion, checksums,
+# and GitHub Release creation. This wrapper owns this repository's example build
+# and Docker image layout.
 
 name: Release
 
@@ -11,6 +11,12 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version override (X.Y.Z); use auto to derive from CHANGELOG.md'
+        required: false
+        default: auto
+        type: string
 
 permissions:
   contents: write
@@ -18,12 +24,62 @@ permissions:
   actions: write
 
 jobs:
+  build-example:
+    name: Build example
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Build
+        uses: ai-warevo/.github/.github/actions/cmake-build@main
+        with:
+          source_dir: example
+          build_dir: build
+          build_type: Release
+          extra_args: -DAW_EXAMPLE_BUILD_TESTS=OFF
+
+      - name: Collect release assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          cp example/build/plugin/libplugin.so artifacts/libplugin.so
+          cp example/build/host/host artifacts/host
+
+      - name: Upload release assets
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: release-assets
+          path: artifacts/*
+          if-no-files-found: error
+
   release:
+    name: Publish release
+    needs: build-example
     uses: ai-warevo/.github/.github/workflows/reusable-release.yml@main
     with:
-      source_dir: example
-      build_dir: build
-      docker_context: ./example
-      dockerfile: example/Dockerfile
-      image_name: example
-      version: auto
+      version: ${{ inputs.version || 'auto' }}
+      artifact_name: release-assets
+      artifact_directory: artifacts
+    permissions:
+      contents: write
+      actions: write
+
+  docker:
+    name: Publish Docker image
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Build and push Docker image
+        uses: ai-warevo/.github/.github/actions/docker-build-push@main
+        with:
+          context: ./example
+          dockerfile: example/Dockerfile
+          image_name: example
+          tags: |
+            ghcr.io/ai-warevo/example:${{ needs.release.outputs.release_version }}
+            ghcr.io/ai-warevo/example:latest

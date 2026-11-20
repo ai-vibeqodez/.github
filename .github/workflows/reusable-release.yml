@@ -1,50 +1,43 @@
-# reusable-release — derive version → build → release + Docker
+# reusable-release — derive version → promote changelog → publish release
 #
-# Reusable workflow (workflow_call).
+# Reusable workflow (workflow_call). Project workflows own project-specific
+# builds, Docker images, and release artifacts, then pass artifact names here.
+#
 # Consumers call via:
 #   uses: ai-warevo/.github/.github/workflows/reusable-release.yml@<sha>
 #
-# Parameters:
-#   source_dir          — source directory (default: example)
-#   build_dir           — build directory (default: build)
-#   docker_context      — Docker build context (default: ./example)
-#   dockerfile          — Dockerfile path (default: example/Dockerfile)
-#   image_name          — Docker image name (default: ai-warevo/example)
-#   version             — version override ("auto" to derive from changelog, or explicit e.g. 1.2.3)
+# Inputs:
+#   version             — version override ("auto" or X.Y.Z)
+#   artifact_name      — uploaded artifact name to attach to release
+#   artifact_directory — download directory for release artifacts
 
 name: reusable-release
 
 on:
   workflow_call:
     inputs:
-      source_dir:
-        description: 'Source directory'
-        type: string
-        default: example
-      build_dir:
-        description: 'Build directory'
-        type: string
-        default: build
-      docker_context:
-        description: 'Docker build context'
-        type: string
-        default: ./example
-      dockerfile:
-        description: 'Dockerfile path'
-        type: string
-        default: example/Dockerfile
-      image_name:
-        description: 'Docker image name'
-        type: string
-        default: ai-warevo/example
       version:
         description: 'Version override ("auto" to derive from changelog, or explicit e.g. 1.2.3)'
         type: string
         default: 'auto'
+      artifact_name:
+        description: 'Uploaded artifact name to attach to the release'
+        type: string
+        default: ''
+      artifact_directory:
+        description: 'Directory where release artifacts are downloaded'
+        type: string
+        default: artifacts
+    outputs:
+      release_version:
+        description: 'Full release version with v prefix'
+        value: ${{ jobs.version-derive.outputs.release_version }}
+      release_version_stripped:
+        description: 'Release version without v prefix'
+        value: ${{ jobs.version-derive.outputs.release_version_stripped }}
 
 permissions:
   contents: write
-  packages: write
   actions: write
 
 concurrency:
@@ -86,48 +79,14 @@ jobs:
           path: CHANGELOG.md
           if-no-files-found: error
 
-  # ── Phase 2: Build ──────────────────────────────────────────────────
-  build-example:
-    name: Build example
-    runs-on: ubuntu-latest
-    needs: version-derive
-    outputs:
-      release_version: ${{ needs.version-derive.outputs.release_version }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-        with:
-          fetch-depth: 0
-
-      - name: Build
-        uses: ai-warevo/.github/.github/actions/cmake-build@main
-        with:
-          source_dir: ${{ inputs.source_dir }}
-          build_dir: ${{ inputs.build_dir }}
-          build_type: Release
-          extra_args: -DAW_EXAMPLE_BUILD_TESTS=OFF
-
-      - name: Upload libplugin.so
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: libplugin-${{ needs.version-derive.outputs.release_version }}
-          path: ${{ inputs.source_dir }}/build/plugin/libplugin.so
-
-      - name: Upload host
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: host-${{ needs.version-derive.outputs.release_version }}
-          path: ${{ inputs.source_dir }}/build/host
-
-  # ── Phase 3: Publish release + Docker ───────────────────────────────
+  # ── Phase 2: Publish release ────────────────────────────────────────
   release-publish:
     name: Publish release
     runs-on: ubuntu-latest
-    needs: [version-derive, build-example]
+    needs: version-derive
     permissions:
       contents: write
-      packages: write
+      actions: write
 
     steps:
       - name: Checkout repository
@@ -142,14 +101,12 @@ jobs:
           name: generated-changelog
           path: .
 
-      # ── Promote changelog ──
       - name: Promote changelog
         if: github.event_name == 'workflow_dispatch'
         uses: ai-warevo/.github/.github/actions/changelog-promote@main
         with:
           version: ${{ needs.version-derive.outputs.release_version_stripped }}
 
-      # ── Commit and tag ──
       - name: Commit CHANGELOG.md and VERSION, create tag
         if: github.event_name == 'workflow_dispatch'
         uses: ai-warevo/.github/.github/actions/release-commit-tag@main
@@ -157,57 +114,49 @@ jobs:
           version: ${{ needs.version-derive.outputs.release_version }}
           branch: ${{ github.ref_name }}
 
-      - name: Download build artifacts
+      - name: Download release artifacts
+        if: inputs.artifact_name != ''
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
-          name: libplugin-${{ needs.version-derive.outputs.release_version }}
-          path: artifacts
+          name: ${{ inputs.artifact_name }}
+          path: ${{ inputs.artifact_directory }}
 
-      - name: Download host artifact
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
-        with:
-          name: host-${{ needs.version-derive.outputs.release_version }}
-          path: artifacts
-
-      # ── Checksums ──
       - name: Generate checksums
+        if: inputs.artifact_name != ''
         uses: ai-warevo/.github/.github/actions/checksums@main
         with:
-          artifacts_dir: 'artifacts'
-          checksums_file: 'SHA256SUMS.txt'
+          artifacts_dir: ${{ inputs.artifact_directory }}
+          checksums_file: SHA256SUMS.txt
 
       - name: Verify checksums
+        if: inputs.artifact_name != ''
         uses: ai-warevo/.github/.github/actions/checksums-verify@main
         with:
-          artifacts_dir: 'artifacts'
-          checksums_file: 'SHA256SUMS.txt'
+          artifacts_dir: ${{ inputs.artifact_directory }}
+          checksums_file: SHA256SUMS.txt
 
-      # ── Create GitHub Release ──
       - name: Generate Release Notes
         id: changelog
         uses: ai-warevo/.github/.github/actions/changelog-release@main
         with:
           tag: ${{ needs.version-derive.outputs.release_version }}
 
-      - name: Create Release
+      - name: Create Release with artifacts
+        if: inputs.artifact_name != ''
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65
         with:
           tag_name: ${{ needs.version-derive.outputs.release_version }}
           name: ${{ needs.version-derive.outputs.release_version }}
           body_path: ${{ steps.changelog.outputs.body_path }}
           files: |
-            artifacts/SHA256SUMS.txt
-            artifacts/libplugin.so
-            artifacts/host
+            ${{ inputs.artifact_directory }}/**
           generate_release_notes: false
 
-      # ── Docker ──
-      - name: Build and push Docker image
-        uses: ai-warevo/.github/.github/actions/docker-build-push@main
+      - name: Create Release
+        if: inputs.artifact_name == ''
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65
         with:
-          context: ${{ inputs.docker_context }}
-          dockerfile: ${{ inputs.dockerfile }}
-          image_name: ${{ inputs.image_name }}
-          tags: |
-            ghcr.io/ai-warevo/${{ inputs.image_name }}:${{ needs.version-derive.outputs.release_version }}
-            ghcr.io/ai-warevo/${{ inputs.image_name }}:latest
+          tag_name: ${{ needs.version-derive.outputs.release_version }}
+          name: ${{ needs.version-derive.outputs.release_version }}
+          body_path: ${{ steps.changelog.outputs.body_path }}
+          generate_release_notes: false

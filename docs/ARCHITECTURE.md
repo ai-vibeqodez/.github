@@ -29,7 +29,7 @@ ai-warevo/.github/
 │   │   ├── example-ci.yml       # Example project CI
 │   │   ├── actions-test.yml     # Action test dispatcher
 │   │   ├── reusable-pr-fast.yml # Reusable: lint + build + test
-│   │   ├── reusable-release.yml # Reusable: build + release
+│   │   ├── reusable-release.yml # Reusable: version + release
 │   │   └── reusable-weekly-deep.yml # Reusable: sanitizers + coverage
 │   │
 │   └── actions/                 # Composite actions (21 total)
@@ -125,7 +125,7 @@ The CI system operates on two architectural levels:
 ┌─────────────────────────────────────────────────────────────────┐
 │  Reusable workflows (source of truth)                           │
 │  .github/workflows/reusable-pr-fast.yml         — lint+build+test│
-│  .github/workflows/reusable-release.yml         — build+release │
+│  .github/workflows/reusable-release.yml         — version + release │
 │  .github/workflows/reusable-weekly-deep.yml     — sanitizers+cov│
 └─────────────────────────────────────────────────────────────────┘
                               │
@@ -221,7 +221,7 @@ Reusable workflows are the **source of truth** for CI logic. Each lives in `.git
 |----------|---------|----------|
 | `reusable-pr-fast.yml` | PR tier: lint + build + test | `setup`, `lint`, `build`, `test` |
 | `reusable-weekly-deep.yml` | Scheduled tier: sanitizers + coverage | `sanitize`, `coverage`, `badge-deploy` |
-| `reusable-release.yml` | Release tier: build + release + publish | `gate`, `build`, `release`, `docker` |
+| `reusable-release.yml` | Release tier: versioning, changelog, checksums, and GitHub Release | `version`, `release` |
 
 ### Template Wrappers
 

@@ -14,6 +14,10 @@ Maintainer notes:
 
 ## [Unreleased]
 
+### Changed
+
+- Keep reusable releases focused on versioning, changelog promotion, checksums, and GitHub Release publication; move project-specific builds, assets, and Docker publishing into repository workflows.
+
 ## [1.6.3] - 2026-11-20
 
 ### Changed
