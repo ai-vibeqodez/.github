@@ -14,6 +14,21 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.6.4] - 2026-11-20
+
+### Changed
+
+- extract TSan setup into dedicated action
+- fix
+- fix
+- Merge pull request #38 from ai-vibeqodez/fix/clang-tidy-config
+- Merge branch 'main' of github.com:ai-warevo/.github
+
+### Fixed
+
+- one more ime
+- ci
+
 ## [1.6.3] - 2026-11-20
 
 ### Changed
