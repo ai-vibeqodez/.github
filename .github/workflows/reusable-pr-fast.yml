@@ -41,6 +41,10 @@ on:
         description: 'CI container image'
         type: string
         default: ghcr.io/ai-warevo/ci-cpp20
+      setup_command:
+        description: 'Optional Bash command to prepare the source tree after checkout'
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -60,10 +64,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
+      - name: Prepare source tree
+        if: inputs.setup_command != ''
+        shell: bash
+        env:
+          PREPARE_COMMAND: ${{ inputs.setup_command }}
+        run: bash -euo pipefail -c "$PREPARE_COMMAND"
+
       - name: Check formatting
         uses: ai-warevo/.github/.github/actions/clang-format@main
         with:
-          source_dir: .
+          source_dir: ${{ inputs.source_dir }}
           extensions: ${{ inputs.extensions }}
 
   clang-tidy:
@@ -76,6 +87,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Prepare source tree
+        if: inputs.setup_command != ''
+        shell: bash
+        env:
+          PREPARE_COMMAND: ${{ inputs.setup_command }}
+        run: bash -euo pipefail -c "$PREPARE_COMMAND"
 
       - name: Configure & Build
         uses: ai-warevo/.github/.github/actions/cmake-build@main
@@ -101,6 +119,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Prepare source tree
+        if: inputs.setup_command != ''
+        shell: bash
+        env:
+          PREPARE_COMMAND: ${{ inputs.setup_command }}
+        run: bash -euo pipefail -c "$PREPARE_COMMAND"
 
       - name: Configure & Build
         uses: ai-warevo/.github/.github/actions/cmake-build@main

@@ -50,7 +50,7 @@ Templates are thin wrappers: consumer copies, changes only `name`, `on:`, and `w
 
 | Workflow | Purpose | Trigger |
 | --- | --- | --- |
-| `reusable-pr-fast.yml` | Lint, build, unit tests | `workflow_call` |
+| `reusable-pr-fast.yml` | Lint, build, unit tests | `workflow_call`; optional `setup_command` prepares generated/source files after checkout in each job |
 | `reusable-weekly-deep.yml` | E2E, integration, sanitizers | `workflow_call` |
 | `reusable-release.yml` | Build, release, publish Docker | `workflow_call` |
 
