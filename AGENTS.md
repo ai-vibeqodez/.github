@@ -44,7 +44,8 @@ docker compose --profile llamacpp down     # stop
 
 `CHANGELOG.md` follows [Keep a Changelog](https://keepachangelog.com) and SemVer. It is the single source of release notes: the CI `release` job (`.github/workflows/release.yml`) extracts the `## [X.Y.Z]` section matching the pushed tag.
 
-- **Every user-visible change adds a bullet under `## [Unreleased]` in the same commit** (public API, behaviour, build options, CI/tooling users see). Skip pure refactors and tests with no visible effect. One line per change, imperative, backticks for identifiers.
+- For normal commits, do not edit `CHANGELOG.md` manually: the release workflow generates `[Unreleased]` from commit history at dispatch time. Keep commit subjects descriptive and use Conventional Commits so CI can categorize them.
+- Edit changelog entries manually only when explicitly requested or when a workflow is designed to consume maintainer-authored `[Unreleased]` entries instead of generating them.
 - **Categories** (omit empty ones, spell exactly): `Breaking`, `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`.
 - **Version bump** is derived from the categories that have entries, highest wins: `Breaking`/`Removed` → major, `Added`/`Deprecated` → minor, `Fixed`/`Changed`/`Security` → patch.
 
@@ -52,8 +53,7 @@ Release is fully handled by CI — no local scripts needed.
 
 **To release:**
 
-1. Ensure `[Unreleased]` has categorized entries under `### Breaking`, `### Added`, etc.
-   (Or run the release workflow — it auto-generates `[Unreleased]` from git log.)
+1. Ensure commits since the previous tag use descriptive Conventional Commit subjects. No manual `[Unreleased]` entry is required; the release workflow generates it from git log.
 2. Trigger the release workflow:
    ```sh
    # Option A: GitHub UI — Actions → Release → Run workflow

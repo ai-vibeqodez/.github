@@ -53,6 +53,7 @@ runs:
                     | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -t. -k1,1n -k2,2n -k3,3n | tail -n 1 || true)"
         has_previous=1
         [ -z "$current" ] && { current="0.0.0"; has_previous=0; }
+        prev="v$current"
 
         today="$(date +%Y-%m-%d)"
 

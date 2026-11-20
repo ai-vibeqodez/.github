@@ -74,18 +74,20 @@ Classification affects commit message format:
 
 ### Step 2: Analyze the repository
 Before making changes:
-1. Read `README.md` — understand project structure
-2. Read `CMakeLists.txt` or equivalent build file
-3. Check for existing test files and test patterns
-4. Look for linter configs (`.eslintrc`, `.prettierrc`, `pyproject.toml`, etc.)
-5. Check for Makefile targets
-6. Identify the tech stack
+1. Read `AGENTS.md` and follow repository-specific instructions; they take precedence over this skill.
+2. Read `README.md` — understand project structure
+3. Read `CMakeLists.txt` or equivalent build file
+4. Check for existing test files and test patterns
+5. Look for linter configs (`.eslintrc`, `.prettierrc`, `pyproject.toml`, etc.)
+6. Check for Makefile targets
+7. Identify the tech stack
 
 ### Step 3: Implement changes
 - Make changes following existing code patterns and conventions
 - Do not change unrelated code
 - Keep changes minimal and focused on the issue
 - Follow the repo's style (indentation, naming, etc.)
+- Respect repository ownership rules for generated files: when CI generates a changelog, version file, lockfile, or other artifact, change its generator/input rather than editing the generated artifact unless explicitly requested
 - Add comments only where necessary (explain why, not what)
 
 ### Step 4: Commit changes
