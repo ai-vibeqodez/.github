@@ -209,8 +209,9 @@ runs:
             undefined)   SAN_FLAGS="-fsanitize=undefined" ;;
             *)           echo "::error::unknown sanitizer '$SANITIZER'"; exit 1 ;;
           esac
-          # TSan needs libstdc++
-          if [ "$SANITIZER" = "thread" ]; then
+          # Clang's TSan build switches away from libc++; GCC already uses
+          # libstdc++ by default and does not accept -stdlib=libstdc++.
+          if [ "$SANITIZER" = "thread" ] && [ "$TOOLCHAIN" = "clang18-libcxx" ]; then
             STL_FLAGS="-stdlib=libstdc++"
           fi
         fi
