@@ -205,15 +205,7 @@ Three-tier architecture:
 - **README.md** is the user-facing entry point. Keep it focused on *what* and *how to use*.
 - **AGENTS.md** (this file) is the developer-facing guide. Focus on *how to change the repo*.
 - **`.github/README.md`** documents CI/CD templates — keep the action table and workflow descriptions up to date.
-- Inline comments in scripts (`scripts/`) are minimal: explain the *why*, not the *what*.
 - Template files (`templates/`) are consumed as-is — keep them clean and well-structured.
-
-## Script conventions
-
-- Shell scripts (`*.sh`) use `#!/usr/bin/env bash`, `set -euo pipefail`, and POSIX-compatible syntax where possible.
-- PowerShell scripts (`*.ps1`) use `param()`, `Write-Error` for failures, and strict mode.
-- Both scripts must produce equivalent behaviour; test both on CI.
-- Scripts never edit files outside the repo; they operate on local paths.
 
 ## LLM server (docker-compose.yml)
 
