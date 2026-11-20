@@ -14,7 +14,7 @@ Scans C++ files through `clang-tidy` using the project's `compile_commands.json`
 | `build_dir` | CMake build directory containing `compile_commands.json` | No | `build` |
 | `checks` | `clang-tidy` check patterns (comma-separated) | No | `*,bugprone-*,modernize-*` (full suite) |
 | `header_filter` | Regex for headers to include in diagnostics | No | `.*` |
-| `exclude` | Exclude patterns (comma-separated, passed to `find -prune`) | No | `_deps/*,build/*,CMakeFiles/*,cmake/*` |
+| `exclude` | Directory names to exclude (comma-separated, pruned by `find`) | No | `_deps,build,CMakeFiles,cmake` |
 | `fail_on_error` | Whether non-zero exit code fails the step | No | `true` |
 
 ## Usage example
@@ -27,5 +27,5 @@ Scans C++ files through `clang-tidy` using the project's `compile_commands.json`
     build_dir: build
     checks: 'bugprone-*,modernize-*'
     header_filter: .*/include/aw/tpl/.*
-    exclude: _deps/*,build/*
+    exclude: _deps,build
 ```

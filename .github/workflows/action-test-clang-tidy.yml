@@ -35,7 +35,7 @@ jobs:
         with:
           source_dir: example
           build_dir: build
-          exclude: _deps/*,build/*,CMakeFiles/*,cmake/*
+          exclude: _deps,build,CMakeFiles,cmake
 
       - name: clang-tidy — validate
         run: echo "✓ clang-tidy — scan complete"

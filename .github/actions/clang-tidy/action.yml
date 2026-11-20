@@ -13,7 +13,7 @@
 #       build_dir: build
 #       checks: 'bugprone-*,modernize-*'
 #       header_filter: .*/include/aw/tpl/.*
-#       exclude: _deps/*,build/*
+#       exclude: _deps,build
 
 name: 'Clang-Tidy Lint'
 description: 'Run clang-tidy on C++ source and header files, fail on any warnings'
@@ -54,9 +54,9 @@ inputs:
     required: false
     default: '.*'
   exclude:
-    description: 'Exclude patterns (comma-separated, passed to find -prune)'
+    description: 'Directory names to exclude (comma-separated, pruned by find)'
     required: false
-    default: '_deps/*,build/*,CMakeFiles/*,cmake/*'
+    default: '_deps,build,CMakeFiles,cmake'
   fail_on_error:
     description: 'Whether non-zero exit code fails the step (default: true)'
     required: false
