@@ -8,7 +8,7 @@ This repository provides reusable GitHub Actions workflows for projects in `ai-w
 | --- | --- | --- |
 | `pr-fast` | Pull request to main/master | Lint, build, unit tests — fast feedback |
 | `weekly-deep` | Weekly cron (Mon 00:00 UTC), PR, manual | E2E, integration, sanitizers (ASan, TSan, UBSan) |
-| `release` | Tag push (`v*`) or manual | Build, release, publish Docker image |
+| `release` | Tag push (`v*`) or manual | Build, release, publish Docker image. Auto-derives version from changelog categories. |
 
 A failed check prevents downstream release publication. No shared workflow assumes a particular compiler, package manager, or test framework.
 
@@ -62,7 +62,7 @@ Consumers copy from `templates/workflows/` into their `.github/workflows/` and c
 | --- | --- | --- |
 | `pr-fast.yml` | `pull_request` to main/master | Lint, build, unit tests |
 | `weekly-deep.yml` | `schedule` (weekly), `workflow_dispatch` | Sanitizers + coverage |
-| `release.yml` | `push` (v* tags), `workflow_dispatch` | Build, release, Docker |
+| `release.yml` | `push` (v* tags), `workflow_dispatch` | Build, release, Docker. Auto-derives version from changelog categories unless overridden. |
 
 ### Monorepo workflows
 
@@ -101,6 +101,7 @@ All 21 composite actions live in `.github/actions/` and are referenced by consum
 | `changelog-generate/` | Generate [Unreleased] section from git log (conventional commits) |
 | `changelog-promote/` | Promote [Unreleased] to a version heading and write VERSION file |
 | `changelog-release/` | Extract release notes from CHANGELOG.md by tag |
+| `changelog-version/` | Derive next semantic version from [Unreleased] changelog categories |
 | `checksums/` | Generate SHA256SUMS.txt for files in a directory |
 | `checksums-verify/` | Verify SHA256 checksums against a checksums file |
 | `clang-format/` | Check C++ formatting with clang-format |

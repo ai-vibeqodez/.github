@@ -1,9 +1,8 @@
 # Release — Publish GitHub Release from CHANGELOG (monorepo)
 #
 # Triggers:
-#   - tag push v* → release from CHANGELOG
-#   - workflow_dispatch → manual release with version (input) or snapshot (v0.0.<run_number>)
-# Calls: reusable-release.yml
+#   - tag push v* → release from CHANGELOG (manual tag creation)
+#   - workflow_dispatch → auto-release: generates changelog, derives version, publishes release
 
 name: Release
 
@@ -12,11 +11,6 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Semantic version without v prefix (e.g. 1.2.3). Leave empty for snapshot.'
-        required: false
-        default: ''
 
 permissions:
   contents: write
@@ -32,4 +26,4 @@ jobs:
       docker_context: ./example
       dockerfile: example/Dockerfile
       image_name: example
-      version: ${{ github.event.inputs.version }}
+      version: auto

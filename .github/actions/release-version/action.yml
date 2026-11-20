@@ -1,9 +1,9 @@
 name: 'Release Version Resolver'
-description: 'Resolves release version from tag, workflow_dispatch input, or run_number'
+description: 'Resolves release version from tag, workflow_dispatch input, or auto-derives from changelog'
 
 inputs:
   version:
-    description: 'Manual version (e.g., 1.2.3). Leave empty for auto-resolution.'
+    description: 'Manual version (e.g., 1.2.3) or "auto" to derive from changelog categories. Leave empty for snapshot.'
     required: false
     default: ''
 
@@ -29,18 +29,81 @@ runs:
       run: |
         set -euo pipefail
 
+        # Tag push — use the tag name directly
         if [ "${REF_TYPE}" = "tag" ]; then
           echo "release_version=${REF_NAME}" >> $GITHUB_OUTPUT
           echo "release_version_stripped=${REF_NAME#v}" >> $GITHUB_OUTPUT
           exit 0
         fi
 
-        if [ "$EVENT_NAME" = "workflow_dispatch" ] && [ -n "$INPUT_VERSION" ]; then
+        # Explicit version override
+        if [ "$EVENT_NAME" = "workflow_dispatch" ] && [ -n "$INPUT_VERSION" ] && [ "$INPUT_VERSION" != "auto" ]; then
           V="${INPUT_VERSION#v}"
+          if ! [[ "$V" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "::error::Invalid semantic version: $INPUT_VERSION (expected X.Y.Z)"
+            exit 1
+          fi
           echo "release_version=v${V}" >> $GITHUB_OUTPUT
           echo "release_version_stripped=${V}" >> $GITHUB_OUTPUT
           exit 0
         fi
 
+        # Auto-derive from changelog categories (manual or auto mode)
+        if [ "$INPUT_VERSION" = "auto" ] || [ -z "$INPUT_VERSION" ]; then
+          changelog="CHANGELOG.md"
+          [ -f "$changelog" ] || { echo "::error::CHANGELOG.md not found for auto-derive"; exit 1; }
+
+          # Get current version
+          current=""
+          if [ -f "VERSION" ]; then
+            current="$(tr -d '[:space:]' < VERSION | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' || true)"
+          fi
+          if [ -z "$current" ]; then
+            current="$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-version:refname | head -n1 | sed 's/^v//')"
+          fi
+          [ -z "$current" ] && current="0.0.0"
+          if ! [[ "$current" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "::error::Invalid current version: $current (expected X.Y.Z)"
+            exit 1
+          fi
+
+          # Parse [Unreleased] section
+          unreleased="$(awk '
+            /^## \[Unreleased\]/ { found = 1; next }
+            found && /^## \[/ { exit }
+            found { print }
+          ' "$changelog")"
+
+          [ -n "$unreleased" ] || { echo "::error::No [Unreleased] section in $changelog"; exit 1; }
+
+          if ! grep -qE '^### (Breaking|Added|Deprecated|Changed|Removed|Fixed|Security)([[:space:]]|$)' <<< "$unreleased"; then
+            echo "::error::No release-worthy entries found in [Unreleased]"
+            exit 1
+          fi
+
+          # Determine highest priority category
+          has_category() { echo "$unreleased" | grep -q "^### $1"; }
+
+          major="${current%.*}"
+          minor="${current#*.}"; minor="${minor%.*}"
+          patch="${current##*.}"
+
+          if has_category "Breaking"; then
+            next_version="$((major + 1)).0.0"
+          elif has_category "Added" || has_category "Deprecated"; then
+            next_version="${major}.$((minor + 1)).0"
+          elif has_category "Changed" || has_category "Removed" || has_category "Fixed" || has_category "Security"; then
+            next_version="${major}.${minor}.$((patch + 1))"
+          else
+            echo "::error::No recognized release categories in [Unreleased]"
+            exit 1
+          fi
+
+          echo "release_version=v${next_version}" >> $GITHUB_OUTPUT
+          echo "release_version_stripped=${next_version}" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+
+        # Fallback: snapshot version
         echo "release_version=v0.0.${{ github.run_number }}" >> $GITHUB_OUTPUT
         echo "release_version_stripped=0.0.${{ github.run_number }}" >> $GITHUB_OUTPUT

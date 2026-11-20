@@ -21,6 +21,8 @@ Maintainer notes:
 
 ### Fixed
 
+- Automate release version derivation, changelog generation, tag creation, and artifact publishing from workflow dispatch; reject invalid or empty releases
+
 
 ## [1.6.0] - 2026-11-19
 
