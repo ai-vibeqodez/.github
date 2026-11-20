@@ -11,8 +11,8 @@ permissions:
   contents: read
 
 jobs:
-  build:
-    name: Build
+  test:
+    name: ctest-run
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/ai-warevo/ci-cpp20
@@ -27,18 +27,7 @@ jobs:
           source_dir: example
           build_dir: build
           build_type: Debug
-          extra_args: -DAW_EXAMPLE_BUILD_TESTS=ON -DAW_EXAMPLE_ENABLE_COVERAGE=ON
-
-  test:
-    name: ctest-run
-    runs-on: ubuntu-latest
-    needs: build
-    container:
-      image: ghcr.io/ai-warevo/ci-cpp20
-      options: --user root
-    steps:
-      - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+          extra_args: -DAW_EXAMPLE_BUILD_TESTS=ON
 
       - name: Run tests
         id: test

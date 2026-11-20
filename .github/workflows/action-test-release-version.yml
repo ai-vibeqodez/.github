@@ -58,6 +58,8 @@ jobs:
       - name: release-version — validate fallback
         run: |
           set -euo pipefail
-          [ -n "${{ steps.rv_empty.outputs.release_version }}" ] || \
-            { echo "::error::Fallback version empty"; exit 1; }
+          [ "${{ steps.rv_empty.outputs.release_version }}" = "v0.0.${{ github.run_number }}" ] || \
+            { echo "::error::Unexpected snapshot version: ${{ steps.rv_empty.outputs.release_version }}"; exit 1; }
+          [ "${{ steps.rv_empty.outputs.release_version_stripped }}" = "0.0.${{ github.run_number }}" ] || \
+            { echo "::error::Unexpected stripped snapshot version"; exit 1; }
           echo "✓ release-version fallback: ${{ steps.rv_empty.outputs.release_version }}"

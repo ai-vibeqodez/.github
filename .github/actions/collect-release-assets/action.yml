@@ -81,7 +81,7 @@ runs:
     - name: Generate checksums
       id: checksums
       if: inputs.include_checksums == 'true'
-      uses: ai-warevo/<repo>/.github/actions/checksums@6b9089e502cdca7e5f585b82d81d187c101347a0
+      uses: ./.github/actions/checksums
       with:
         artifacts_dir: "${{ inputs.output_dir }}/${{ inputs.version }}"
         checksums_file: "${{ inputs.output_dir }}/SHA256SUMS.txt"

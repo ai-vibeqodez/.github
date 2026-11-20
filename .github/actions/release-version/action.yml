@@ -48,8 +48,8 @@ runs:
           exit 0
         fi
 
-        # Auto-derive from changelog categories (manual or auto mode)
-        if [ "$INPUT_VERSION" = "auto" ] || [ -z "$INPUT_VERSION" ]; then
+        # Auto-derive only when explicitly requested; an empty input is a snapshot.
+        if [ "$INPUT_VERSION" = "auto" ]; then
           changelog="CHANGELOG.md"
           [ -f "$changelog" ] || { echo "::error::CHANGELOG.md not found for auto-derive"; exit 1; }
 

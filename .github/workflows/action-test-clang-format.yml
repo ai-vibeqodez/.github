@@ -21,13 +21,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
-      - name: clang-format — check repo C++ files
+      - name: Prepare clang-format config and input
+        run: |
+          printf 'BasedOnStyle: LLVM\n' > /tmp/clang-format.yml
+          mkdir -p /tmp/clang-format-test
+          printf 'int main() { return 0; }\n' > /tmp/clang-format-test/test.cpp
+          clang-format -i --style=file:/tmp/clang-format.yml /tmp/clang-format-test/test.cpp
+
+      - name: clang-format — check test file
         id: clang_fmt
         uses: ./.github/actions/clang-format
         with:
-          source_dir: example
+          source_dir: /tmp/clang-format-test
           extensions: cpp,hpp
-          config_file: .clang-format
+          config_file: /tmp/clang-format.yml
           exclude: _deps/*,build/*,CMakeFiles/*,cmake/*
 
       - name: clang-format — validate
