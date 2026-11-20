@@ -66,9 +66,52 @@ runs:
         EXTRA_ARGS: ${{ inputs.extra_args }}
       run: |
         set -euo pipefail
-        echo "Configuring: cmake -S $SOURCE_DIR -B $SOURCE_DIR/$BUILD_DIR -DCMAKE_BUILD_TYPE=$BUILD_TYPE $EXTRA_ARGS"
+
+        # setup-toolchain emits compiler/linker flags as one CMake definition,
+        # but the value may contain spaces. Rebuild those definitions as single
+        # argv entries after Bash has split the space-separated input. Repeated
+        # definitions are merged because CMake keeps only the last one.
+        EXTRA_ARGS_ARRAY=()
+        CURRENT_FLAGS_INDEX=-1
+        read -r -a EXTRA_ARGS_WORDS <<< "$EXTRA_ARGS"
+        for ARG in "${EXTRA_ARGS_WORDS[@]}"; do
+          case "$ARG" in
+            -DCMAKE_*_FLAGS=*)
+              FLAG_NAME=${ARG%%=*}
+              CURRENT_FLAGS_INDEX=-1
+              for INDEX in "${!EXTRA_ARGS_ARRAY[@]}"; do
+                case "${EXTRA_ARGS_ARRAY[$INDEX]}" in
+                  "$FLAG_NAME="*)
+                    CURRENT_FLAGS_INDEX=$INDEX
+                    break
+                    ;;
+                esac
+              done
+              if [ "$CURRENT_FLAGS_INDEX" -ge 0 ]; then
+                EXTRA_ARGS_ARRAY[$CURRENT_FLAGS_INDEX]="${EXTRA_ARGS_ARRAY[$CURRENT_FLAGS_INDEX]} ${ARG#*=}"
+              else
+                EXTRA_ARGS_ARRAY+=("$ARG")
+                CURRENT_FLAGS_INDEX=$((${#EXTRA_ARGS_ARRAY[@]} - 1))
+              fi
+              ;;
+            -D*|-G*)
+              EXTRA_ARGS_ARRAY+=("$ARG")
+              CURRENT_FLAGS_INDEX=-1
+              ;;
+            *)
+              if [ "$CURRENT_FLAGS_INDEX" -ge 0 ]; then
+                EXTRA_ARGS_ARRAY[$CURRENT_FLAGS_INDEX]="${EXTRA_ARGS_ARRAY[$CURRENT_FLAGS_INDEX]} $ARG"
+              else
+                EXTRA_ARGS_ARRAY+=("$ARG")
+              fi
+              ;;
+          esac
+        done
+
+        echo "Configuring: cmake -S $SOURCE_DIR -B $SOURCE_DIR/$BUILD_DIR -DCMAKE_BUILD_TYPE=$BUILD_TYPE ${EXTRA_ARGS_ARRAY[*]}"
         cmake -S "$SOURCE_DIR" -B "$SOURCE_DIR/$BUILD_DIR" \
-          -DCMAKE_BUILD_TYPE="$BUILD_TYPE" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON $EXTRA_ARGS
+          -DCMAKE_BUILD_TYPE="$BUILD_TYPE" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+          "${EXTRA_ARGS_ARRAY[@]}"
 
     # ── Build ──
     - name: Build
