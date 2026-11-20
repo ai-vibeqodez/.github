@@ -14,6 +14,15 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.6.3] - 2026-11-20
+
+### Changed
+
+- fix
+- agent
+- Merge branch 'main' of github.com:ai-warevo/.github
+- c++23
+
 ## [1.6.2] - 2026-11-20
 
 ### Changed
