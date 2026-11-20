@@ -14,6 +14,12 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.6.5] - 2026-11-20
+
+### Changed
+
+- split reusable release responsibilities (#39)
+
 ## [1.6.4] - 2026-11-20
 
 ### Changed
