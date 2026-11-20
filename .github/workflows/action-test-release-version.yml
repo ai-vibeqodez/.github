@@ -21,7 +21,7 @@ jobs:
       # ─── explicit version ───
       - name: release-version — explicit version
         id: rv_explicit
-        uses: ai-warevo/.github/actions/release-version
+        uses: ai-warevo/.github/actions/release-version@main
         with:
           version: 'v1.2.3'
 
@@ -37,7 +37,7 @@ jobs:
       # ─── v-prefix stripping ───
       - name: release-version — v-prefix
         id: rv_v
-        uses: ai-warevo/.github/actions/release-version
+        uses: ai-warevo/.github/actions/release-version@main
         with:
           version: 'v2.0.0'
 
@@ -51,7 +51,7 @@ jobs:
       # ─── empty input → fallback ───
       - name: release-version — empty (fallback)
         id: rv_empty
-        uses: ai-warevo/.github/actions/release-version
+        uses: ai-warevo/.github/actions/release-version@main
         with:
           version: ''
 

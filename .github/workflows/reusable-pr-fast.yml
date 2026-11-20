@@ -2,7 +2,7 @@
 #
 # Reusable workflow (workflow_call).
 # Consumers call via:
-#   uses: ai-warevo/.github/.github/workflows/reusable-pr-fast.yml@<sha>
+#   uses: ai-warevo/.github/workflows/reusable-pr-fast.yml@<sha>
 #
 # Parameters:
 #   source_dir         — source directory (default: example)
@@ -72,7 +72,7 @@ jobs:
         run: bash -euo pipefail -c "$PREPARE_COMMAND"
 
       - name: Check formatting
-        uses: ai-warevo/.github/.github/actions/clang-format@main
+        uses: ai-warevo/.github/actions/clang-format@main
         with:
           source_dir: ${{ inputs.source_dir }}
           extensions: ${{ inputs.extensions }}
@@ -96,7 +96,7 @@ jobs:
         run: bash -euo pipefail -c "$PREPARE_COMMAND"
 
       - name: Configure & Build
-        uses: ai-warevo/.github/.github/actions/cmake-build@main
+        uses: ai-warevo/.github/actions/cmake-build@main
         with:
           source_dir: ${{ inputs.source_dir }}
           build_dir: ${{ inputs.build_dir }}
@@ -104,7 +104,7 @@ jobs:
           extra_args: ${{ inputs.extra_args }}
 
       - name: Run clang-tidy
-        uses: ai-warevo/.github/.github/actions/clang-tidy@main
+        uses: ai-warevo/.github/actions/clang-tidy@main
         with:
           source_dir: ${{ inputs.source_dir }}
           build_dir: ${{ inputs.build_dir }}
@@ -128,7 +128,7 @@ jobs:
         run: bash -euo pipefail -c "$PREPARE_COMMAND"
 
       - name: Configure & Build
-        uses: ai-warevo/.github/.github/actions/cmake-build@main
+        uses: ai-warevo/.github/actions/cmake-build@main
         with:
           source_dir: ${{ inputs.source_dir }}
           build_dir: ${{ inputs.build_dir }}
@@ -136,7 +136,7 @@ jobs:
           extra_args: ${{ inputs.extra_args }}
 
       - name: Run Tests
-        uses: ai-warevo/.github/.github/actions/ctest-run@main
+        uses: ai-warevo/.github/actions/ctest-run@main
         with:
           source_dir: ${{ inputs.source_dir }}
           build_dir: ${{ inputs.build_dir }}

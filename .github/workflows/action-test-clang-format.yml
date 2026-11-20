@@ -30,7 +30,7 @@ jobs:
 
       - name: clang-format — check test file
         id: clang_fmt
-        uses: ai-warevo/.github/actions/clang-format
+        uses: ai-warevo/.github/actions/clang-format@main
         with:
           source_dir: /tmp/clang-format-test
           extensions: cpp,hpp

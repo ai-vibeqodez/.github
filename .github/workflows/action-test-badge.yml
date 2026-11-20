@@ -21,7 +21,7 @@ jobs:
       # ─── custom params ───
       - name: badge — custom params
         id: badge
-        uses: ai-warevo/.github/actions/badge
+        uses: ai-warevo/.github/actions/badge@main
         with:
           width: '200'
           height: '30'
@@ -45,7 +45,7 @@ jobs:
       # ─── defaults ───
       - name: badge — defaults
         id: badge_def
-        uses: ai-warevo/.github/actions/badge
+        uses: ai-warevo/.github/actions/badge@main
         with:
           text_left: 'coverage'
           text_right: '80%'
@@ -63,7 +63,7 @@ jobs:
       # ─── nested output ───
       - name: badge — nested output
         id: badge_nested
-        uses: ai-warevo/.github/actions/badge
+        uses: ai-warevo/.github/actions/badge@main
         with:
           text_left: 'cov'
           text_right: '100%'

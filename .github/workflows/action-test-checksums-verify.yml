@@ -30,7 +30,7 @@ jobs:
       # ─── valid checksums ───
       - name: checksums-verify — valid
         id: cv_valid
-        uses: ai-warevo/.github/actions/checksums-verify
+        uses: ai-warevo/.github/actions/checksums-verify@main
         with:
           artifacts_dir: .
           checksums_file: SHA256SUMS.txt
@@ -46,7 +46,7 @@ jobs:
 
       - name: checksums-verify — invalid (expect failure)
         id: cv_invalid
-        uses: ai-warevo/.github/actions/checksums-verify
+        uses: ai-warevo/.github/actions/checksums-verify@main
         with:
           artifacts_dir: .
           checksums_file: bad_sha.txt

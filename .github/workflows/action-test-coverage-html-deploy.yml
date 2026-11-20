@@ -41,7 +41,7 @@ jobs:
 
       - name: coverage-html-deploy — to test branch
         id: html_deploy
-        uses: ai-warevo/.github/actions/coverage-html-deploy
+        uses: ai-warevo/.github/actions/coverage-html-deploy@main
         with:
           folder: htmlcov
           branch: actions-test/coverage

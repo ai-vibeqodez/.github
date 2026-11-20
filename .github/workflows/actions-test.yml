@@ -16,81 +16,81 @@ permissions:
 jobs:
   badge:
     if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',badge,') }}
-    uses: ./.github/workflows/action-test-badge.yml
+    uses: ai-warevo/.github/workflows/action-test-badge.yml@main
   release-version:
     if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',release-version,') }}
-    uses: ./.github/workflows/action-test-release-version.yml
+    uses: ai-warevo/.github/workflows/action-test-release-version.yml@main
   changelog-generate:
     if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',changelog-generate,') }}
-    uses: ./.github/workflows/action-test-changelog-generate.yml
+    uses: ai-warevo/.github/workflows/action-test-changelog-generate.yml@main
     permissions:
       contents: write
   changelog-promote:
     if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',changelog-promote,') }}
-    uses: ./.github/workflows/action-test-changelog-promote.yml
+    uses: ai-warevo/.github/workflows/action-test-changelog-promote.yml@main
     permissions:
       contents: write
   changelog-release:
     if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',changelog-release,') }}
-    uses: ./.github/workflows/action-test-changelog-release.yml
+    uses: ai-warevo/.github/workflows/action-test-changelog-release.yml@main
   checksums:
     if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',checksums,') }}
-    uses: ./.github/workflows/action-test-checksums.yml
+    uses: ai-warevo/.github/workflows/action-test-checksums.yml@main
   checksums-verify:
     if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',checksums-verify,') }}
-    uses: ./.github/workflows/action-test-checksums-verify.yml
+    uses: ai-warevo/.github/workflows/action-test-checksums-verify.yml@main
   coverage-parser:
     if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',coverage-parser,') }}
-    uses: ./.github/workflows/action-test-coverage-parser.yml
+    uses: ai-warevo/.github/workflows/action-test-coverage-parser.yml@main
   badge-deploy:
     if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',badge-deploy,') }}
-    uses: ./.github/workflows/action-test-badge-deploy.yml
+    uses: ai-warevo/.github/workflows/action-test-badge-deploy.yml@main
     permissions:
       contents: write
   coverage-html-deploy:
     if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',coverage-html-deploy,') }}
-    uses: ./.github/workflows/action-test-coverage-html-deploy.yml
+    uses: ai-warevo/.github/workflows/action-test-coverage-html-deploy.yml@main
     permissions:
       contents: write
   docker-save:
     if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',docker-save,') }}
-    uses: ./.github/workflows/action-test-docker-save.yml
+    uses: ai-warevo/.github/workflows/action-test-docker-save.yml@main
   docker-build-push:
     if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',docker-build-push,') }}
-    uses: ./.github/workflows/action-test-docker-build-push.yml
+    uses: ai-warevo/.github/workflows/action-test-docker-build-push.yml@main
   docker-push-ghcr:
     if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',docker-push-ghcr,') }}
-    uses: ./.github/workflows/action-test-docker-push-ghcr.yml
+    uses: ai-warevo/.github/workflows/action-test-docker-push-ghcr.yml@main
     permissions:
       contents: read
       packages: write
   download-artifacts:
     if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',download-artifacts,') }}
-    uses: ./.github/workflows/action-test-download-artifacts.yml
+    uses: ai-warevo/.github/workflows/action-test-download-artifacts.yml@main
     permissions:
       contents: read
       actions: read
   collect-release-assets:
     if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',collect-release-assets,') }}
-    uses: ./.github/workflows/action-test-collect-release-assets.yml
+    uses: ai-warevo/.github/workflows/action-test-collect-release-assets.yml@main
     permissions:
       contents: read
       actions: read
   cmake-build:
     if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',cmake-build,') }}
-    uses: ./.github/workflows/action-test-cmake-build.yml
+    uses: ai-warevo/.github/workflows/action-test-cmake-build.yml@main
   ctest-run:
     if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',ctest-run,') }}
-    uses: ./.github/workflows/action-test-ctest-run.yml
+    uses: ai-warevo/.github/workflows/action-test-ctest-run.yml@main
   gcovr-report:
     if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',gcovr-report,') }}
-    uses: ./.github/workflows/action-test-gcovr-report.yml
+    uses: ai-warevo/.github/workflows/action-test-gcovr-report.yml@main
   clang-format:
     if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',clang-format,') }}
-    uses: ./.github/workflows/action-test-clang-format.yml
+    uses: ai-warevo/.github/workflows/action-test-clang-format.yml@main
   clang-tidy:
     if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',clang-tidy,') }}
-    uses: ./.github/workflows/action-test-clang-tidy.yml
+    uses: ai-warevo/.github/workflows/action-test-clang-tidy.yml@main
   setup-toolchain:
     if: ${{ inputs.actions == '' || contains(format(',{0},', inputs.actions), ',setup-toolchain,') }}
-    uses: ./.github/workflows/action-test-setup-toolchain.yml
+    uses: ai-warevo/.github/workflows/action-test-setup-toolchain.yml@main
