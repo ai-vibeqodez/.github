@@ -43,7 +43,7 @@ runs:
 
         is_skip() {
           local line="$1"
-          [[ "$line" =~ ^(ci|chore)\( ]] || return 1
+          [[ "$line" == ci\(* || "$line" == chore\(* ]] || return 1
           for kw in "${skip_keywords[@]}"; do
             [[ "$line" == *"$kw"* ]] && return 0
           done
@@ -72,7 +72,7 @@ runs:
           local_type=""
 
           # Breaking change detection
-          if [[ "$line" =~ ^[a-z]+\([^)]*\)!\: ]] || [[ "$line" =~ ^[a-z]+!\: ]] || [[ "$line" == *"BREAKING CHANGE"* ]]; then
+          if [[ "$line" == *"BREAKING CHANGE"* || "$line" == [a-z]*")!:"* || "$line" == [a-z]*"!:"* ]]; then
             local_type="breaking"
             line="${line//!:/ :}"
           fi
@@ -81,15 +81,15 @@ runs:
           is_skip "$line" && continue
 
           # Map conventional commit prefix
-          if [[ "$line" =~ ^feat\( ]] || [[ "$line" =~ ^feat\: ]]; then
+          if [[ "$line" == feat\(* || "$line" == feat:* ]]; then
             local_type="${local_type:+$local_type,}feature"
-          elif [[ "$line" =~ ^fix\( ]] || [[ "$line" =~ ^fix\: ]]; then
+          elif [[ "$line" == fix\(* || "$line" == fix:* ]]; then
             local_type="${local_type:+$local_type,}fix"
-          elif [[ "$line" =~ ^(perf|refactor|docs|style|chore|ci|build)\( ]] || [[ "$line" =~ ^(perf|refactor|docs|style|chore|ci|build)\: ]]; then
+          elif [[ "$line" == perf\(* || "$line" == perf:* || "$line" == refactor\(* || "$line" == refactor:* || "$line" == docs\(* || "$line" == docs:* || "$line" == style\(* || "$line" == style:* || "$line" == chore\(* || "$line" == chore:* || "$line" == ci\(* || "$line" == ci:* || "$line" == build\(* || "$line" == build:* ]]; then
             local_type="${local_type:+$local_type,}change"
-          elif [[ "$line" =~ ^test\( ]] || [[ "$line" =~ ^test\: ]]; then
+          elif [[ "$line" == test\(* || "$line" == test:* ]]; then
             local_type="${local_type:+$local_type,}fix"
-          elif [[ "$line" =~ ^revert\( ]] || [[ "$line" =~ ^revert\: ]]; then
+          elif [[ "$line" == revert\(* || "$line" == revert:* ]]; then
             local_type="${local_type:+$local_type,}remove"
           else
             local_type="${local_type:+$local_type,}change"

@@ -21,6 +21,8 @@ Maintainer notes:
 
 ### Fixed
 
+- Fix changelog generation shell syntax and wait for release version/build outputs before publishing
+
 - Automate release version derivation, changelog generation, tag creation, and artifact publishing from workflow dispatch; reject invalid or empty releases
 
 
