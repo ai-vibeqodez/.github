@@ -92,7 +92,7 @@ Each reusable workflow declares its own permissions. `reusable-pr-fast.yml` uses
 
 ## Composite Actions
 
-All 21 composite actions live in `.github/actions/` and are referenced by consumer workflows using `ai-warevo/.github/.github/actions/<name>@<40-char-SHA>`. Each action has its own `README.md` with inputs, outputs, and usage examples.
+All 23 composite actions live in `.github/actions/` and are referenced by consumer workflows using `ai-warevo/.github/.github/actions/<name>@<40-char-SHA>`. Each action has its own `README.md` with inputs, outputs, and usage examples.
 
 | Action | Purpose |
 | --- | --- |
@@ -117,4 +117,5 @@ All 21 composite actions live in `.github/actions/` and are referenced by consum
 | `download-artifacts/` | Download and merge multiple artifacts by pattern |
 | `gcovr-report/` | Generate coverage reports (XML + HTML) from CMake build |
 | `release-version/` | Resolve release version from tag, input, or run_number |
+| `release-commit-tag/` | Commit release metadata, create an annotated tag, and push both |
 | `setup-toolchain/` | Compute CMake arguments for a given toolchain configuration |
