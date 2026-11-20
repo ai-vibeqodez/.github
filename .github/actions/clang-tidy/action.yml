@@ -89,7 +89,11 @@ runs:
 
         # If a .clang-tidy config file exists, let it control the checks
         # (command-line --checks overrides config file settings).
+        # Check at source_dir first, then at workspace root (parent of source_dir).
         CONFIG_FILE="${SOURCE_DIR}/.clang-tidy"
+        if [ ! -f "$CONFIG_FILE" ]; then
+          CONFIG_FILE="../.clang-tidy"
+        fi
         if [ -f "$CONFIG_FILE" ]; then
           echo "Found $CONFIG_FILE — using config file for check selection"
           CHECKS_FLAG=""
