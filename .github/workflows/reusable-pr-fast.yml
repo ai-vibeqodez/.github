@@ -96,7 +96,7 @@ jobs:
         run: bash -euo pipefail -c "$PREPARE_COMMAND"
 
       - name: Configure & Build
-        uses: ./.github/actions/cmake-build
+        uses: ai-warevo/.github/.github/actions/cmake-build@main
         with:
           source_dir: ${{ inputs.source_dir }}
           build_dir: ${{ inputs.build_dir }}
@@ -104,7 +104,7 @@ jobs:
           extra_args: ${{ inputs.extra_args }}
 
       - name: Run clang-tidy
-        uses: ./.github/actions/clang-tidy
+        uses: ai-warevo/.github/.github/actions/clang-tidy@main
         with:
           source_dir: ${{ inputs.source_dir }}
           build_dir: ${{ inputs.build_dir }}
@@ -128,7 +128,7 @@ jobs:
         run: bash -euo pipefail -c "$PREPARE_COMMAND"
 
       - name: Configure & Build
-        uses: ./.github/actions/cmake-build
+        uses: ai-warevo/.github/.github/actions/cmake-build@main
         with:
           source_dir: ${{ inputs.source_dir }}
           build_dir: ${{ inputs.build_dir }}
@@ -136,7 +136,7 @@ jobs:
           extra_args: ${{ inputs.extra_args }}
 
       - name: Run Tests
-        uses: ./.github/actions/ctest-run
+        uses: ai-warevo/.github/.github/actions/ctest-run@main
         with:
           source_dir: ${{ inputs.source_dir }}
           build_dir: ${{ inputs.build_dir }}
