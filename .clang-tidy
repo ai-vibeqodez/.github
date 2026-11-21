@@ -94,6 +94,18 @@ Checks:
   - '-abseil-string-find-str-contains'
   # Reinterpret cast: function pointer casts from dlsym are unavoidable
   - '-cppcoreguidelines-pro-type-reinterpret-cast'
+  # Macro usage: Catch2 test framework macros (TEST_CASE, REQUIRE, etc.)
+  - '-cppcoreguidelines-macro-usage'
+  # Macro to enum: Catch2 config macros (CATCH_CONFIG_*)
+  - '-cppcoreguidelines-macro-to-enum'
+  - '-modernize-macro-to-enum'
+  # Macro parentheses: Catch2 internal macro implementation
+  - '-bugprone-macro-parentheses'
+  # Enum size: Catch2 internal enums
+  - '-performance-enum-size'
+  # Member init: Catch2 internal structs
+  - '-cppcoreguidelines-pro-type-member-init'
+  - '-hicpp-member-init'
 
 WarningsAsErrors: '*'
 HeaderFilterRegex: '^(include|src)/'
