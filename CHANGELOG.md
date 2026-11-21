@@ -14,9 +14,32 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-11-21
+
+### Added
+
+- add Windows (MSVC) support to cmake-build and ctest-run actions
+
 ### Changed
 
-- `cmake-build` and `ctest-run` composite actions now support Windows (MSVC) in addition to Linux/macOS by using conditional `pwsh` shells alongside Unix `bash` shells.
+- Merge pull request #44 from ai-warevo/loktionov129-patch-1
+- Update README.md
+- ci
+- ci
+- clang-tidy
+- Merge pull request #43 from ai-vibeqodez/feat/windows-actions
+- Merge pull request #42 from ai-vibeqodez/feat/windows-actions
+- Merge pull request #41 from ai-vibeqodez/feat/windows-actions
+- Merge pull request #40 from ai-warevo/feat/windows-actions
+
+### Fixed
+
+- preserve untracked files in badge-deploy
+- remove untracked htmlcov before branch checkout
+- fetch remote branch before checkout
+- use matching gcov version explicitly
+- preserve coverage HTML during gh-pages checkout
+- ci
 
 ## [1.6.5] - 2026-11-20
 
