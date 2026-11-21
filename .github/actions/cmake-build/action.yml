@@ -56,8 +56,9 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    # ── Configure CMake ──
-    - name: Configure CMake
+    # ── Configure CMake (Linux/macOS) ──
+    - name: Configure CMake (Unix)
+      if: runner.os != 'Windows'
       shell: bash
       env:
         SOURCE_DIR: ${{ inputs.source_dir }}
@@ -113,8 +114,33 @@ runs:
           -DCMAKE_BUILD_TYPE="$BUILD_TYPE" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
           "${EXTRA_ARGS_ARRAY[@]}"
 
-    # ── Build ──
-    - name: Build
+    # ── Configure CMake (Windows) ──
+    - name: Configure CMake (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      env:
+        SOURCE_DIR: ${{ inputs.source_dir }}
+        BUILD_DIR: ${{ inputs.build_dir }}
+        BUILD_TYPE: ${{ inputs.build_type }}
+        EXTRA_ARGS: ${{ inputs.extra_args }}
+      run: |
+        $sourceDir = $env:SOURCE_DIR
+        $buildDir = $env:BUILD_DIR
+        $buildType = $env:BUILD_TYPE
+        $extraArgs = $env:EXTRA_ARGS
+        
+        $args = @("-S", $sourceDir, "-B", "$sourceDir/$buildDir", "-DCMAKE_BUILD_TYPE=$buildType", "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON")
+        if ($extraArgs) {
+          $args += $extraArgs.Split(' ')
+        }
+        
+        Write-Host "Configuring: cmake $($args -join ' ')"
+        & cmake @args
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+    # ── Build (Linux/macOS) ──
+    - name: Build (Unix)
+      if: runner.os != 'Windows'
       shell: bash
       env:
         SOURCE_DIR: ${{ inputs.source_dir }}
@@ -131,9 +157,31 @@ runs:
         echo "Building: cmake --build $SOURCE_DIR/$BUILD_DIR $PARALLEL_FLAG $CONFIG_FLAG"
         cmake --build "$SOURCE_DIR/$BUILD_DIR" $PARALLEL_FLAG $CONFIG_FLAG
 
-    # ── Install (optional) ──
-    - name: Install CMake Package
-      if: inputs.install == 'true'
+    # ── Build (Windows) ──
+    - name: Build (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      env:
+        SOURCE_DIR: ${{ inputs.source_dir }}
+        BUILD_DIR: ${{ inputs.build_dir }}
+        CONFIG: ${{ inputs.config }}
+      run: |
+        $sourceDir = $env:SOURCE_DIR
+        $buildDir = $env:BUILD_DIR
+        $config = $env:CONFIG
+        $parallel = "${{ inputs.parallel }}" -eq 'true'
+        
+        $args = @("--build", "$sourceDir/$buildDir")
+        if ($parallel) { $args += "--parallel" }
+        if ($config) { $args += "--config", $config }
+        
+        Write-Host "Building: cmake $($args -join ' ')"
+        & cmake @args
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+    # ── Install (optional, Unix) ──
+    - name: Install CMake Package (Unix)
+      if: inputs.install == 'true' && runner.os != 'Windows'
       shell: bash
       env:
         SOURCE_DIR: ${{ inputs.source_dir }}
@@ -147,3 +195,22 @@ runs:
           CONFIG_FLAG=""
         fi
         cmake --install "$SOURCE_DIR/$BUILD_DIR" $CONFIG_FLAG
+
+    # ── Install (optional, Windows) ──
+    - name: Install CMake Package (Windows)
+      if: inputs.install == 'true' && runner.os == 'Windows'
+      shell: pwsh
+      env:
+        SOURCE_DIR: ${{ inputs.source_dir }}
+        BUILD_DIR: ${{ inputs.build_dir }}
+        CONFIG: ${{ inputs.config }}
+      run: |
+        $sourceDir = $env:SOURCE_DIR
+        $buildDir = $env:BUILD_DIR
+        $config = $env:CONFIG
+        
+        $args = @("--install", "$sourceDir/$buildDir")
+        if ($config) { $args += "--config", $config }
+        
+        & cmake @args
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

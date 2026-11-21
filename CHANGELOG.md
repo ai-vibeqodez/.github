@@ -14,6 +14,10 @@ Maintainer notes:
 
 ## [Unreleased]
 
+### Changed
+
+- `cmake-build` and `ctest-run` composite actions now support Windows (MSVC) in addition to Linux/macOS by using conditional `pwsh` shells alongside Unix `bash` shells.
+
 ## [1.6.5] - 2026-11-20
 
 ### Changed

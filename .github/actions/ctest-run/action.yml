@@ -39,7 +39,9 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Run CTest
+    # ── Run CTest (Unix) ──
+    - name: Run CTest (Unix)
+      if: runner.os != 'Windows'
       shell: bash
       run: |
         cd "${{ inputs.source_dir }}/${{ inputs.build_dir }}"
@@ -54,3 +56,22 @@ runs:
           CTEST_ARGS+=("--timeout" "${{ inputs.timeout }}")
         fi
         ctest "${CTEST_ARGS[@]}"
+
+    # ── Run CTest (Windows) ──
+    - name: Run CTest (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        Set-Location "${{ inputs.source_dir }}/${{ inputs.build_dir }}"
+        $args = @()
+        if ("${{ inputs.config }}") {
+          $args += "-C", "${{ inputs.config }}"
+        }
+        if ("${{ inputs.output_on_failure }}" -eq "true") {
+          $args += "--output-on-failure"
+        }
+        if ("${{ inputs.timeout }}") {
+          $args += "--timeout", "${{ inputs.timeout }}"
+        }
+        & ctest @args
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
