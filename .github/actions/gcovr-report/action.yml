@@ -59,21 +59,25 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    # ── Pin gcov to match the compiler ──
-    - name: Pin gcov version
+    # ── Detect gcov version matching the compiler ──
+    - name: Detect gcov version
       shell: bash
+      env:
+        GCOV_EXECUTABLE: /tmp/gcov-executable
       run: |
         set -euo pipefail
         GCC_VER=$(gcc -dumpversion | cut -d. -f1)
         echo "Detected GCC version: $GCC_VER"
         if command -v gcov-${GCC_VER} &>/dev/null; then
-          mkdir -p "$GITHUB_WORKSPACE/bin"
-          ln -sf "$(which gcov-${GCC_VER})" "$GITHUB_WORKSPACE/bin/gcov"
-          export PATH="$GITHUB_WORKSPACE/bin:$PATH"
-          echo "Linked $GITHUB_WORKSPACE/bin/gcov -> gcov-${GCC_VER}"
+          GCOV_PATH=$(which gcov-${GCC_VER})
+          echo "Found gcov-${GCC_VER} at $GCOV_PATH"
+          echo "$GCOV_PATH" > "$GCOV_EXECUTABLE"
         else
           echo "WARNING: gcov-${GCC_VER} not found; using default gcov"
+          echo "gcov" > "$GCOV_EXECUTABLE"
         fi
+        echo "=== Compiler & Coverage Tool Versions ==="
+        gcc --version | head -1
         gcov --version | head -1
         gcovr --version
 
@@ -88,11 +92,15 @@ runs:
         EXCLUDE: ${{ inputs.exclude }}
         OUTPUT_DIR: ${{ inputs.output_dir }}
         XML_PATH: ${{ inputs.xml_path }}
+        GCOV_EXECUTABLE: /tmp/gcov-executable
       run: |
         set -euo pipefail
 
         BUILD_ROOT="$GITHUB_WORKSPACE/${SOURCE_DIR}/${BUILD_DIR}"
         SOURCE_ABS="$GITHUB_WORKSPACE/${SOURCE_DIR}"
+
+        # Read the gcov executable determined in previous step
+        GCOV_CMD=$(cat "$GCOV_EXECUTABLE")
 
         # Collect exclude args
         EXCLUDE_ARGS=""
@@ -112,9 +120,10 @@ runs:
         mkdir -p "$OUTPUT_DIR"
 
         echo "=== Running gcovr ==="
-        echo "gcovr -r $BUILD_ROOT $FILTER_ARGS $EXCLUDE_ARGS --xml $XML_PATH --html-details $OUTPUT_DIR/index.html"
+        echo "gcovr -r $BUILD_ROOT --gcov-executable $GCOV_CMD $FILTER_ARGS $EXCLUDE_ARGS --xml $XML_PATH --html-details $OUTPUT_DIR/index.html"
 
         gcovr -r "$BUILD_ROOT" \
+          --gcov-executable "$GCOV_CMD" \
           --gcov-ignore-errors=no_working_dir_found \
           $FILTER_ARGS \
           $EXCLUDE_ARGS \
