@@ -35,6 +35,16 @@ runs:
         fi
 
         commits="$(git log --pretty=format:'%s' "$range" 2>/dev/null || true)"
+        
+        # Check if [Unreleased] already has entries (unless --force).
+        if [ "$FORCE" != "true" ] && grep -q '^## \[Unreleased\]' "$changelog"; then
+          unreleased_body="$(awk '/^## \[Unreleased\]/ { found=1; next } found && /^## \[/ { exit } found { print }' "$changelog")"
+          if [ -n "$unreleased_body" ]; then
+            echo "::error::[Unreleased] already has entries. Use --force to overwrite, or run release first."
+            exit 1
+          fi
+        fi
+        
         [ -n "$commits" ] || { echo "No commits found in $range"; exit 0; }
 
         # Categorize commits.
@@ -100,15 +110,6 @@ runs:
             add_entry "$t" "$line"
           done
         done <<< "$commits"
-
-        # Check if [Unreleased] already has entries (unless --force).
-        if [ "$FORCE" != "true" ] && grep -q '^## \[Unreleased\]' "$changelog"; then
-          unreleased_body="$(awk '/^## \[Unreleased\]/ { found=1; next } found && /^## \[/ { exit } found { print }' "$changelog")"
-          if [ -n "$unreleased_body" ]; then
-            echo "::error::[Unreleased] already has entries. Use --force to overwrite, or run release first."
-            exit 1
-          fi
-        fi
 
         # Build section.
         section_file="$(mktemp)"
