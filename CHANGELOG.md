@@ -14,6 +14,23 @@ Maintainer notes:
 
 ## [Unreleased]
 
+## [1.8.0] - 2026-11-21
+
+### Added
+
+- add setup_command parameter to reusable workflows
+
+### Changed
+
+- ci
+- concurrency
+- Merge pull request #45 from ai-vibeqodez/fix/sanitizers-libstdcxx
+
+### Fixed
+
+- fixes
+- ASan+UBSan job — use clang18-libstdcxx instead of libc++
+
 ## [1.7.0] - 2026-11-21
 
 ### Added
