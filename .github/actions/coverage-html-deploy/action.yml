@@ -76,9 +76,12 @@ runs:
         fi
 
         # Create or checkout the target branch
-        if git rev-parse --verify "$BRANCH" >/dev/null 2>&1; then
+        if git ls-remote --heads origin "$BRANCH" | grep -q "$BRANCH"; then
+          # Branch exists on remote, check it out
+          git fetch origin "$BRANCH:$BRANCH" 2>/dev/null || true
           git checkout "$BRANCH"
         else
+          # Branch doesn't exist, create it as orphan
           git checkout --orphan "$BRANCH"
           git rm -rf . 2>/dev/null || true
         fi
