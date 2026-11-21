@@ -15,6 +15,7 @@
 #   tsan_test_regex     — CTest regex for TSan repeat tests (default: empty, skips repeat)
 #   asan_options        — ASAN_OPTIONS env override (default: detect_leaks=1:halt_on_error=1)
 #   tsan_options        — TSAN_OPTIONS env override (default: halt_on_error=1:second_deadlock_stack=1)
+#   setup_command         — Optional Bash command to prepare the source tree after checkout
 
 name: reusable-sanitizers
 
@@ -61,6 +62,10 @@ on:
         description: 'TSAN_OPTIONS env override'
         type: string
         default: 'halt_on_error=1:second_deadlock_stack=1'
+      setup_command:
+        description: 'Optional Bash command to prepare the source tree after checkout'
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -79,6 +84,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Prepare source tree
+        if: inputs.setup_command != ''
+        shell: bash
+        env:
+          PREPARE_COMMAND: ${{ inputs.setup_command }}
+        run: bash -euo pipefail -c "$PREPARE_COMMAND"
 
       - name: Install toolchain
         id: tc
@@ -118,6 +130,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Prepare source tree
+        if: inputs.setup_command != ''
+        shell: bash
+        env:
+          PREPARE_COMMAND: ${{ inputs.setup_command }}
+        run: bash -euo pipefail -c "$PREPARE_COMMAND"
 
       - name: Prepare TSan runner
         id: tsan
