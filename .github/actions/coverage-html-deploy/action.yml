@@ -65,6 +65,16 @@ runs:
           exit 1
         fi
 
+        # Save coverage HTML to temp location (git checkout will remove untracked files)
+        TEMP_COV="$(mktemp -d)"
+        if [ -d "$FOLDER" ]; then
+          cp -r "$FOLDER"/. "$TEMP_COV/"
+          echo "Saved coverage HTML to temp: $TEMP_COV ($(du -sh $TEMP_COV | cut -f1))"
+        else
+          echo "::error::Coverage folder $FOLDER does not exist"
+          exit 1
+        fi
+
         # Create or checkout the target branch
         if git rev-parse --verify "$BRANCH" >/dev/null 2>&1; then
           git checkout "$BRANCH"
@@ -73,11 +83,12 @@ runs:
           git rm -rf . 2>/dev/null || true
         fi
 
-        # Copy coverage HTML to target folder
+        # Copy coverage HTML from temp to target folder
         mkdir -p "$TARGET"
-        # Use cp with --no-target-directory to handle dotfiles and avoid overwriting target itself
-        (cd "$FOLDER" && find . -mindepth 1 -exec cp -r --parents {} "$TARGET/" \; 2>/dev/null) || \
-          cp -r "$FOLDER"/. "$TARGET/"
+        cp -r "$TEMP_COV"/. "$TARGET/"
+        rm -rf "$TEMP_COV"
+        
+        echo "Deployed coverage HTML to $TARGET/ ($(find $TARGET -type f | wc -l) files)"
 
         # Commit and push
         git add -A
