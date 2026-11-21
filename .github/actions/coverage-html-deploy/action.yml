@@ -75,6 +75,9 @@ runs:
           exit 1
         fi
 
+        # Remove the original folder so git checkout doesn't complain about untracked files
+        rm -rf "$FOLDER"
+
         # Create or checkout the target branch
         if git ls-remote --heads origin "$BRANCH" | grep -q "$BRANCH"; then
           # Branch exists on remote, check it out
