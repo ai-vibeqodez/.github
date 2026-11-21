@@ -106,6 +106,8 @@ Checks:
   # Member init: Catch2 internal structs
   - '-cppcoreguidelines-pro-type-member-init'
   - '-hicpp-member-init'
+  # Nodiscard: Catch2 functions lack [[nodiscard]]
+  - '-modernize-use-nodiscard'
 
 WarningsAsErrors: '*'
 HeaderFilterRegex: '^(include|src)/'
