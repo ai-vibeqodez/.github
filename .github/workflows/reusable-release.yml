@@ -40,10 +40,6 @@ permissions:
   contents: write
   actions: write
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
-
 jobs:
   # ── Phase 1: Derive version from changelog ──────────────────────────
   version-derive:
