@@ -1,4 +1,5 @@
-#pragma once
+#ifndef AW_GITHUB_PLATFORM_H
+#define AW_GITHUB_PLATFORM_H
 
 #include <optional>
 #include <string>
@@ -59,3 +60,5 @@ void* resolve_symbol(LibraryHandle& lib, std::string_view name);
 std::optional<std::string> find_plugin();
 
 } // namespace aw::example::platform
+
+#endif  // AW_GITHUB_PLATFORM_H

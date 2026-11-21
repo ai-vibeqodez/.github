@@ -49,6 +49,13 @@
 **Complexity**: Medium
 **Dependencies**: None; use ai-warevo-ci-infrastructure-integrator afterward for selective catalog merging
 
+## ai-warevo-cpp-init/ — C++ Project Init
+**Purpose**: Create a new C++23 project from the template_cpp generator.
+**Input**: Project name, type (cli/static/dynamic), namespace
+**Output**: New project directory with CMakeLists.txt, src/, include/, tests/
+**Complexity**: Low
+**Dependencies**: template_cpp repository
+
 ## ai-warevo-orchestrator/ — Org Repo Worker (Orchestrator)
 **Purpose**: Orchestrates the full autonomous workflow by delegating to specialized sub-skills. Does not implement steps directly — delegates and verifies.
 **Input**: Issue number or task description, target repository

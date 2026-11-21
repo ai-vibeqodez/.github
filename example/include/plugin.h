@@ -1,4 +1,5 @@
-#pragma once
+#ifndef AW_GITHUB_PLUGIN_H
+#define AW_GITHUB_PLUGIN_H
 
 #include <string_view>
 
@@ -54,3 +55,5 @@ extern "C" PLUGIN_API int plugin_compute(int a, int b, int op);
 extern "C" PLUGIN_API const char* plugin_op_name(int op);
 
 } // namespace aw::example::plugin
+
+#endif  // AW_GITHUB_PLUGIN_H

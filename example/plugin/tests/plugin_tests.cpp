@@ -11,6 +11,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
+#include <string_view>
 
 #include "plugin.h"
 
@@ -29,7 +30,7 @@ TEST_CASE("plugin_version returns 1", "[version]") {
 // ── plugin_version_string ─────────────────────────────────────────────────
 
 TEST_CASE("plugin_version_string returns non-empty", "[version]") {
-    auto s = aw::example::plugin::plugin_version_string();
+    const auto* s = aw::example::plugin::plugin_version_string();
     REQUIRE(s != nullptr);
     REQUIRE(std::string_view(s).find("plugin-api") != std::string_view::npos);
 }

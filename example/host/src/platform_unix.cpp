@@ -10,6 +10,7 @@
 
 #include "platform.h"
 
+#include <array>
 #include <dlfcn.h>
 #include <format>
 #include <iostream>
@@ -30,7 +31,7 @@ std::optional<LibraryHandle> load_library(const std::string& path) {
     LibraryHandle lib;
     lib.handle = dlopen(path.c_str(), RTLD_NOW | RTLD_LOCAL);
 
-    if (!lib.handle) {
+    if (lib.handle == nullptr) {
         std::cerr << std::format("[host] dlopen failed: {} for '{}'", dlerror(), path) << '\n';
         return std::nullopt;
     }
@@ -41,7 +42,9 @@ std::optional<LibraryHandle> load_library(const std::string& path) {
 // ── unload_library ───────────────────────────────────────────────────────
 
 void unload_library(LibraryHandle& lib) {
-    if (!lib.handle) return;
+    if (lib.handle == nullptr) {
+        return;
+    }
     dlclose(lib.handle);
     lib.handle = nullptr;
 }
@@ -49,17 +52,19 @@ void unload_library(LibraryHandle& lib) {
 // ── resolve_symbol ───────────────────────────────────────────────────────
 
 void* resolve_symbol(LibraryHandle& lib, std::string_view name) {
-    if (!lib.handle) return nullptr;
+    if (lib.handle == nullptr) {
+        return nullptr;
+    }
 
-    dlerror(); // Reset
-    auto sym = dlsym(lib.handle, name.data());
+    dlerror();
+    auto* sym = dlsym(lib.handle, name.data());
 
-    if (auto err = dlerror()) {
+    if (auto* err = dlerror()) {
         std::cerr << std::format("[host] dlsym('{}') failed: {}", name, err) << '\n';
         return nullptr;
     }
 
-    if (!sym) {
+    if (sym == nullptr) {
         std::cerr << std::format("[host] symbol '{}' not found", name) << '\n';
         return nullptr;
     }
@@ -71,7 +76,7 @@ void* resolve_symbol(LibraryHandle& lib, std::string_view name) {
 
 std::optional<std::string> find_plugin() {
     // 1. ENV var PLUGIN_PATH
-    if (auto env = std::getenv("PLUGIN_PATH")) {
+    if (auto* env = std::getenv("PLUGIN_PATH")) {
         return env;
     }
 
@@ -80,7 +85,7 @@ std::optional<std::string> find_plugin() {
     char exe_path[MAXPATHLEN] = {0};
     uint32_t size = sizeof(exe_path);
     if (_NSGetExecutablePath(exe_path, &size) == 0) {
-        std::string dir = exe_path;
+        std::string dir{exe_path};
         auto slash = dir.find_last_of('/');
         if (slash != std::string::npos) {
             dir = dir.substr(0, slash) + "/libplugin.so";
@@ -88,11 +93,11 @@ std::optional<std::string> find_plugin() {
         }
     }
 #else
-    char exe_path[PATH_MAX] = {0};
-    ssize_t len = readlink("/proc/self/exe", exe_path, sizeof(exe_path) - 1);
+    std::array<char, PATH_MAX> exe_path{};
+    ssize_t len = readlink("/proc/self/exe", exe_path.data(), exe_path.size() - 1);
     if (len > 0) {
-        exe_path[len] = '\0';
-        std::string dir = exe_path;
+        exe_path[static_cast<size_t>(len)] = '\0';
+        std::string dir{exe_path.data()};
         auto slash = dir.find_last_of('/');
         if (slash != std::string::npos) {
             dir = dir.substr(0, slash) + "/libplugin.so";

@@ -24,7 +24,7 @@ std::optional<LibraryHandle> load_library(const std::string& path) {
     LibraryHandle lib;
     lib.handle = LoadLibraryA(path.c_str());
 
-    if (!lib.handle) {
+    if (lib.handle == nullptr) {
         auto err = GetLastError();
         std::cerr << std::format("[host] LoadLibrary failed: error code {} for '{}'", err, path) << '\n';
         return std::nullopt;
@@ -36,7 +36,9 @@ std::optional<LibraryHandle> load_library(const std::string& path) {
 // ── unload_library ───────────────────────────────────────────────────────
 
 void unload_library(LibraryHandle& lib) {
-    if (!lib.handle) return;
+    if (lib.handle == nullptr) {
+        return;
+    }
     FreeLibrary(static_cast<HMODULE>(lib.handle));
     lib.handle = nullptr;
 }
@@ -44,11 +46,13 @@ void unload_library(LibraryHandle& lib) {
 // ── resolve_symbol ───────────────────────────────────────────────────────
 
 void* resolve_symbol(LibraryHandle& lib, std::string_view name) {
-    if (!lib.handle) return nullptr;
+    if (lib.handle == nullptr) {
+        return nullptr;
+    }
 
     auto sym = GetProcAddress(static_cast<HMODULE>(lib.handle), name.data());
 
-    if (!sym) {
+    if (sym == nullptr) {
         std::cerr << std::format("[host] symbol '{}' not found", name) << '\n';
         return nullptr;
     }

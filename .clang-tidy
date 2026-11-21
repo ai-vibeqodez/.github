@@ -61,7 +61,7 @@ Checks:
   # Altera / Fuchsia specific (embedded / OS checks, not applicable)
   - '-altera-*'
   - '-fuchsia-*'
-  # Header guard: we use #pragma once
+  # Header guard: standard include guards (AW_<PROJECT>_<PATH>_HPP)
   - '-llvm-header-guard'
   # Non-private member variables: detail structs have public fields by design
   - '-misc-non-private-member-variables-in-classes'
@@ -80,6 +80,20 @@ Checks:
   - '-google-explicit-constructor'
   # Cognitive complexity: when_all is inherently complex (32 vs threshold 25)
   - '-readability-function-cognitive-complexity'
+  # Anonymous namespace: Catch2 TEST_CASE design
+  - '-misc-use-anonymous-namespace'
+  # Do-while: Catch2 REQUIRE/REQUIRE_THROWS macros
+  - '-cppcoreguidelines-avoid-do-while'
+  # String view data usage: dlsym requires C-string, not applicable
+  - '-bugprone-suspicious-stringview-data-usage'
+  # MT-unsafe: startup code, not multi-threaded
+  - '-concurrency-mt-unsafe'
+  # Constant array index: validated access
+  - '-cppcoreguidelines-pro-bounds-constant-array-index'
+  # Abseil string find: standard library idiom, no abseil dependency
+  - '-abseil-string-find-str-contains'
+  # Reinterpret cast: function pointer casts from dlsym are unavoidable
+  - '-cppcoreguidelines-pro-type-reinterpret-cast'
 
 WarningsAsErrors: '*'
 HeaderFilterRegex: '^(include|src)/'
