@@ -84,10 +84,11 @@ runs:
         mkdir -p "$TARGET"
         cp -r badge-upload/* "$TARGET/"
 
-        # Clean the working tree while preserving .git
-        git rm -rf --cached . 2>/dev/null || true
-        # Remove all files/dirs except .git
-        find . -mindepth 1 -not -name '.git' -not -path './.git/*' -not -path './.git' -exec rm -rf {} + 2>/dev/null || true
+        # Remove all tracked files except the badge we just added
+        git rm -rf . 2>/dev/null || true
+        
+        # Re-add the badge (it might have been removed if it was previously tracked)
+        git add "$TARGET/"
 
         # Commit and push
         git add -A
