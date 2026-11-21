@@ -54,7 +54,7 @@ inputs:
     required: false
     default: '.*'
   exclude:
-    description: 'Directory names to exclude from compile database paths (comma-separated)'
+    description: 'Directory names or file names to exclude from compile database paths (comma-separated)'
     required: false
     default: '_deps,build,CMakeFiles,cmake'
   fail_on_error:
@@ -122,21 +122,36 @@ runs:
 
           relative_file=${file#"$SOURCE_PATH"/}
           excluded=false
-          IFS='/' read -ra path_parts <<< "$relative_file"
-          for part in "${path_parts[@]::${#path_parts[@]}-1}"; do
-            for exc in "${EXCLUDE_NAMES[@]}"; do
-              if [ "$part" = "$exc" ]; then
-                excluded=true
-                break 2
-              fi
-            done
+          
+          # Check if filename matches exclude pattern
+          filename=$(basename "$file")
+          for exc in "${EXCLUDE_NAMES[@]}"; do
+            if [ "$filename" = "$exc" ]; then
+              excluded=true
+              break
+            fi
           done
+          
+          # Check if any directory component matches exclude pattern
+          if [ "$excluded" = false ]; then
+            IFS='/' read -ra path_parts <<< "$relative_file"
+            for part in "${path_parts[@]::${#path_parts[@]}-1}"; do
+              for exc in "${EXCLUDE_NAMES[@]}"; do
+                if [ "$part" = "$exc" ]; then
+                  excluded=true
+                  break 2
+                fi
+              done
+            done
+          fi
+          
           [ "$excluded" = true ] && continue
 
           if ! clang-tidy "$file" \
             -p "$BUILD_PATH" \
             $CHECKS_FLAG \
             --header-filter="$HEADER_FILTER" \
+            --warnings-as-errors='*' \
             --format-style=file 2>&1; then
             ERRORS=$((ERRORS + 1))
             WARNINGS="$WARNINGS  - $file\n"
