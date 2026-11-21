@@ -1,0 +1,159 @@
+# reusable-matrix — cross-platform build + test matrix
+#
+# Reusable workflow (workflow_call).
+# Consumers call via:
+#   uses: ai-warevo/.github/.github/workflows/reusable-matrix.yml@main
+#
+# Parameters:
+#   source_dir          — source directory (default: .)
+#   build_dir           — build directory (default: build)
+#   container_image     — CI container image for Linux (default: ghcr.io/ai-warevo/ci-cpp23)
+#   linux_toolchains    — JSON array of Linux toolchains (default: ["clang18-libcxx", "gcc15"])
+#   build_types         — JSON array of build types (default: ["Debug", "Release"])
+#   enable_windows      — Enable Windows MSVC builds (default: true)
+#   cmake_extra_args_linux   — Extra CMake args for Linux builds (default: empty)
+#   cmake_extra_args_windows — Extra CMake args for Windows builds (default: empty)
+#   ctest_timeout       — CTest timeout in seconds (default: 120)
+#   post_build_command  — Optional command to run after tests (default: empty)
+
+name: reusable-matrix
+
+on:
+  workflow_call:
+    inputs:
+      source_dir:
+        description: 'Source directory'
+        type: string
+        default: '.'
+      build_dir:
+        description: 'Build directory'
+        type: string
+        default: build
+      container_image:
+        description: 'CI container image for Linux jobs'
+        type: string
+        default: ghcr.io/ai-warevo/ci-cpp23
+      linux_toolchains:
+        description: 'JSON array of Linux toolchains (e.g., ["clang18-libcxx", "gcc15"])'
+        type: string
+        default: '["clang18-libcxx", "gcc15"]'
+      build_types:
+        description: 'JSON array of build types (e.g., ["Debug", "Release"])'
+        type: string
+        default: '["Debug", "Release"]'
+      enable_windows:
+        description: 'Enable Windows MSVC builds'
+        type: boolean
+        default: true
+      cmake_extra_args_linux:
+        description: 'Extra CMake args for Linux builds'
+        type: string
+        default: ''
+      cmake_extra_args_windows:
+        description: 'Extra CMake args for Windows builds'
+        type: string
+        default: ''
+      ctest_timeout:
+        description: 'CTest timeout in seconds'
+        type: number
+        default: 120
+      post_build_command:
+        description: 'Optional command to run after tests'
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test-linux:
+    name: ${{ matrix.toolchain }} / ${{ matrix.build_type }}
+    strategy:
+      fail-fast: false
+      matrix:
+        toolchain: ${{ fromJSON(inputs.linux_toolchains) }}
+        build_type: ${{ fromJSON(inputs.build_types) }}
+
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ inputs.container_image }}
+      options: --user root
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Install toolchain
+        id: tc
+        uses: ai-warevo/.github/.github/actions/setup-toolchain@main
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          container_mode: true
+
+      - name: Configure & Build
+        uses: ai-warevo/.github/.github/actions/cmake-build@main
+        with:
+          source_dir: ${{ inputs.source_dir }}
+          build_dir: ${{ inputs.build_dir }}
+          build_type: ${{ matrix.build_type }}
+          extra_args: >-
+            ${{ steps.tc.outputs.cmake_args }}
+            ${{ inputs.cmake_extra_args_linux }}
+
+      - name: Run Tests
+        uses: ai-warevo/.github/.github/actions/ctest-run@main
+        with:
+          source_dir: ${{ inputs.source_dir }}
+          build_dir: ${{ inputs.build_dir }}
+          config: ${{ matrix.build_type }}
+          output_on_failure: true
+          timeout: ${{ inputs.ctest_timeout }}
+
+      - name: Post-build command
+        if: inputs.post_build_command != ''
+        working-directory: ${{ inputs.source_dir }}
+        run: ${{ inputs.post_build_command }}
+
+  build-test-windows:
+    name: Windows MSVC / ${{ matrix.build_type }}
+    if: inputs.enable_windows
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: ${{ fromJSON(inputs.build_types) }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Setup MSVC environment
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Configure & Build
+        uses: ai-warevo/.github/.github/actions/cmake-build@main
+        with:
+          source_dir: ${{ inputs.source_dir }}
+          build_dir: ${{ inputs.build_dir }}
+          build_type: ${{ matrix.build_type }}
+          config: ${{ matrix.build_type }}
+          extra_args: ${{ inputs.cmake_extra_args_windows }}
+
+      - name: Run Tests
+        uses: ai-warevo/.github/.github/actions/ctest-run@main
+        with:
+          source_dir: ${{ inputs.source_dir }}
+          build_dir: ${{ inputs.build_dir }}
+          config: ${{ matrix.build_type }}
+          output_on_failure: true
+          timeout: ${{ inputs.ctest_timeout }}
+
+      - name: Post-build command (Windows)
+        if: inputs.post_build_command != ''
+        working-directory: ${{ inputs.source_dir }}
+        shell: pwsh
+        run: ${{ inputs.post_build_command }}

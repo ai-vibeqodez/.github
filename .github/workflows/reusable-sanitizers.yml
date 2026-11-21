@@ -1,0 +1,170 @@
+# reusable-sanitizers — ASan + UBSan + TSan
+#
+# Reusable workflow (workflow_call).
+# Consumers call via:
+#   uses: ai-warevo/.github/.github/workflows/reusable-sanitizers.yml@main
+#
+# Parameters:
+#   source_dir          — source directory (default: .)
+#   build_dir           — build directory (default: build)
+#   container_image     — CI container image (default: ghcr.io/ai-warevo/ci-cpp23)
+#   cmake_sanitize_var  — CMake variable name for sanitizer control (default: AW_TPL_SANITIZE)
+#   cmake_extra_args    — Extra CMake args for all sanitizer builds (default: empty)
+#   ctest_timeout       — CTest timeout in seconds (default: 300)
+#   tsan_repeat_count   — Repeat count for TSan concurrency tests (default: 30)
+#   tsan_test_regex     — CTest regex for TSan repeat tests (default: empty, skips repeat)
+#   asan_options        — ASAN_OPTIONS env override (default: detect_leaks=1:halt_on_error=1)
+#   tsan_options        — TSAN_OPTIONS env override (default: halt_on_error=1:second_deadlock_stack=1)
+
+name: reusable-sanitizers
+
+on:
+  workflow_call:
+    inputs:
+      source_dir:
+        description: 'Source directory'
+        type: string
+        default: '.'
+      build_dir:
+        description: 'Build directory'
+        type: string
+        default: build
+      container_image:
+        description: 'CI container image'
+        type: string
+        default: ghcr.io/ai-warevo/ci-cpp23
+      cmake_sanitize_var:
+        description: 'CMake variable name for sanitizer (e.g., AW_TPL_SANITIZE, SANITIZE)'
+        type: string
+        default: AW_TPL_SANITIZE
+      cmake_extra_args:
+        description: 'Extra CMake args for sanitizer builds'
+        type: string
+        default: ''
+      ctest_timeout:
+        description: 'CTest timeout in seconds'
+        type: number
+        default: 300
+      tsan_repeat_count:
+        description: 'Repeat count for TSan concurrency tests'
+        type: number
+        default: 30
+      tsan_test_regex:
+        description: 'CTest regex for TSan repeat tests (empty = skip repeat)'
+        type: string
+        default: ''
+      asan_options:
+        description: 'ASAN_OPTIONS env override'
+        type: string
+        default: 'detect_leaks=1:halt_on_error=1'
+      tsan_options:
+        description: 'TSAN_OPTIONS env override'
+        type: string
+        default: 'halt_on_error=1:second_deadlock_stack=1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  asan-ubsan:
+    name: ASan + UBSan (clang-18, libc++)
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ inputs.container_image }}
+      options: --user root
+    env:
+      ASAN_OPTIONS: ${{ inputs.asan_options }}
+      UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Install toolchain
+        id: tc
+        uses: ai-warevo/.github/.github/actions/setup-toolchain@main
+        with:
+          toolchain: clang18-libcxx
+          container_mode: true
+          sanitizer: address
+          sanitizer_runtime: 'true'
+
+      - name: Configure & Build
+        uses: ai-warevo/.github/.github/actions/cmake-build@main
+        with:
+          source_dir: ${{ inputs.source_dir }}
+          build_dir: ${{ inputs.build_dir }}
+          build_type: RelWithDebInfo
+          extra_args: >-
+            ${{ steps.tc.outputs.cmake_args }}
+            -D${{ inputs.cmake_sanitize_var }}=address
+            ${{ inputs.cmake_extra_args }}
+
+      - name: Run Tests
+        uses: ai-warevo/.github/.github/actions/ctest-run@main
+        with:
+          source_dir: ${{ inputs.source_dir }}
+          build_dir: ${{ inputs.build_dir }}
+          config: RelWithDebInfo
+          output_on_failure: true
+          timeout: ${{ inputs.ctest_timeout }}
+
+  tsan:
+    name: TSan (clang-18, libstdc++)
+    runs-on: ubuntu-latest
+    env:
+      TSAN_OPTIONS: ${{ inputs.tsan_options }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Prepare TSan runner
+        id: tsan
+        uses: ai-warevo/.github/.github/actions/setup-tsan@main
+        with:
+          toolchain: clang18-libstdcxx
+          container_mode: false
+
+      - name: Install toolchain
+        id: tc
+        uses: ai-warevo/.github/.github/actions/setup-toolchain@main
+        with:
+          toolchain: clang18-libstdcxx
+          container_mode: false
+          sanitizer: thread
+          sanitizer_runtime: 'true'
+
+      - name: Configure & Build
+        uses: ai-warevo/.github/.github/actions/cmake-build@main
+        with:
+          source_dir: ${{ inputs.source_dir }}
+          build_dir: ${{ inputs.build_dir }}
+          build_type: RelWithDebInfo
+          extra_args: >-
+            ${{ steps.tsan.outputs.stdlib_override }}
+            ${{ steps.tc.outputs.cmake_args }}
+            -D${{ inputs.cmake_sanitize_var }}=thread
+            ${{ inputs.cmake_extra_args }}
+
+      - name: Run Tests
+        uses: ai-warevo/.github/.github/actions/ctest-run@main
+        with:
+          source_dir: ${{ inputs.source_dir }}
+          build_dir: ${{ inputs.build_dir }}
+          config: RelWithDebInfo
+          output_on_failure: true
+          timeout: ${{ inputs.ctest_timeout }}
+
+      - name: Repeat concurrency tests
+        if: inputs.tsan_test_regex != ''
+        working-directory: ${{ inputs.source_dir }}/${{ inputs.build_dir }}
+        run: |
+          ctest -C RelWithDebInfo -R "${{ inputs.tsan_test_regex }}" \
+            --repeat until-fail:${{ inputs.tsan_repeat_count }} \
+            --output-on-failure \
+            --timeout ${{ inputs.ctest_timeout }}
